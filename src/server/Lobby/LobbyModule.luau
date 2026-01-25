@@ -74,7 +74,6 @@ local function startGame()
     for player, _ in pairs(active) do
         if Players:FindFirstChild(player.Name) then
             table.insert(playersToTeleport, player)
-            removeHighlight(player)
         end
     end
 
@@ -86,18 +85,20 @@ local function startGame()
     UpdatePadCount:FireAllClients(0, MAX_PLAYERS)
 
     local ok, err = pcall(function()
-        TeleportService:TeleportPartyAsync(
+        TeleportService:TeleportAsync(
             TELEPORT_PLACE_ID,
             playersToTeleport
         )
     end)
 
     if not ok then
-        warn("TeleportPartyAsync failed:", err)
+        warn("TeleportAsync failed:", err)
 
         local spawn: SpawnLocation? = workspace:FindFirstChild("SpawnLocation")
         if spawn then
             for _, player in ipairs(playersToTeleport) do
+                removeHighlight(player)
+                InQueueLabel:FireClient(player, false)
                 if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                     player.Character.HumanoidRootPart.CFrame = spawn.CFrame + Vector3.new(0, 3, 0)
                 end
@@ -245,6 +246,8 @@ function LobbyModule.init()
     Players.PlayerAdded:Connect(function(player)
         UpdatePadCount:FireClient(player, countActive(), MAX_PLAYERS)
     end)
+
+    TeleportService:SetTeleportSetting("ShouldReserveServer", true)
 end
 
 return LobbyModule

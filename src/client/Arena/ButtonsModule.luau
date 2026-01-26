@@ -70,7 +70,12 @@ function ButtonsModule.setButtons(indices: Indices)
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local clickDetector = buttonPart:FindFirstChild("ClickDetector") :: ClickDetector
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
-            highlight.Enabled = obj.highlighted or false
+
+            if obj.highlighted then
+                highlight.OutlineTransparency = 0
+            else
+                highlight.OutlineTransparency = 1
+            end
 
             local color
             if obj.disabled then
@@ -81,6 +86,7 @@ function ButtonsModule.setButtons(indices: Indices)
                 clickDetector.MaxActivationDistance = 32
             end
 
+            highlight.FillColor = color
             surfaceLight.Color = color
             buttonPart.Color = color
 
@@ -106,7 +112,13 @@ function ButtonsModule.updateButtons(indices: Indices)
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local clickDetector = buttonPart:FindFirstChild("ClickDetector") :: ClickDetector
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
-            highlight.Enabled = obj.highlighted or false
+
+            if obj.highlighted then
+                highlight.OutlineTransparency = 0
+            else
+                highlight.OutlineTransparency = 1
+            end
+
             local color
             if obj.disabled then
                 color = Color3.new(0.17, 0.17, 0.17)

@@ -10,6 +10,11 @@ local loadedPlayers = {}
 local PlayerLoaded = Instance.new("RemoteEvent", ReplicatedStorage)
 PlayerLoaded.Name = "PlayerLoaded"
 
+local mainText: TextLabel = workspace
+    :WaitForChild("TerminalScreen")
+    :WaitForChild("SurfaceGui")
+    :WaitForChild("mainText")
+
 local function allPlayersLoaded()
     for _, player in Players:GetPlayers() do
         if not loadedPlayers[player] then
@@ -24,6 +29,8 @@ function ArenaModule.init()
     local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
     ButtonsModule.init()
     TimerModule.start()
+
+    mainText.Text = "Waiting for players..."
 
     PlayerLoaded.OnServerEvent:Connect(function(player)
         loadedPlayers[player] = true
@@ -45,6 +52,10 @@ function ArenaModule.init()
                 break
             end
         end
+
+        TimerModule.setTime(5)
+        task.wait(5)
+
         TimerModule.setTime(30)
 
         print("loaded")

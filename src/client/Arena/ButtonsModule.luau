@@ -9,7 +9,7 @@ local ButtonsModule = {}
 local buttonSpawn: Part = workspace:WaitForChild("ButtonSpawn")
 local buttonTemplate: Model = ReplicatedStorage:WaitForChild("ButtonTemplate")
 
-type Indices = { { idx: number, text: string, disabled: boolean? } }
+type Indices = { { idx: number, text: string, disabled: boolean?, highlighted: boolean? } }
 
 local GAP = 4;
 local BUTTONS = {
@@ -69,6 +69,8 @@ function ButtonsModule.setButtons(indices: Indices)
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local clickDetector = buttonPart:FindFirstChild("ClickDetector") :: ClickDetector
+            local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
+            highlight.Enabled = obj.highlighted or false
 
             local color
             if obj.disabled then
@@ -103,7 +105,8 @@ function ButtonsModule.updateButtons(indices: Indices)
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local clickDetector = buttonPart:FindFirstChild("ClickDetector") :: ClickDetector
-
+            local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
+            highlight.Enabled = obj.highlighted or false
             local color
             if obj.disabled then
                 color = Color3.new(0.17, 0.17, 0.17)

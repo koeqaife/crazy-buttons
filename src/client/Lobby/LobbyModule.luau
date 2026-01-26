@@ -1,3 +1,6 @@
+--!strict
+--!optimize 2
+
 local LobbyModule = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -32,10 +35,12 @@ local function updateBoardText()
 end
 
 function LobbyModule.init()
-    UpdatePadCount.OnClientEvent:Connect(function(count: number, max: number)
-        boardText.players = "Players " .. count .. "/" .. max
-        updateBoardText()
-    end)
+    UpdatePadCount.OnClientEvent:Connect(
+        function(count: number, max: number)
+            boardText.players = "Players " .. count .. "/" .. max
+            updateBoardText()
+        end
+    )
 
     PadCountdown.OnClientEvent:Connect(
         function(state: string, reason_or_num: any)

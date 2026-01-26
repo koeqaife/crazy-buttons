@@ -1,3 +1,6 @@
+--!strict
+--!optimize 2
+
 local LobbyModule = {}
 
 local MAX_PLAYERS = 20
@@ -10,8 +13,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TeleportService = game:GetService("TeleportService")
 
 local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
-local active = {}
-local queue = {}
+local active: {[Player]: boolean} = {}
+local queue: {Player} = {}
 
 local UpdatePadCount = Instance.new("RemoteEvent", ReplicatedStorage)
 UpdatePadCount.Name = "UpdatePadCount"
@@ -33,7 +36,7 @@ local function countActive()
     return count
 end
 
-local function addHighlight(player)
+local function addHighlight(player: Player)
     if player.Character and not player.Character:FindFirstChild("PadHighlight") then
         local highlight = Instance.new("Highlight")
         highlight.Name = "PadHighlight"
@@ -46,7 +49,7 @@ local function addHighlight(player)
     end
 end
 
-local function removeHighlight(player)
+local function removeHighlight(player: Player)
     if player.Character then
         local highlight = player.Character:FindFirstChild("PadHighlight")
         if highlight then
@@ -99,8 +102,13 @@ local function startGame()
             for _, player in ipairs(playersToTeleport) do
                 removeHighlight(player)
                 InQueueLabel:FireClient(player, false)
-                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    player.Character.HumanoidRootPart.CFrame = spawn.CFrame + Vector3.new(0, 3, 0)
+
+                if player.Character then
+                    local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart") :: Part?
+
+                    if player.Character and humanoidRootPart then
+                        humanoidRootPart.CFrame = spawn.CFrame + Vector3.new(0, 3, 0)
+                    end
                 end
             end
         end
@@ -199,8 +207,8 @@ local function onPlayerExit(player: Player)
         removeHighlight(player)
         InQueueLabel:FireClient(player, false)
 
-        if #queue > 0 then
-            local nextPlayer = table.remove(queue, 1)
+        local nextPlayer = table.remove(queue, 1)
+        if nextPlayer then
             active[nextPlayer] = true
             addHighlight(nextPlayer)
             InQueueLabel:FireClient(nextPlayer, true)

@@ -282,7 +282,7 @@ do
 		local trace = rx + ry + rz
 		return trace > 1 + 2*cos(SLEEP_ROTATION_DIFF)
 	end
-	
+
 	local function angleDiff(c0: CFrame, c1: CFrame)
 		local x = dot(c0.XVector, c1.XVector)
 		local y = dot(c0.YVector, c1.YVector)
@@ -290,7 +290,7 @@ do
 		local w = x + y + z - 1
 		return atan2(sqrt(max(0, 1 - w*w*0.25)), w*0.5)
 	end
-	
+
 	-- gives approx. 21% accuracy improvement over CFrame.fromAxisAngle near poles
 	local function fromAxisAngle(axis: Vector3, angle: number)
 		local c = cos(angle)
@@ -321,7 +321,7 @@ do
 	local function axisAngleDiff(c0: CFrame, c1: CFrame)
 		-- use native axis (stable enough)
 		local axis = (c0*c1:Inverse()):ToAxisAngle()
-		
+
 		-- use full-precision angle calculation to minimize truncation
 		local angle = angleDiff(c0, c1)
 		return axis.Unit*angle

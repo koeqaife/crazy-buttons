@@ -25,6 +25,8 @@ local function allPlayersLoaded()
 end
 
 function ArenaModule.init()
+    require(ServerScriptService.Server.Arena.TextModule)
+
     local ButtonsModule = require(ServerScriptService.Server.Arena.ButtonsModule)
     local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
     ButtonsModule.init()

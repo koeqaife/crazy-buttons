@@ -8,7 +8,7 @@ local timerLabel: TextLabel = workspace
 local currentTime = 30
 
 function TimerModule.setTime(seconds: number)
-    currentTime = seconds + 1
+    currentTime = seconds
 end
 
 function TimerModule.start()

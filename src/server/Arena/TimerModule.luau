@@ -1,3 +1,6 @@
+--!strict
+--!optimize 2
+
 local TimerModule = {}
 
 local timerLabel: TextLabel = workspace

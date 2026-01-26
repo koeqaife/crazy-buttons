@@ -8,6 +8,17 @@ local MIN_PLAYERS = 10
 local COUNTDOWN_SECONDS = 30
 local TELEPORT_PLACE_ID = 137127365503309
 
+local playerBoardText: TextLabel = workspace
+    :WaitForChild("PlayerCountBoard")
+    :WaitForChild("Board")
+    :WaitForChild("SurfaceGui")
+    :WaitForChild("playerBoardText")
+
+local boardText = {
+    players="",
+    countdown=""
+}
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TeleportService = game:GetService("TeleportService")
@@ -16,17 +27,33 @@ local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
 local active: {[Player]: boolean} = {}
 local queue: {Player} = {}
 
-local UpdatePadCount = Instance.new("RemoteEvent", ReplicatedStorage)
-UpdatePadCount.Name = "UpdatePadCount"
-
 local InQueueLabel = Instance.new("RemoteEvent", ReplicatedStorage)
 InQueueLabel.Name = "InQueueLabel"
 
-local PadCountdown = Instance.new("RemoteEvent", ReplicatedStorage)
-PadCountdown.Name = "PadCountdown"
-
 local timerActive = false
 local timerEndTime = 0
+
+local function updateBoardText()
+    if #boardText.countdown > 0 then
+        playerBoardText.Text = boardText.players .. "\n" .. boardText.countdown
+    else
+        playerBoardText.Text = boardText.players
+    end
+end
+
+local function updatePadCount(count: number, max: number)
+    boardText.players = "Players " .. count .. "/" .. max
+    updateBoardText()
+end
+
+local function updatePadCountdown(state: string, reason_or_num: any)
+    if state == "finished" or state == "cancel" then
+        boardText.countdown = ""
+    elseif state == "started" or state == "update" then
+        boardText.countdown = "Starting in " .. reason_or_num .. "..."
+    end
+    updateBoardText()
+end
 
 local function countActive()
     local count = 0
@@ -85,7 +112,7 @@ local function startGame()
     end
 
     active = {}
-    UpdatePadCount:FireAllClients(0, MAX_PLAYERS)
+    updatePadCount(0, MAX_PLAYERS)
 
     local ok, err = pcall(function()
         TeleportService:TeleportAsync(
@@ -115,7 +142,7 @@ local function startGame()
     end
 
     promoteFromQueue(MAX_PLAYERS)
-    UpdatePadCount:FireAllClients(countActive(), MAX_PLAYERS)
+    updatePadCount(countActive(), MAX_PLAYERS)
 end
 
 local function stopCountdown(reason)
@@ -124,7 +151,7 @@ local function stopCountdown(reason)
     end
     timerActive = false
     timerEndTime = 0
-    PadCountdown:FireAllClients("cancel", reason)
+    updatePadCountdown("cancel", reason)
 end
 
 local function startCountdown()
@@ -135,7 +162,7 @@ local function startCountdown()
     timerActive = true
     timerEndTime = tick() + COUNTDOWN_SECONDS
 
-    PadCountdown:FireAllClients("started", COUNTDOWN_SECONDS)
+    updatePadCountdown("started", COUNTDOWN_SECONDS)
 
     task.spawn(function()
         while timerActive do
@@ -146,7 +173,7 @@ local function startCountdown()
                 return
             end
 
-            PadCountdown:FireAllClients("update", remaining)
+            updatePadCountdown("update", remaining)
 
             if remaining <= 0 then
                 break
@@ -157,7 +184,7 @@ local function startCountdown()
 
         if timerActive then
             timerActive = false
-            PadCountdown:FireAllClients("finished")
+            updatePadCountdown("finished")
             startGame()
             if countActive() >= MIN_PLAYERS then
                 startCountdown()
@@ -197,7 +224,7 @@ local function onPlayerEnter(player: Player)
         InQueueLabel:FireClient(player, false)
     end
 
-    UpdatePadCount:FireAllClients(countActive(), MAX_PLAYERS)
+    updatePadCount(countActive(), MAX_PLAYERS)
     checkStartConditions()
 end
 
@@ -222,7 +249,7 @@ local function onPlayerExit(player: Player)
         end
     end
 
-    UpdatePadCount:FireAllClients(countActive(), MAX_PLAYERS)
+    updatePadCount(countActive(), MAX_PLAYERS)
     checkStartConditions()
 end
 
@@ -248,11 +275,6 @@ function LobbyModule.init()
     -- Player left
     Players.PlayerRemoving:Connect(function(player)
         onPlayerExit(player)
-    end)
-
-    -- Player joined
-    Players.PlayerAdded:Connect(function(player)
-        UpdatePadCount:FireClient(player, countActive(), MAX_PLAYERS)
     end)
 
     TeleportService:SetTeleportSetting("ShouldReserveServer", true)

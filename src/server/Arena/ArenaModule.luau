@@ -1,7 +1,13 @@
-local LobbyModule = {}
+--!strict
+--!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
-function LobbyModule.init()
+local ArenaModule = {}
+
+function ArenaModule.init()
+    local ButtonsModule = require(ServerScriptService.Server.Arena.ButtonsModule)
+    ButtonsModule.init()
     print("Arena Module")
 end
 
-return LobbyModule
+return ArenaModule

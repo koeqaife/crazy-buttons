@@ -10,6 +10,7 @@ local player = Players.LocalPlayer
 local PlayerLoaded = ReplicatedStorage:WaitForChild("PlayerLoaded")
 
 local ButtonsModule = require(StarterPlayerScripts.Client.Arena.ButtonsModule)
+local TextModule = require(StarterPlayerScripts.Client.Arena.TextModule)
 
 function ArenaModule.init()
     ButtonsModule.setButtons({
@@ -17,6 +18,7 @@ function ArenaModule.init()
         { idx = 2, text = "DO NOT CLICK" },
         { idx = 4, text = "Ye", disabled = true },
     })
+    TextModule.connect()
 
     game:GetService("ContentProvider"):PreloadAsync({player.Character})
 

@@ -1,3 +1,4 @@
+--!optimize 2
 --[[
 	An implementation of Promises similar to Promise/A+.
 ]]

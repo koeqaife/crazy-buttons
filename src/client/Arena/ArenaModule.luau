@@ -13,12 +13,8 @@ local ButtonsModule = require(StarterPlayerScripts.Client.Arena.ButtonsModule)
 local TextModule = require(StarterPlayerScripts.Client.Arena.TextModule)
 
 function ArenaModule.init()
-    ButtonsModule.setButtons({
-        { idx = 1, text = "Click me" },
-        { idx = 2, text = "DO NOT CLICK" },
-        { idx = 4, text = "Ye", disabled = true },
-    })
     TextModule.connect()
+    ButtonsModule.connect()
 
     game:GetService("ContentProvider"):PreloadAsync({player.Character})
 

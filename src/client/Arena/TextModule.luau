@@ -12,6 +12,7 @@ local mainText: TextLabel = workspace
 local UpdateTextEvent: RemoteEvent = ReplicatedStorage:WaitForChild("UpdateTextEvent")
 
 function TextModule.connect()
+    game:GetService("ContentProvider"):PreloadAsync({mainText})  -- Wait until text loads too
     UpdateTextEvent.OnClientEvent:Connect(
         function(text)
             mainText.Text = text

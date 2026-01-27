@@ -2,13 +2,19 @@
 --!optimize 2
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
+local Arena = game:GetService("ServerScriptService").Server.Arena
 
 local ArenaModule = {}
 
 local loadedPlayers = {}
 local PlayerLoaded = Instance.new("RemoteEvent", ReplicatedStorage)
 PlayerLoaded.Name = "PlayerLoaded"
+
+local GameLoopModule = require(Arena.GameLoopModule)
+local ButtonsModule = require(Arena.ButtonsModule)
+local TimerModule = require(Arena.TimerModule)
+
+require(Arena.TextModule)
 
 local mainText: TextLabel = workspace
     :WaitForChild("TerminalScreen")
@@ -25,10 +31,7 @@ local function allPlayersLoaded()
 end
 
 function ArenaModule.init()
-    require(ServerScriptService.Server.Arena.TextModule)
 
-    local ButtonsModule = require(ServerScriptService.Server.Arena.ButtonsModule)
-    local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
     ButtonsModule.init()
     TimerModule.start()
 
@@ -61,7 +64,7 @@ function ArenaModule.init()
         TimerModule.setTime(30)
 
         print("loaded")
-        -- TODO: Start game after players loaded
+        GameLoopModule.start()
     end)
 end
 

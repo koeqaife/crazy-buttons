@@ -3,13 +3,15 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local IndicesModule = require(ReplicatedStorage.Shared.IndicesType)
+type Indices = IndicesModule.Indices
+
+local ButtonClickedEvent: RemoteEvent = ReplicatedStorage:WaitForChild("ButtonClickedEvent")
 local UpdateButtonsEvent: RemoteEvent = ReplicatedStorage:WaitForChild("UpdateButtonsEvent")
 local ButtonsModule = {}
 
 local buttonSpawn: Part = workspace:WaitForChild("ButtonSpawn")
 local buttonTemplate: Model = ReplicatedStorage:WaitForChild("ButtonTemplate")
-
-type Indices = { { idx: number, text: string, disabled: boolean?, highlighted: boolean? } }
 
 local GAP = 4;
 local BUTTONS = {
@@ -76,6 +78,10 @@ function ButtonsModule.setButtons(indices: Indices)
             else
                 highlight.OutlineTransparency = 1
             end
+
+            clickDetector.MouseClick:Connect(function(_)
+                ButtonClickedEvent:FireServer(obj.idx)
+            end)
 
             local color
             if obj.disabled then

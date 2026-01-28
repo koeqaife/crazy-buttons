@@ -66,7 +66,7 @@ function ButtonsModule.setButtons(indices: Indices)
             local buttonPart = buttonClone:FindFirstChild("Button") :: Part
 
             local text = (buttonPart:FindFirstChild("BillboardGui"):: Part):FindFirstChild("Label") :: TextLabel
-            text.Text = obj.text
+            text.Text = obj.text or ""
             text.TextColor3 = buttonData.color
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
@@ -111,13 +111,12 @@ function ButtonsModule.updateButtons(indices: Indices)
             local buttonPart = button:FindFirstChild("Button") :: Part
 
             local text = (buttonPart:FindFirstChild("BillboardGui"):: Part):FindFirstChild("Label") :: TextLabel
-            text.Text = obj.text
+            text.Text = obj.text or text.Text
             text.TextColor3 = buttonData.color
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
             local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
-            proximityPrompt.Enabled = not obj.disabled
 
             if obj.highlighted then
                 highlight.OutlineTransparency = 0
@@ -126,14 +125,18 @@ function ButtonsModule.updateButtons(indices: Indices)
             end
 
             local color
-            if obj.disabled then
-                color = Color3.new(0.17, 0.17, 0.17)
-            else
-                color = buttonData.color
-            end
+            if obj.disabled ~= nil then
+                proximityPrompt.Enabled = not obj.disabled
 
-            surfaceLight.Color = color
-            buttonPart.Color = color
+                if obj.disabled then
+                    color = Color3.new(0.17, 0.17, 0.17)
+                else
+                    color = buttonData.color
+                end
+
+                surfaceLight.Color = color
+                buttonPart.Color = color
+            end
         end
     end
 end

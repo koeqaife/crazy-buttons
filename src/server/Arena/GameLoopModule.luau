@@ -10,7 +10,7 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
-        local success, result = StartEvent.onEvent():await()
+        StartEvent.onEvent():await()
     end)
 end
 

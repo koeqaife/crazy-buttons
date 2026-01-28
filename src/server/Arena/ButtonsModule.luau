@@ -37,6 +37,28 @@ function ButtonsModule.waitForClick(player: Player, timeout: number)
     })
 end
 
+function ButtonsModule.waitForIdxClick(player: Player, timeout: number, idx: number)
+    local conn
+    return Promise.race({
+        Promise.new(function(resolve, reject, onCancel)
+            conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, clickedIdx: number)
+                if playerWhoClicked == player and clickedIdx == idx then
+                    resolve(true)
+                    conn:Disconnect()
+                end
+            end)
+
+            onCancel(function()
+                conn:Disconnect()
+            end)
+        end),
+        Promise.new(function(resolve, reject, onCancel)
+            task.wait(timeout)
+            resolve(false)
+        end)
+    })
+end
+
 function ButtonsModule.setButtons(player: Player, buttons: Indices)
     UpdateButtonsEvent:FireClient(player, "set", buttons)
 end

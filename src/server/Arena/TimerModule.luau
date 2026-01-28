@@ -25,7 +25,7 @@ function TimerModule.start()
         while task.wait(0.5) do
             local elapsed = os.clock() - startTime
             local remaining = math.max(0, duration - elapsed)
-            if remaining > 0 then
+            if remaining >= 0 then
                 timerLabel.Text = math.ceil(remaining) .. "s"
             end
         end

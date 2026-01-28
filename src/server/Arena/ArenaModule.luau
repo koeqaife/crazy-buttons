@@ -31,7 +31,6 @@ local function allPlayersLoaded()
 end
 
 function ArenaModule.init()
-
     ButtonsModule.init()
     TimerModule.start()
 
@@ -46,15 +45,18 @@ function ArenaModule.init()
     end)
 
     task.spawn(function()
-        TimerModule.setTime(20)
+        TimerModule.setTime(120)
         local waited = 0
 
         while task.wait(1) do
-            waited += 1
-            if waited >= 20 then
-                break
-            elseif allPlayersLoaded() and #Players:GetPlayers() > 0 then
-                break
+            TimerModule.setTime(30 - waited)
+            if #Players:GetPlayers() > 0 then
+                waited += 1
+                if waited >= 30 then
+                    break
+                elseif allPlayersLoaded() then
+                    break
+                end
             end
         end
 

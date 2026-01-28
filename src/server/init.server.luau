@@ -1,3 +1,5 @@
+--!strict
+
 local ServerScriptService = game:GetService("ServerScriptService")
 local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")

@@ -2,7 +2,9 @@
 --!optimize 2
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Arena = game:GetService("ServerScriptService").Server.Arena
 
+local SideEffectType = require(Arena.SideEffectType)
 local IndicesModule = require(ReplicatedStorage.Shared.IndicesType)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 type Indices = IndicesModule.Indices
@@ -49,11 +51,56 @@ function ButtonsModule.waitForIdxClick(player: Player, timeout: number, idx: num
     end)
 end
 
-function ButtonsModule.setButtons(player: Player, buttons: Indices)
+local function shuffleTable(tbl)
+	for i = #tbl, 2, -1 do
+		local j = math.random(i)
+		tbl[i], tbl[j] = tbl[j], tbl[i]
+	end
+	return tbl
+end
+
+function ButtonsModule.setButtons(
+    player: Player,
+    buttons: Indices,
+    sideEffect: SideEffectType.SideEffect?,
+    shuffle: boolean?
+)
+    if sideEffect then
+        buttons = sideEffect.buttonsEffect(sideEffect)
+    end
+
+    if shuffle == nil or shuffle then
+        local regularButtons = {}
+        local greenButtonData = nil
+
+        for _, buttonData in ipairs(buttons) do
+            if buttonData.idx == 5 then
+                greenButtonData = buttonData
+            else
+                table.insert(regularButtons, buttonData)
+            end
+        end
+
+        shuffleTable(regularButtons)
+
+        if greenButtonData then
+            table.insert(regularButtons, greenButtonData)
+        end
+
+        buttons = regularButtons
+    end
+
     UpdateButtonsEvent:FireClient(player, "set", buttons)
 end
 
-function ButtonsModule.updateButtons(player: Player, buttons: Indices)
+function ButtonsModule.updateButtons(
+    player: Player,
+    buttons: Indices,
+    sideEffect: SideEffectType.SideEffect?
+)
+    if sideEffect then
+        buttons = sideEffect.buttonsEffect(sideEffect)
+    end
     UpdateButtonsEvent:FireClient(player, "update", buttons)
 end
 

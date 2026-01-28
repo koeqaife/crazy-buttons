@@ -70,8 +70,13 @@ function ButtonsModule.setButtons(indices: Indices)
             text.TextColor3 = buttonData.color
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
-            local clickDetector = buttonPart:FindFirstChild("ClickDetector") :: ClickDetector
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
+            local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
+            proximityPrompt.Enabled = not obj.disabled
+
+            proximityPrompt.Triggered:Connect(function(_)
+                ButtonClickedEvent:FireServer(obj.idx)
+            end)
 
             if obj.highlighted then
                 highlight.OutlineTransparency = 0
@@ -79,17 +84,11 @@ function ButtonsModule.setButtons(indices: Indices)
                 highlight.OutlineTransparency = 1
             end
 
-            clickDetector.MouseClick:Connect(function(_)
-                ButtonClickedEvent:FireServer(obj.idx)
-            end)
-
             local color
             if obj.disabled then
                 color = Color3.new(0.17, 0.17, 0.17)
-                clickDetector.MaxActivationDistance = -1
             else
                 color = buttonData.color
-                clickDetector.MaxActivationDistance = 32
             end
 
             highlight.FillColor = color
@@ -116,8 +115,9 @@ function ButtonsModule.updateButtons(indices: Indices)
             text.TextColor3 = buttonData.color
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
-            local clickDetector = buttonPart:FindFirstChild("ClickDetector") :: ClickDetector
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
+            local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
+            proximityPrompt.Enabled = not obj.disabled
 
             if obj.highlighted then
                 highlight.OutlineTransparency = 0
@@ -128,10 +128,8 @@ function ButtonsModule.updateButtons(indices: Indices)
             local color
             if obj.disabled then
                 color = Color3.new(0.17, 0.17, 0.17)
-                clickDetector.MaxActivationDistance = -1
             else
                 color = buttonData.color
-                clickDetector.MaxActivationDistance = 32
             end
 
             surfaceLight.Color = color

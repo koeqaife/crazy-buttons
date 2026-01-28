@@ -60,7 +60,7 @@ function StartEvent.onEvent()
 
         GameState.runPromisePerAlive(function(player)
             return TextModule.showTextSequence(player, {
-                { text = "Before we start you should remember", delay = 2 }, -- 2s
+                { text = "Before we start you should remember a few rules", delay = 2 }, -- 2s
                 { text = "1. NEVER TRUST ANYONE", delay = 2 }, -- 4s
                 { text = "2. NEVER TRUST ME", delay = 2 }, -- 6s
                 { text = "3. NEVER TRUST YOUR EYES", delay = 2 }, -- 8s

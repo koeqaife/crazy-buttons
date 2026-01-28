@@ -56,7 +56,7 @@ function ButtonsModule.initiateButtonChoice(
     forTime: number,
     filter: ((Player, number) -> boolean)?
 )
-    return Promise.new(function(resolve)
+    return Promise.new(function(resolve, reject, onCancel)
         local currentChoices: {[Player]: number?} = {}
 
         local conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
@@ -75,6 +75,9 @@ function ButtonsModule.initiateButtonChoice(
 
             currentChoices[playerWhoClicked] = idx
             ButtonsModule.updateButtons(playerWhoClicked, {{ idx = idx, highlighted = true }})
+        end)
+        onCancel(function()
+            conn:Disconnect()
         end)
 
         task.wait(forTime)

@@ -24,8 +24,8 @@ end
 
 function StartEvent.onEvent()
     return Promise.new(function(resolve, reject, onCancel)
-
         TimerModule.setTime(40)
+
         GameState.runNewPromisePerAlive(function(player)
             TextModule.showTextSequence(player, {
                 { text = "Okay so...", delay = 2 }, -- 2s

@@ -15,12 +15,12 @@ UpdateButtonsEvent.Name = "UpdateButtonsEvent"
 
 local ButtonsModule = {}
 
-function ButtonsModule.waitForClick(player: Player, timeout: number)
+local function waitForButton(player: Player, timeout: number, filter: ((number) -> boolean)?)
     local conn
     return Promise.race({
-        Promise.new(function(resolve, reject, onCancel)
+        Promise.new(function(resolve, _, onCancel)
             conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
-                if playerWhoClicked == player then
+                if playerWhoClicked == player and (not filter or filter(idx)) then
                     resolve(idx :: number?)
                     conn:Disconnect()
                 end
@@ -30,33 +30,23 @@ function ButtonsModule.waitForClick(player: Player, timeout: number)
                 conn:Disconnect()
             end)
         end),
-        Promise.new(function(resolve, reject, onCancel)
+        Promise.new(function(resolve)
             task.wait(timeout)
             resolve(nil)
         end)
     })
 end
 
-function ButtonsModule.waitForIdxClick(player: Player, timeout: number, idx: number)
-    local conn
-    return Promise.race({
-        Promise.new(function(resolve, reject, onCancel)
-            conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, clickedIdx: number)
-                if playerWhoClicked == player and clickedIdx == idx then
-                    resolve(true)
-                    conn:Disconnect()
-                end
-            end)
+function ButtonsModule.waitForClick(player: Player, timeout: number)
+    return waitForButton(player, timeout)
+end
 
-            onCancel(function()
-                conn:Disconnect()
-            end)
-        end),
-        Promise.new(function(resolve, reject, onCancel)
-            task.wait(timeout)
-            resolve(false)
-        end)
-    })
+function ButtonsModule.waitForIdxClick(player: Player, timeout: number, idx: number)
+    return waitForButton(player, timeout, function(clickedIdx)
+        return clickedIdx == idx
+    end):andThen(function(result)
+        return result ~= nil
+    end)
 end
 
 function ButtonsModule.setButtons(player: Player, buttons: Indices)

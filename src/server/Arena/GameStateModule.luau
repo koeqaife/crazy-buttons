@@ -1,7 +1,12 @@
-local GameState = {
-    alivePlayers = {},
-    deadPlayers = {}
-}
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Promise = require(ReplicatedStorage.Shared.Promise)
+local GameState = {}
+
+local alivePlayers: {Player} = {}
+local deadPlayers: {Player} = {}
+
+GameState.alivePlayers = alivePlayers
+GameState.deadPlayers = deadPlayers
 
 function GameState.kill(player: Player)
     local character = player.Character
@@ -12,13 +17,48 @@ function GameState.kill(player: Player)
         end
     end
 
-    for i, p in ipairs(GameState.alivePlayers) do
+    for i, p in ipairs(alivePlayers) do
         if p == player then
-            table.remove(GameState.alivePlayers, i)
+            table.remove(alivePlayers, i)
             break
         end
     end
-    table.insert(GameState.deadPlayers, player)
+    table.insert(deadPlayers, player)
+end
+
+local function runNewPromisePer(array: {Player}, func: (player: Player, reject: () -> nil) -> nil)
+    local promises = {}
+    for _, player in ipairs(array) do
+        table.insert(promises, Promise.new(function(resolve, reject)
+            func(player, reject)
+            resolve()
+        end))
+    end
+    return Promise.all(promises)
+end
+
+local function runPromisePer(array: {Player}, promise: (player: Player) -> Promise.TypedPromise<nil>)
+    local promises = {}
+    for _, player in ipairs(array) do
+        table.insert(promises, promise(player))
+    end
+    return Promise.all(promises)
+end
+
+function GameState.runNewPromisePerAlive(func: (player: Player, reject: () -> nil) -> nil)
+    return runNewPromisePer(alivePlayers, func)
+end
+
+function GameState.runNewPromisePerDead(func: (player: Player, reject: () -> nil) -> nil)
+    return runNewPromisePer(deadPlayers, func)
+end
+
+function GameState.runPromisePerAlive(promise: (player: Player) -> Promise.TypedPromise<nil>)
+    return runPromisePer(alivePlayers, promise)
+end
+
+function GameState.runPromisePerDead(promise: (player: Player) -> Promise.TypedPromise<nil>)
+    return runPromisePer(deadPlayers, promise)
 end
 
 return GameState

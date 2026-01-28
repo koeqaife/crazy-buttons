@@ -12,6 +12,7 @@ local currentTime = 30
 
 function TimerModule.setTime(seconds: number)
     currentTime = seconds
+    timerLabel.Text = currentTime .. "s"
 end
 
 function TimerModule.start()

@@ -70,11 +70,11 @@ function ButtonsModule.initiateButtonChoice(
             local lastChoice = currentChoices[playerWhoClicked]
 
             if lastChoice then
-                ButtonsModule.updateButtons(playerWhoClicked, { idx = lastChoice, highlighted = false })
+                ButtonsModule.updateButtons(playerWhoClicked, {{ idx = lastChoice, highlighted = false }})
             end
 
             currentChoices[playerWhoClicked] = idx
-            ButtonsModule.updateButtons(playerWhoClicked, { idx = idx, highlighted = true })
+            ButtonsModule.updateButtons(playerWhoClicked, {{ idx = idx, highlighted = true }})
         end)
 
         task.wait(forTime)

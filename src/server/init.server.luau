@@ -12,6 +12,7 @@ local function disablePlayerCollisions()
     PhysicsService:CollisionGroupSetCollidable("PlayersNoCollide", "PlayersNoCollide", false)
 
     Players.PlayerAdded:Connect(function(player)
+        player.CameraMaxZoomDistance = 20
         player.CharacterAdded:Connect(function(character)
             for _, child in pairs(character:GetDescendants()) do
                 if child:IsA("BasePart") then

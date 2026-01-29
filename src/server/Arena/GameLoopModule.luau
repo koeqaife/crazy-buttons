@@ -10,9 +10,11 @@ type Event = EventType.Event
 
 local StartEvent = require(Arena.Events.StartEvent)
 local ColorEvent = require(Arena.Events.ColorEvent)
+local VoteEvent = require(Arena.Events.VoteEvent)
 
 local events: {Event} = {
-    ColorEvent
+    ColorEvent,
+    VoteEvent
 }
 local eventCounts: {[Event]: number} = {}
 
@@ -69,7 +71,10 @@ function GameLoopModule.start()
             GameState.round += 1
             local nextEvent = chooseRandomEvent()
             if nextEvent then
-                nextEvent.onEvent():await()
+                local ok, result = nextEvent.onEvent():await()
+                if not ok then
+                    error(result)
+                end
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
             end
 

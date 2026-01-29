@@ -39,6 +39,21 @@ local BUTTONS = {
     { color = Color3.new(1, 0.5, 0.5) },        -- Salmon
 }
 
+local KEYS = {
+    Enum.KeyCode.One,
+    Enum.KeyCode.Two,
+    Enum.KeyCode.Three,
+    Enum.KeyCode.Four,
+    Enum.KeyCode.Five
+}
+
+local GAMEPAD_KEYS = {
+    Enum.KeyCode.ButtonX,
+    Enum.KeyCode.ButtonY,
+    Enum.KeyCode.ButtonB,
+    Enum.KeyCode.ButtonA,
+}
+
 local spawnedButtons: { Model } = {}
 local spawnedButtonsMap: { [number]: Model } = {}
 
@@ -53,7 +68,7 @@ function ButtonsModule.setButtons(indices: Indices)
 
     local xOffset = -((#indices - 1) * GAP) / 2
 
-    for _, obj in ipairs(indices) do
+    for i, obj in ipairs(indices) do
         local buttonData = BUTTONS[obj.showAs or obj.idx]
         if buttonData then
             local buttonClone: Model = buttonTemplate:Clone()
@@ -75,6 +90,8 @@ function ButtonsModule.setButtons(indices: Indices)
             local standHighlight = buttonStand:FindFirstChild("Highlight") :: Highlight
             local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
             proximityPrompt.Enabled = not obj.disabled
+            proximityPrompt.KeyboardKeyCode = KEYS[(i - 1) % #KEYS + 1]
+            proximityPrompt.GamepadKeyCode = GAMEPAD_KEYS[(i - 1) % #GAMEPAD_KEYS + 1]
 
             proximityPrompt.Triggered:Connect(function(_)
                 ButtonClickedEvent:FireServer(obj.idx)

@@ -1,3 +1,4 @@
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
@@ -47,6 +48,11 @@ local function runPromisePer(array: {Player}, promise: (player: Player) -> Promi
     return Promise.all(promises)
 end
 
+-- New
+function GameState.runNewPromisePerAll(func: (player: Player) -> nil)
+    return runNewPromisePer(Players:GetPlayers(), func)
+end
+
 function GameState.runNewPromisePerAlive(func: (player: Player) -> nil)
     return runNewPromisePer(alivePlayers, func)
 end
@@ -55,12 +61,24 @@ function GameState.runNewPromisePerDead(func: (player: Player) -> nil)
     return runNewPromisePer(deadPlayers, func)
 end
 
+-- Existing
+function GameState.runPromisePerAll(promise: (player: Player) -> Promise.TypedPromise<nil>)
+    return runPromisePer(Players:GetPlayers(), promise)
+end
+
 function GameState.runPromisePerAlive(promise: (player: Player) -> Promise.TypedPromise<nil>)
     return runPromisePer(alivePlayers, promise)
 end
 
 function GameState.runPromisePerDead(promise: (player: Player) -> Promise.TypedPromise<nil>)
     return runPromisePer(deadPlayers, promise)
+end
+
+-- Func
+function GameState.runFuncPerAll(func: (player: Player) -> nil)
+    for _, player in ipairs(Players:GetPlayers()) do
+        func(player)
+    end
 end
 
 function GameState.runFuncPerAlive(func: (player: Player) -> nil)
@@ -74,6 +92,7 @@ function GameState.runFuncPerDead(func: (player: Player) -> nil)
         func(player)
     end
 end
+-- End
 
 function GameState.pickPlayers(amount: number)
     Helpers.shuffleTable(alivePlayers)

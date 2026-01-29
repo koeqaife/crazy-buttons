@@ -54,7 +54,7 @@ function ButtonsModule.setButtons(indices: Indices)
     local xOffset = -((#indices - 1) * GAP) / 2
 
     for _, obj in ipairs(indices) do
-        local buttonData = BUTTONS[obj.idx]
+        local buttonData = BUTTONS[obj.showAs or obj.idx]
         if buttonData then
             local buttonClone: Model = buttonTemplate:Clone()
             buttonClone.Parent = workspace
@@ -104,7 +104,7 @@ end
 
 function ButtonsModule.updateButtons(indices: Indices)
     for _, obj in ipairs(indices) do
-        local buttonData = BUTTONS[obj.idx]
+        local buttonData = BUTTONS[obj.showAs or obj.idx]
         local button = spawnedButtonsMap[obj.idx]
 
         if buttonData and button then

@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local GameState = {}
 
@@ -72,6 +73,19 @@ function GameState.runFuncPerDead(func: (player: Player) -> nil)
     for _, player in ipairs(alivePlayers) do
         func(player)
     end
+end
+
+function GameState.pickPlayers(amount: number)
+    Helpers.shuffleTable(alivePlayers)
+
+    local result = {}
+    local count = math.min(amount, #alivePlayers)
+
+    for i = 1, count do
+        result[i] = alivePlayers[i]
+    end
+
+    return result
 end
 
 return GameState

@@ -10,18 +10,18 @@ local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 
-type Event = EventTypeModule.Event
+type EventType = EventTypeModule.Event
 
-local StartEvent = {} :: Event
+local Event = {} :: EventType
 
-StartEvent.chance = 1.0
-StartEvent.maxRound = 1
+Event.chance = 1.0
+Event.maxRound = 1
 
-function StartEvent.check()
+function Event.check()
     return true
 end
 
-function StartEvent.onEvent()
+function Event.onEvent()
     return Promise.new(function(resolve, reject, onCancel)
         TimerModule.setTime(41)
 
@@ -71,4 +71,4 @@ function StartEvent.onEvent()
     end)
 end
 
-return StartEvent
+return Event

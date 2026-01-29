@@ -24,7 +24,7 @@ end
 
 function StartEvent.onEvent()
     return Promise.new(function(resolve, reject, onCancel)
-        TimerModule.setTime(40)
+        TimerModule.setTime(41)
 
         GameState.runNewPromisePerAlive(function(player)
             TextModule.showTextSequence(player, {
@@ -43,9 +43,9 @@ function StartEvent.onEvent()
             ButtonsModule.setButtons(player, {})
             if clicked then
                 TextModule.showTextSequence(player, {
-                    { text = "Nice, looks like it's working", delay = 4 }, -- 34s
-                    { text = "See the timer?", delay = 3 }, -- 37s
-                    { text = "Good", delay = 3 }, -- 40s
+                    { text = "Nice, looks like it's working", delay = 3 }, -- 33s
+                    { text = "This experiment is pretty easy", delay = 4 }, -- 38s
+                    { text = "All what you have to do is press before timer ends", delay = 4 }, -- 41s
                 }):await()
             else
                 TextModule.showTextSequence(player, {
@@ -56,15 +56,15 @@ function StartEvent.onEvent()
             end
         end):await()
 
-        TimerModule.setTime(10)
+        TimerModule.setTime(15)
 
         GameState.runPromisePerAlive(function(player)
             return TextModule.showTextSequence(player, {
-                { text = "Before we start you should remember a few rules", delay = 2 }, -- 2s
-                { text = "1. NEVER TRUST ANYONE", delay = 2 }, -- 4s
-                { text = "2. NEVER TRUST ME", delay = 2 }, -- 6s
-                { text = "3. NEVER TRUST YOUR EYES", delay = 2 }, -- 8s
-                { text = "Let's start", delay = 2 }, -- 10s
+                { text = "So, before we start you should remember a few rules", delay = 3 }, -- 3s
+                { text = "1. NEVER TRUST ANYONE", delay = 3 }, -- 6s
+                { text = "2. NEVER TRUST ME", delay = 3 }, -- 9s
+                { text = "3. NEVER TRUST YOUR EYES", delay = 3 }, -- 12s
+                { text = "Let's start", delay = 3 }, -- 15s
             })
         end):await()
 

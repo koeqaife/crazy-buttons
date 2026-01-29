@@ -64,6 +64,7 @@ function ButtonsModule.setButtons(indices: Indices)
             buttonClone:MoveTo(spawnPos)
 
             local buttonPart = buttonClone:FindFirstChild("Button") :: Part
+            local buttonStand = buttonClone:FindFirstChild("ButtonStand") :: Part
 
             local text = (buttonPart:FindFirstChild("BillboardGui"):: Part):FindFirstChild("Label") :: TextLabel
             text.Text = obj.text or ""
@@ -71,6 +72,7 @@ function ButtonsModule.setButtons(indices: Indices)
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
+            local standHighlight = buttonStand:FindFirstChild("Highlight") :: Highlight
             local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
             proximityPrompt.Enabled = not obj.disabled
 
@@ -78,6 +80,7 @@ function ButtonsModule.setButtons(indices: Indices)
                 ButtonClickedEvent:FireServer(obj.idx)
             end)
 
+            standHighlight.Enabled = obj.highlighted or false
             if obj.highlighted then
                 highlight.OutlineTransparency = 0
             else
@@ -109,6 +112,7 @@ function ButtonsModule.updateButtons(indices: Indices)
 
         if buttonData and button then
             local buttonPart = button:FindFirstChild("Button") :: Part
+            local buttonStand = button:FindFirstChild("ButtonStand") :: Part
 
             local text = (buttonPart:FindFirstChild("BillboardGui"):: Part):FindFirstChild("Label") :: TextLabel
             text.Text = obj.text or text.Text
@@ -116,16 +120,20 @@ function ButtonsModule.updateButtons(indices: Indices)
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
+            local standHighlight = buttonStand:FindFirstChild("Highlight") :: Highlight
             local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
 
-            if obj.highlighted then
-                highlight.OutlineTransparency = 0
-            else
-                highlight.OutlineTransparency = 1
+            if obj.highlighted ~= nil then
+                standHighlight.Enabled = obj.highlighted
+                if obj.highlighted then
+                    highlight.OutlineTransparency = 0
+                else
+                    highlight.OutlineTransparency = 1
+                end
             end
 
-            local color
             if obj.disabled ~= nil then
+                local color
                 proximityPrompt.Enabled = not obj.disabled
 
                 if obj.disabled then

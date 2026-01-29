@@ -38,7 +38,7 @@ function Event.onEvent()
 
             TimerModule.setTime(15)
             GameState.runNewPromisePerAlive(function(player)
-                TextModule.setText(player, "So which one did you choose?")
+                TextModule.setText(player, "So, which one did you choose?")
                 ButtonsModule.setButtons(player, {
                     { idx = 1, text = "Red" },
                     { idx = 2, text = "Blue" },

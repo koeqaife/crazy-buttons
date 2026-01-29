@@ -26,11 +26,11 @@ function GameState.kill(player: Player)
     table.insert(deadPlayers, player)
 end
 
-local function runNewPromisePer(array: {Player}, func: (player: Player, reject: () -> nil) -> nil)
+local function runNewPromisePer(array: {Player}, func: (player: Player) -> nil)
     local promises = {}
     for _, player in ipairs(array) do
-        table.insert(promises, Promise.new(function(resolve, reject)
-            func(player, reject)
+        table.insert(promises, Promise.new(function(resolve)
+            func(player)
             resolve()
         end))
     end
@@ -45,11 +45,11 @@ local function runPromisePer(array: {Player}, promise: (player: Player) -> Promi
     return Promise.all(promises)
 end
 
-function GameState.runNewPromisePerAlive(func: (player: Player, reject: () -> nil) -> nil)
+function GameState.runNewPromisePerAlive(func: (player: Player) -> nil)
     return runNewPromisePer(alivePlayers, func)
 end
 
-function GameState.runNewPromisePerDead(func: (player: Player, reject: () -> nil) -> nil)
+function GameState.runNewPromisePerDead(func: (player: Player) -> nil)
     return runNewPromisePer(deadPlayers, func)
 end
 

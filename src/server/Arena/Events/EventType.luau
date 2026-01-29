@@ -9,6 +9,7 @@ export type Event = {
     maxPlayers: number?,
     minRound: number?,
     maxRound: number?,
+    maxPerGame: number?,
     customGreen: boolean,
     check: () -> boolean,
     onEvent: () -> Promise.TypedPromise<Event?>

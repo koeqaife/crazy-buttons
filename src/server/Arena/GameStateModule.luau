@@ -7,6 +7,7 @@ local deadPlayers: {Player} = {}
 
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
+GameState.round = 0
 
 function GameState.kill(player: Player)
     local character = player.Character
@@ -59,6 +60,18 @@ end
 
 function GameState.runPromisePerDead(promise: (player: Player) -> Promise.TypedPromise<nil>)
     return runPromisePer(deadPlayers, promise)
+end
+
+function GameState.runFuncPerAlive(func: (player: Player) -> nil)
+    for _, player in ipairs(alivePlayers) do
+        func(player)
+    end
+end
+
+function GameState.runFuncPerDead(func: (player: Player) -> nil)
+    for _, player in ipairs(alivePlayers) do
+        func(player)
+    end
 end
 
 return GameState

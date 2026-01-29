@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 
+local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local SideEffectType = require(Arena.SideEffectType)
 local IndicesModule = require(ReplicatedStorage.Shared.IndicesType)
 local Promise = require(ReplicatedStorage.Shared.Promise)
@@ -88,14 +89,6 @@ function ButtonsModule.initiateButtonChoice(
     end)
 end
 
-local function shuffleTable(tbl)
-	for i = #tbl, 2, -1 do
-		local j = math.random(i)
-		tbl[i], tbl[j] = tbl[j], tbl[i]
-	end
-	return tbl
-end
-
 function ButtonsModule.setButtons(
     player: Player,
     buttons: Indices,
@@ -118,7 +111,7 @@ function ButtonsModule.setButtons(
             end
         end
 
-        shuffleTable(regularButtons)
+        Helpers.shuffleTable(regularButtons)
 
         if greenButtonData then
             table.insert(regularButtons, greenButtonData)

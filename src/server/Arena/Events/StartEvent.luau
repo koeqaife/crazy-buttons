@@ -16,7 +16,6 @@ local StartEvent = {} :: Event
 
 StartEvent.chance = 1.0
 StartEvent.maxRound = 1
-StartEvent.customGreen = true
 
 function StartEvent.check()
     return true

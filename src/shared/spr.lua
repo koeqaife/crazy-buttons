@@ -685,7 +685,7 @@ local function getProperty(instance: Instance, property: string): any
 	end
 end
 
-local function setProperty(instance: Instance, property: string, value: unknown)
+local function setProperty(instance: Instance, property: string, value: any)
 	local override = PSEUDO_PROPERTIES[property]
 	if override and instance:IsA(override.class) then
 		override.set(instance, value)
@@ -736,7 +736,7 @@ RunService.PostSimulation:Connect(function(dt)
 	processSprings(springStates_render, dt)
 end)
 
-local function assertType(argNum: number, fnName: string, expectedType: string, value: unknown)
+local function assertType(argNum: number, fnName: string, expectedType: string, value: any)
 	if not expectedType:find(typeof(value)) then
 		error(`bad argument #{argNum} to {fnName} ({expectedType} expected, got {typeof(value)})`, 3)
 	end

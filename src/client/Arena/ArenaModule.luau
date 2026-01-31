@@ -11,10 +11,19 @@ local PlayerLoaded = ReplicatedStorage:WaitForChild("PlayerLoaded")
 
 local ButtonsModule = require(StarterPlayerScripts.Client.Arena.ButtonsModule)
 local TextModule = require(StarterPlayerScripts.Client.Arena.TextModule)
+local PromptModule = require(StarterPlayerScripts.Client.Arena.CustomPromptModule)
 
 function ArenaModule.init()
     TextModule.connect()
     ButtonsModule.connect()
+    PromptModule.onLoad()
+    ButtonsModule.setButtons({
+        { idx = 1 },
+        { idx = 2 },
+        { idx = 3 },
+        { idx = 4 },
+        { idx = 5 },
+    })
 
     game:GetService("ContentProvider"):PreloadAsync({player.Character})
 

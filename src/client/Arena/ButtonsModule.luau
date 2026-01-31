@@ -92,6 +92,8 @@ function ButtonsModule.setButtons(indices: Indices)
             proximityPrompt.Enabled = not obj.disabled
             proximityPrompt.KeyboardKeyCode = KEYS[(i - 1) % #KEYS + 1]
             proximityPrompt.GamepadKeyCode = GAMEPAD_KEYS[(i - 1) % #GAMEPAD_KEYS + 1]
+            proximityPrompt:SetAttribute("color", buttonData.color)
+            proximityPrompt:SetAttribute("highlighted", obj.highlighted)
 
             proximityPrompt.Triggered:Connect(function(_)
                 ButtonClickedEvent:FireServer(obj.idx)
@@ -142,6 +144,7 @@ function ButtonsModule.updateButtons(indices: Indices)
 
             if obj.highlighted ~= nil then
                 standHighlight.Enabled = obj.highlighted
+                proximityPrompt:SetAttribute("highlighted", obj.highlighted)
                 if obj.highlighted then
                     highlight.OutlineTransparency = 0
                 else

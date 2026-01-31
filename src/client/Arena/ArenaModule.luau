@@ -17,13 +17,6 @@ function ArenaModule.init()
     TextModule.connect()
     ButtonsModule.connect()
     PromptModule.onLoad()
-    ButtonsModule.setButtons({
-        { idx = 1 },
-        { idx = 2 },
-        { idx = 3 },
-        { idx = 4 },
-        { idx = 5 },
-    })
 
     game:GetService("ContentProvider"):PreloadAsync({player.Character})
 

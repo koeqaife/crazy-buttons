@@ -11,10 +11,12 @@ type Event = EventType.Event
 local StartEvent = require(Arena.Events.StartEvent)
 local ColorEvent = require(Arena.Events.ColorEvent)
 local VoteEvent = require(Arena.Events.VoteEvent)
+local SimonEvent = require(Arena.Events.SimonEvent)
 
 local events: {Event} = {
     ColorEvent,
-    VoteEvent
+    VoteEvent,
+    SimonEvent
 }
 local eventCounts: {[Event]: number} = {}
 

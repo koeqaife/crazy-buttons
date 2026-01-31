@@ -55,10 +55,12 @@ end
 
 function ButtonsModule.initiateButtonChoice(
     forTime: number,
-    filter: ((Player, number) -> boolean)?
+    filter: ((Player, number) -> boolean)?,
+    post: ((Player, number) -> nil)?,
+    currentChoices: {[Player]: number?}?
 )
     return Promise.new(function(resolve, reject, onCancel)
-        local currentChoices: {[Player]: number?} = {}
+        local choices: {[Player]: number?} = currentChoices or {}
 
         local conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
             if not ButtonsModule.doesPlayerHaveButton(playerWhoClicked, idx) then
@@ -68,14 +70,17 @@ function ButtonsModule.initiateButtonChoice(
                 return
             end
 
-            local lastChoice = currentChoices[playerWhoClicked]
+            local lastChoice = choices[playerWhoClicked]
 
             if lastChoice then
                 ButtonsModule.updateButtons(playerWhoClicked, {{ idx = lastChoice, highlighted = false }})
             end
 
-            currentChoices[playerWhoClicked] = idx
+            choices[playerWhoClicked] = idx
             ButtonsModule.updateButtons(playerWhoClicked, {{ idx = idx, highlighted = true }})
+            if post then
+                post(playerWhoClicked, idx)
+            end
         end)
         onCancel(function()
             conn:Disconnect()
@@ -85,7 +90,7 @@ function ButtonsModule.initiateButtonChoice(
 
         conn:Disconnect()
 
-		resolve(currentChoices)
+		resolve(choices)
     end)
 end
 

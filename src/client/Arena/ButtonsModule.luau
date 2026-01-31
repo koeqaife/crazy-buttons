@@ -88,12 +88,15 @@ function ButtonsModule.setButtons(indices: Indices)
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
             local standHighlight = buttonStand:FindFirstChild("Highlight") :: Highlight
-            local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
+
+            local promptPart = buttonClone:FindFirstChild("PromptPart") :: Part
+            local proximityPrompt = promptPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
             proximityPrompt.Enabled = not obj.disabled
             proximityPrompt.KeyboardKeyCode = KEYS[(i - 1) % #KEYS + 1]
             proximityPrompt.GamepadKeyCode = GAMEPAD_KEYS[(i - 1) % #GAMEPAD_KEYS + 1]
             proximityPrompt:SetAttribute("color", buttonData.color)
             proximityPrompt:SetAttribute("highlighted", obj.highlighted)
+            proximityPrompt.RequiresLineOfSight = false
 
             proximityPrompt.Triggered:Connect(function(_)
                 ButtonClickedEvent:FireServer(obj.idx)
@@ -140,7 +143,9 @@ function ButtonsModule.updateButtons(indices: Indices)
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
             local standHighlight = buttonStand:FindFirstChild("Highlight") :: Highlight
-            local proximityPrompt = buttonPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
+
+            local promptPart = button:FindFirstChild("PromptPart") :: Part
+            local proximityPrompt = promptPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
 
             if obj.highlighted ~= nil then
                 standHighlight.Enabled = obj.highlighted

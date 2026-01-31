@@ -132,6 +132,8 @@ local function createPrompt(
 	local stroke = Instance.new("UIStroke")
 	stroke.Parent = frame
 	stroke.Thickness = 2
+	table.insert(tweensForFadeOut, TweenService:Create(stroke, tweenInfoQuick, { Thickness = 0 }))
+	table.insert(tweensForFadeIn, TweenService:Create(stroke, tweenInfoQuick, { Thickness = 2 }))
 
 	local inputFrame = Instance.new("Frame")
 	inputFrame.Name = "InputFrame"
@@ -376,7 +378,6 @@ local function createPrompt(
 		objectText.Text = prompt.ObjectText
 		actionText.AutoLocalize = prompt.AutoLocalize
 		actionText.RootLocalizationTable = prompt.RootLocalizationTable
-
 
 		objectText.AutoLocalize = prompt.AutoLocalize
 		objectText.RootLocalizationTable = prompt.RootLocalizationTable

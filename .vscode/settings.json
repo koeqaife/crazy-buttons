@@ -7,5 +7,6 @@
         "**/Thumbs.db": true
     },
     "hide-files.files": [],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "cSpell.words": ["Keypoint", "resizeable", "tweens"]
 }

@@ -98,7 +98,7 @@ function Event.onEvent()
             for player, idx in pairs(lastChosen) do
                 lastChosenCopy[player] = idx
             end
-            GameState.runFuncPerAll(function(player)
+            GameState.runFuncPerAlive(function(player)
                 TextModule.setText(player, randomText.text)
             end)
 

@@ -16,17 +16,24 @@ type Text = { opposite: boolean, text: string, idx: number?, custom: number? }
 local Event = {} :: EventType
 
 local texts: {Text} = {
+    -- 4
     { text = "Simon says... select ", opposite = false },
     { text = "Simon says... do not select ", opposite = true },
     { text = "Simon says, select ", opposite = false },
     { text = "Simon says, do not select ", opposite = true },
+
+    -- 6
     { text = "Select ", opposite = true },
     { text = "Do not select ", opposite = false },
+
+    -- 11
     { text = "Now... select ", opposite = true },
     { text = "Now... do not select ", opposite = false },
     { text = "Simply select ", opposite = true },
     { text = "My name is Simon, select ", opposite = true },
     { text = "Simon thinks you should select ", opposite = true },
+
+    -- 17
     { text = "Simon says... select the color of the sky", opposite = false, idx = 2 },
     { text = "Simon says... select the color of a banana", opposite = false, idx = 4 },
     { text = "Simon says... select the color of a ruby", opposite = false, idx = 1 },
@@ -34,6 +41,7 @@ local texts: {Text} = {
     { text = "Select the color of a banana", opposite = true, idx = 4 },
     { text = "Select the color of a ruby", opposite = true, idx = 1 },
 
+    -- 22
     { text = "Do not change your selection", custom = 1, opposite = false },
     { text = "Simply not change your selection", custom = 1, opposite = false },
     { text = "Change your selection", custom = 1, opposite = true },
@@ -50,6 +58,24 @@ Event.minPlayers = 7
 local MAX_DEATHS_ALLOWED = 5
 local MAX_SUB_ROUNDS = 15
 
+local ROUNDS_RANGE = {
+    [1] = 1,
+    [2] = 4,
+    [3] = 6,
+    [4] = 6,
+    [5] = 11,
+    [6] = 11,
+    [7] = 11,
+    [8] = 11,
+    [9] = 11,
+    [10] = 17,
+    [11] = 17,
+    [12] = 17,
+    [13] = 22,
+    [14] = 22,
+    [15] = 22,
+}
+
 function Event.check()
     return true
 end
@@ -61,8 +87,8 @@ function Event.onEvent()
         TimerModule.setTime(5)
         GameState.runPromisePerAlive(function(player)
             return TextModule.showTextSequence(player, {
-                { text = "Now, I will be Simon", delay = 2.5 },
-                { text = "If I didn't say 'Simon says' do opposite", delay = 2.5 },
+                { text = "Alright, I'm Simon now.", delay = 2.5 },
+                { text = "No \"Simon says\"? Then do the opposite.", delay = 2.5 },
             })
         end):await()
 
@@ -81,7 +107,8 @@ function Event.onEvent()
                 break
             end
 
-            local randomTextRaw = texts[math.random(1, #texts)]
+            local maxRange = ROUNDS_RANGE[i]
+            local randomTextRaw = texts[math.random(1, maxRange)]
             local randomText: Text = {  -- Copy
                 text = randomTextRaw.text,
                 custom = randomTextRaw.custom,
@@ -142,8 +169,6 @@ function Event.onEvent()
                 end
             end)
 
-            TimerModule.setTime(3)
-            task.wait(3)
             lastChosen = chosen
         end
 

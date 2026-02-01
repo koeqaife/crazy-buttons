@@ -127,6 +127,7 @@ function Event.onEvent()
                     then
                         ButtonsModule.setButtons(player, {})
                         GameState.kill(player)
+                        deathsThisEvent += 1
                     end
                 elseif randomText.custom == 1 then
                     local lastSelected = lastChosen[player]
@@ -136,6 +137,7 @@ function Event.onEvent()
                     then
                         ButtonsModule.setButtons(player, {})
                         GameState.kill(player)
+                        deathsThisEvent += 1
                     end
                 end
             end)

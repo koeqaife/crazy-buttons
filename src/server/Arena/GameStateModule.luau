@@ -4,6 +4,9 @@ local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local GameState = {}
 
+local SyncDeadEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+SyncDeadEvent.Name = "SyncDeadEvent"
+
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
 
@@ -11,15 +14,8 @@ GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.round = 0
 
-function GameState.kill(player: Player)
-    local character = player.Character
-    if character then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.Health = 0
-        end
-    end
 
+function GameState.kill(player: Player)
     for i, p in ipairs(alivePlayers) do
         if p == player then
             table.remove(alivePlayers, i)
@@ -27,6 +23,20 @@ function GameState.kill(player: Player)
         end
     end
     table.insert(deadPlayers, player)
+
+    SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers)
+end
+
+function GameState.revive(player: Player)
+    for i, p in ipairs(deadPlayers) do
+        if p == player then
+            table.remove(deadPlayers, i)
+            break
+        end
+    end
+    table.insert(alivePlayers, player)
+
+    SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers)
 end
 
 local function runNewPromisePer(array: {Player}, func: (player: Player) -> nil)

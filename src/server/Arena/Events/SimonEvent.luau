@@ -87,8 +87,8 @@ function Event.onEvent()
         TimerModule.setTime(5)
         GameState.runPromisePerAlive(function(player)
             return TextModule.showTextSequence(player, {
-                { text = "Alright, I'm Simon now.", delay = 2.5 },
-                { text = "No \"Simon says\"? Then do the opposite.", delay = 2.5 },
+                { text = "Alright, I'm Simon now", delay = 2.5 },
+                { text = "No \"Simon says\"? Then do the opposite", delay = 2.5 },
             })
         end):await()
 

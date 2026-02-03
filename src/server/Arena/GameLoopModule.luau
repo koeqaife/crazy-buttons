@@ -69,10 +69,17 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
+        VoteEvent.onEvent():await()
         StartEvent.onEvent():await()
 
         while #GameState.alivePlayers > 0 do
             GameState.round += 1
+
+            GameState.runFuncPerAlive(function(player)
+                ButtonsModule.setButtons(player, {})
+            end)
+            GameState.removeHighlightFromAll()
+
             local nextEvent = chooseRandomEvent()
             if nextEvent then
                 local ok, result = nextEvent.onEvent():await()
@@ -81,10 +88,6 @@ function GameLoopModule.start()
                 end
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
             end
-
-            GameState.runFuncPerAlive(function(player)
-                ButtonsModule.setButtons(player, {})
-            end)
 
             task.wait()
         end

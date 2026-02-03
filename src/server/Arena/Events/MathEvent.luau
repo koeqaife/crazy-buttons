@@ -124,6 +124,7 @@ function Event.onEvent()
         Helpers.shuffleTable(answers)
 
         TimerModule.setTime(5)
+        GameState.addHighlightTo({randomPlayer})
         GameState.runPromisePerAlive(function(player)
             if player == randomPlayer then
                 return TextModule.showTextSequence(player, {

@@ -51,6 +51,7 @@ function Event.onEvent()
         end
 
         local playersForVote = GameState.pickPlayers(amount)
+        GameState.addHighlightTo(playersForVote)
 
         TimerModule.setTime(5)
         GameState.runPromisePerAlive(function(player: Player)

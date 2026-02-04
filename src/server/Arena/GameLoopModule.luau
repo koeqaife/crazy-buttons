@@ -69,7 +69,6 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
-        VoteEvent.onEvent():await()
         StartEvent.onEvent():await()
 
         while #GameState.alivePlayers > 0 do

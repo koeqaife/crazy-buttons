@@ -220,6 +220,8 @@ function Event.onEvent()
                         TextModule.setText(player, "You were wrong")
                         GameState.kill(player)
                     end
+                else
+                    TextModule.setText(player, "You were right")
                 end
                 task.wait(5)
             end

@@ -112,6 +112,7 @@ function Event.onEvent()
                 GameState.kill(player)
                 return
             end
+            ButtonsModule.setButtons(player, {})
 
             counter -= 1
             if counter <= 0 then
@@ -120,6 +121,11 @@ function Event.onEvent()
                     { text = "You will be eliminated", delay = 2.5 },
                 }):await()
                 GameState.kill(player)
+            else
+                TextModule.showTextSequence(player, {
+                    { text = "You clicked the button", delay = 2.5 },
+                    { text = "Wait for the others to click", delay = 2.5 },
+                }):await()
             end
         end):catch(reject):await()
 

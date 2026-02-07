@@ -50,7 +50,7 @@ function Event.onEvent()
         end)
         TimerModule.setTime(-1)
 
-        local counter = #GameState.alivePlayers - 1
+        local counter = #GameState.alivePlayers
         local toWait = math.random(10, 35)
         local lastClickPerPlayer: {[Player]: number} = {}
 

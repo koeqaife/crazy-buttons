@@ -15,6 +15,7 @@ local SimonEvent = require(Arena.Events.SimonEvent)
 local MathEvent = require(Arena.Events.MathEvent)
 local ClickEvent = require(Arena.Events.ClickEvent)
 local ReviveEvent = require(Arena.Events.ReviveEvent)
+local ClickFirstEvent = require(Arena.Events.ClickFirstEvent)
 
 local events: {Event} = {
     ColorEvent,
@@ -73,6 +74,7 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
+        ClickFirstEvent.onEvent():await()
         StartEvent.onEvent():await()
 
         while #GameState.alivePlayers > 0 do

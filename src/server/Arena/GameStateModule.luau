@@ -104,14 +104,16 @@ function GameState.runFuncPerDead(func: (player: Player) -> nil)
 end
 -- End
 
-function GameState.pickPlayers(amount: number)
-    Helpers.shuffleTable(alivePlayers)
+function GameState.pickPlayers(amount: number, from: {Player}?): {Player}
+    local fromArray = from or alivePlayers
+
+    Helpers.shuffleTable(fromArray)
 
     local result = {}
-    local count = math.min(amount, #alivePlayers)
+    local count = math.min(amount, #fromArray)
 
     for i = 1, count do
-        result[i] = alivePlayers[i]
+        result[i] = fromArray[i]
     end
 
     return result

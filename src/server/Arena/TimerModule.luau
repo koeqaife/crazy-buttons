@@ -12,6 +12,11 @@ local startTime = os.clock()
 local duration = 30
 
 function TimerModule.setTime(seconds: number)
+    timerLabel.Visible = seconds ~= -1
+    if seconds == -1 then
+        return
+    end
+
     startTime = os.clock()
     duration = seconds
 

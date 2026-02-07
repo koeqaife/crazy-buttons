@@ -34,10 +34,37 @@ local function getMostVoted(result: { [Player]: number }): Player?
 end
 
 function Event.check()
-    return #GameState.deadPlayers > 3
+    return #GameState.deadPlayers >= 1
+end
+
+local function onEventVariant()
+    return Promise.new(function(resolve, reject, onCancel)
+        -- Revive random player
+        local randomPlayer = GameState.deadPlayers[math.random(1, #GameState.alivePlayers)]
+
+        TimerModule.setTime(10)
+        GameState.runNewPromisePerAll(function(player: Player)
+            if player == randomPlayer then
+                TextModule.showTextSequence(player, {
+                    { text = "Someone will be revived now", delay = 5 },
+                    { text = "You were revived!", delay = 5 },
+                }):await()
+                GameState.revive(player)
+            else
+                TextModule.showTextSequence(player, {
+                    { text = "Someone will be revived now", delay = 5 },
+                    { text = "Player " .. randomPlayer.Name .. " was revived", delay = 5 },
+                }):await()
+            end
+        end):await()
+    end)
 end
 
 function Event.onEvent()
+    if math.random() < 0.25 or #GameState.deadPlayers < 3 then
+        return onEventVariant()
+    end
+
     return Promise.new(function(resolve, reject, onCancel)
         -- Pretty much the copy of VoteEvent
 

@@ -1,6 +1,14 @@
 --!strict
 --!optimize 2
 
+-- Description:
+-- Event where one player has math quiz
+-- And other people have to answer if he is smart or not
+-- If player answered correctly, everyone who pressed "No" die
+-- If not, he dies if >50% players clicked "No"
+-- And if >50% players clicked "Yes" everyone who clicked it die
+-- Pretty interesting game
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local Helpers = require(ReplicatedStorage.Shared.Helpers)

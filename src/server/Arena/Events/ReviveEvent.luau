@@ -1,6 +1,11 @@
 --!strict
 --!optimize 2
 
+-- Description:
+-- Event where one random player is gonna be revived
+-- With 1/4 chance or if deadPlayers count is less than 3, it's gonna revive random player
+-- Otherwise there is gonna vote with which player people wanna revive
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)

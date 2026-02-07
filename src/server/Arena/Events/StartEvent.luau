@@ -1,6 +1,10 @@
 --!strict
 --!optimize 2
 
+-- Description:
+-- Event that is always first
+-- Kills those who didn't click the button
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)

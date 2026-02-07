@@ -1,6 +1,12 @@
 --!strict
 --!optimize 2
 
+-- Description:
+-- Event where you choose color in the beginning
+-- And you're gonna be asked what color you chose
+-- Buttons are mixed due to default argument in ButtonsModule
+-- So positions are always different
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)

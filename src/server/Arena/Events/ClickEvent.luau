@@ -1,6 +1,13 @@
 --!strict
 --!optimize 2
 
+-- Description:
+-- Event where you have time to prepare (15 seconds)
+-- And after prepare time you have 2 seconds to click fast
+-- But not just click, there is a chance you don't have to click
+-- And even terminal text has two different variants
+-- On tests it was not too hard but also not too easy
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)

@@ -1,6 +1,10 @@
 --!strict
 --!optimize 2
 
+-- Description:
+-- from 2 to 4 players are gonna be voted
+-- The one with highest amount of votes dies
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)

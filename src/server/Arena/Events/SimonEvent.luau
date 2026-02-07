@@ -1,6 +1,13 @@
 --!strict
 --!optimize 2
 
+-- Description:
+-- Event with "Simon says"
+-- It was hard to make it interesting with just buttons
+-- But I think I did it! But it's pretty hard for people who play for the first time
+-- Cause of how many different texts it can have
+-- On tests it was hard but after some time playing it, it became easier
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)

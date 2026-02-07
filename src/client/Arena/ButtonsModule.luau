@@ -83,7 +83,6 @@ function ButtonsModule.setButtons(indices: Indices)
 
             local text = (buttonPart:FindFirstChild("BillboardGui"):: Part):FindFirstChild("Label") :: TextLabel
             text.Text = obj.text or ""
-            text.TextColor3 = buttonData.color
 
             local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
             local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
@@ -119,6 +118,7 @@ function ButtonsModule.setButtons(indices: Indices)
             highlight.FillColor = color
             surfaceLight.Color = color
             buttonPart.Color = color
+            text.TextColor3 = color
 
             table.insert(spawnedButtons, buttonClone)
             spawnedButtonsMap[obj.idx] = buttonClone
@@ -167,8 +167,10 @@ function ButtonsModule.updateButtons(indices: Indices)
                     color = buttonData.color
                 end
 
+                highlight.FillColor = color
                 surfaceLight.Color = color
                 buttonPart.Color = color
+                text.TextColor3 = color
             end
         end
     end

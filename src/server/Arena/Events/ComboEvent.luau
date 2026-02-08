@@ -139,6 +139,12 @@ function Event.onEvent()
                         return reject(ok)
                     end
 
+                    if not clicked then
+                        TextModule.setText(player, "You didn't click anything")
+                        GameState.kill(player)
+                        return
+                    end
+
                     if clicked ~= idx then
                         local mistakeCount = mistakes[player] or 0
                         mistakes[player] = mistakeCount + 1

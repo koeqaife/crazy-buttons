@@ -23,7 +23,8 @@ local events: {Event} = {
     SimonEvent,
     MathEvent,
     ClickEvent,
-    ReviveEvent
+    ReviveEvent,
+    ClickFirstEvent
 }
 local eventCounts: {[Event]: number} = {}
 
@@ -74,7 +75,6 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
-        ClickFirstEvent.onEvent():await()
         StartEvent.onEvent():await()
 
         while #GameState.alivePlayers > 0 do

@@ -56,6 +56,7 @@ local GAMEPAD_KEYS = {
 
 local spawnedButtons: { Model } = {}
 local spawnedButtonsMap: { [number]: Model } = {}
+local spawnedButtonsIndicesMap: { [number]: IndicesModule.Button } = {}
 
 function ButtonsModule.setButtons(indices: Indices)
     for _, btn in ipairs(spawnedButtons) do
@@ -90,7 +91,7 @@ function ButtonsModule.setButtons(indices: Indices)
 
             local promptPart = buttonClone:FindFirstChild("PromptPart") :: Part
             local proximityPrompt = promptPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
-            proximityPrompt.Enabled = not obj.disabled
+            proximityPrompt.Enabled = not obj.disabled and not obj.inputDisabled
             proximityPrompt.KeyboardKeyCode = KEYS[(i - 1) % #KEYS + 1]
             proximityPrompt.GamepadKeyCode = GAMEPAD_KEYS[(i - 1) % #GAMEPAD_KEYS + 1]
             proximityPrompt:SetAttribute("color", buttonData.color)
@@ -122,6 +123,7 @@ function ButtonsModule.setButtons(indices: Indices)
 
             table.insert(spawnedButtons, buttonClone)
             spawnedButtonsMap[obj.idx] = buttonClone
+            spawnedButtonsIndicesMap[obj.idx] = obj
             xOffset += GAP
         end
     end
@@ -131,6 +133,8 @@ function ButtonsModule.updateButtons(indices: Indices)
     for _, obj in ipairs(indices) do
         local buttonData = BUTTONS[obj.showAs or obj.idx]
         local button = spawnedButtonsMap[obj.idx]
+        local original = spawnedButtonsIndicesMap[obj.idx]
+        print(original)
 
         if buttonData and button then
             local buttonPart = button:FindFirstChild("Button") :: Part
@@ -148,6 +152,8 @@ function ButtonsModule.updateButtons(indices: Indices)
             local proximityPrompt = promptPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
 
             if obj.highlighted ~= nil then
+                original.highlighted = obj.highlighted
+
                 standHighlight.Enabled = obj.highlighted
                 proximityPrompt:SetAttribute("highlighted", obj.highlighted)
                 if obj.highlighted then
@@ -159,7 +165,6 @@ function ButtonsModule.updateButtons(indices: Indices)
 
             if obj.disabled ~= nil then
                 local color
-                proximityPrompt.Enabled = not obj.disabled
 
                 if obj.disabled then
                     color = Color3.new(0.17, 0.17, 0.17)
@@ -172,6 +177,22 @@ function ButtonsModule.updateButtons(indices: Indices)
                 buttonPart.Color = color
                 text.TextColor3 = color
             end
+
+            local disabled = obj.disabled
+            if disabled == nil then
+                disabled = original.disabled
+            else
+                original.disabled = disabled
+            end
+
+            local inputDisabled = obj.inputDisabled
+            if inputDisabled == nil then
+                inputDisabled = original.inputDisabled
+            else
+                original.inputDisabled = inputDisabled
+            end
+
+            proximityPrompt.Enabled = not disabled and not inputDisabled
         end
     end
 end

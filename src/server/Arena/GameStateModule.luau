@@ -16,6 +16,10 @@ GameState.round = 0
 
 
 function GameState.kill(player: Player)
+    if not player or not player.Parent then
+        return
+    end
+
     for i, p in ipairs(alivePlayers) do
         if p == player then
             table.remove(alivePlayers, i)
@@ -28,6 +32,10 @@ function GameState.kill(player: Player)
 end
 
 function GameState.revive(player: Player)
+    if not player or not player.Parent then
+        return
+    end
+
     for i, p in ipairs(deadPlayers) do
         if p == player then
             table.remove(deadPlayers, i)
@@ -42,6 +50,10 @@ end
 local function runNewPromisePer(array: {Player}, func: (player: Player) -> nil)
     local promises = {}
     for _, player in ipairs(array) do
+        if not player or not player.Parent then
+            continue
+        end
+
         table.insert(promises, Promise.new(function(resolve)
             func(player)
             resolve()
@@ -53,6 +65,10 @@ end
 local function runPromisePer(array: {Player}, promise: (player: Player) -> Promise.TypedPromise<nil>)
     local promises = {}
     for _, player in ipairs(array) do
+        if not player or not player.Parent then
+            continue
+        end
+
         table.insert(promises, promise(player))
     end
     return Promise.all(promises)
@@ -154,6 +170,24 @@ function GameState.removeHighlightFromAll()
             end
         end
     end
+end
+
+function GameState.connect()
+    Players.PlayerRemoving:Connect(function(player, reason)
+        for i, p in ipairs(alivePlayers) do
+            if p == player then
+                table.remove(alivePlayers, i)
+                break
+            end
+        end
+
+        for i, p in ipairs(deadPlayers) do
+            if p == player then
+                table.remove(deadPlayers, i)
+                break
+            end
+        end
+    end)
 end
 
 return GameState

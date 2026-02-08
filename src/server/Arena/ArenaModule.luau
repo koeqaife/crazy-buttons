@@ -10,6 +10,7 @@ local loadedPlayers = {}
 local PlayerLoaded = Instance.new("RemoteEvent", ReplicatedStorage)
 PlayerLoaded.Name = "PlayerLoaded"
 
+local GameStateModule = require(script.Parent.GameStateModule)
 local GameLoopModule = require(Arena.GameLoopModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
@@ -33,6 +34,7 @@ end
 function ArenaModule.init()
     ButtonsModule.init()
     TimerModule.start()
+    GameStateModule.connect()
 
     mainText.Text = "Waiting for players..."
 

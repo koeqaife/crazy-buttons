@@ -34,8 +34,8 @@ function Event.onEvent()
                 { text = "Okay so...", delay = 2 }, -- 2s
                 { text = "Hey there " .. player.DisplayName .. "!", delay = 3 }, -- 5s
                 { text = "This is a Button Experiment", delay = 3 }, -- 8s
-                { text = "Very obvious what it means, huh?", delay = 3 }, -- 11s
-                { text = "Let's start with something simple then", delay = 4 }, -- 15s,
+                { text = "You're gonna be tested in different scenarios", delay = 3 }, -- 11s
+                { text = "Let's start with something simple", delay = 4 }, -- 15s,
                 { text = "You see this button?\nDo whatever it says" }
             }):await()
 
@@ -46,9 +46,9 @@ function Event.onEvent()
             ButtonsModule.setButtons(player, {})
             if clicked then
                 TextModule.showTextSequence(player, {
-                    { text = "Nice, looks like it's working", delay = 3 }, -- 33s
-                    { text = "This experiment is pretty easy", delay = 4 }, -- 38s
-                    { text = "All what you have to do is press before timer ends", delay = 4 }, -- 41s
+                    { text = "It wasn't hard, right?", delay = 3 }, -- 33s
+                    { text = "The experiment is pretty easy", delay = 4 }, -- 38s
+                    { text = "Just make sure to press before the timer ends", delay = 4 }, -- 41s
                 }):await()
             else
                 TextModule.showTextSequence(player, {
@@ -64,10 +64,10 @@ function Event.onEvent()
         GameState.runPromisePerAlive(function(player)
             return TextModule.showTextSequence(player, {
                 { text = "So, before we start you should remember a few rules", delay = 3 }, -- 3s
-                { text = "1. NEVER TRUST ANYONE", delay = 3 }, -- 6s
-                { text = "2. NEVER TRUST ME", delay = 3 }, -- 9s
-                { text = "3. NEVER TRUST YOUR EYES", delay = 3 }, -- 12s
-                { text = "Let's start", delay = 3 }, -- 15s
+                { text = "NEVER TRUST ANYONE", delay = 3 }, -- 6s
+                { text = "NEVER TRUST ME", delay = 3 }, -- 9s
+                { text = "NEVER TRUST YOUR EYES", delay = 3 }, -- 12s
+                { text = "Let's begin", delay = 3 }, -- 15s
             })
         end):await()
 

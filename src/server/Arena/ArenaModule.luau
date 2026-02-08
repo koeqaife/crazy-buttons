@@ -62,6 +62,7 @@ function ArenaModule.init()
 
         TimerModule.setTime(5)
         task.wait(5)
+        mainText.Text = "..."
 
         TimerModule.setTime(30)
 

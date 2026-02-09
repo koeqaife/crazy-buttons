@@ -20,6 +20,7 @@ local BADGE_ID = 311683273248280
 local Event = {} :: EventType
 
 Event.chance = 0.005
+Event.minRound = 4
 
 function Event.check()
     return true

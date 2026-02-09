@@ -17,6 +17,7 @@ local ClickEvent = require(Arena.Events.ClickEvent)
 local ReviveEvent = require(Arena.Events.ReviveEvent)
 local ClickFirstEvent = require(Arena.Events.ClickFirstEvent)
 local ComboEvent = require(Arena.Events.ComboEvent)
+local AlienEvent = require(Arena.Events.AlienEvent)
 
 local events: {Event} = {
     ColorEvent,
@@ -26,7 +27,8 @@ local events: {Event} = {
     ClickEvent,
     ReviveEvent,
     ClickFirstEvent,
-    ComboEvent
+    ComboEvent,
+    AlienEvent
 }
 local eventCounts: {[Event]: number} = {}
 

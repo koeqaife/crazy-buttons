@@ -1,3 +1,4 @@
+local BadgeService = game:GetService("BadgeService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
@@ -188,6 +189,21 @@ function GameState.connect()
             end
         end
     end)
+end
+
+function GameState.rewardBadge(player: Player, id: number): Promise.TypedPromise<nil>
+    return Promise.retryWithDelay(function(resolve, reject)
+        local ok, result = Promise.promisify(function()
+            return BadgeService:AwardBadgeAsync(player.UserId, id)
+        end)():await()
+
+        if ok then
+            resolve()
+        else
+            warn("Failed to award badge", id, "to player", player.Name, "with error:", result)
+            reject(result)
+        end
+    end, 5, 15)
 end
 
 return GameState

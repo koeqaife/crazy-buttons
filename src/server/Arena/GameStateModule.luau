@@ -192,17 +192,10 @@ function GameState.connect()
 end
 
 function GameState.rewardBadge(player: Player, id: number): Promise.TypedPromise<nil>
-    return Promise.retryWithDelay(function(resolve, reject)
-        local ok, result = Promise.promisify(function()
+    return Promise.retryWithDelay(function()
+        return Promise.promisify(function()
             return BadgeService:AwardBadgeAsync(player.UserId, id)
-        end)():await()
-
-        if ok then
-            resolve()
-        else
-            warn("Failed to award badge", id, "to player", player.Name, "with error:", result)
-            reject(result)
-        end
+        end)()
     end, 5, 15)
 end
 

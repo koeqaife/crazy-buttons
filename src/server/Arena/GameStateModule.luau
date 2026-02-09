@@ -191,12 +191,16 @@ function GameState.connect()
     end)
 end
 
+local function withJitter(baseDelay)
+    return baseDelay + math.random() * 0.1
+end
+
 function GameState.rewardBadge(player: Player, id: number): Promise.TypedPromise<nil>
     return Promise.retryWithDelay(function()
         return Promise.promisify(function()
             return BadgeService:AwardBadgeAsync(player.UserId, id)
         end)()
-    end, 5, 15)
+    end, 5, withJitter(15))
 end
 
 return GameState

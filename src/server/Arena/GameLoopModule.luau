@@ -4,6 +4,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ButtonsModule = require(script.Parent.ButtonsModule)
 local EventType = require(ServerScriptService.Server.Arena.Events.EventType)
 local GameState = require(Arena.GameStateModule)
+local TextModule = require(Arena.TextModule)
 local GameLoopModule = {}
 
 type Event = EventType.Event
@@ -34,7 +35,7 @@ local events: {Event} = {
 }
 local eventCounts: {[Event]: number} = {}
 
-local function chooseRandomEvent()
+local function chooseRandomEvent(): Event?
     local validEvents: {Event} = {}
     local players = #GameState.alivePlayers
     local round = GameState.round
@@ -81,7 +82,7 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
-        StartEvent.onEvent():await()
+        StartEvent.onEvent():catch(warn):await()
 
         while #GameState.alivePlayers > 0 do
             GameState.round += 1
@@ -92,10 +93,17 @@ function GameLoopModule.start()
             GameState.removeHighlightFromAll()
 
             local nextEvent = chooseRandomEvent()
-            if nextEvent then
-                local ok, result = nextEvent.onEvent():await()
+            if nextEvent ~= nil then
+                local promise = nextEvent.onEvent()
+                local ok, result = promise:await()
                 if not ok then
-                    error(result)
+                    promise:cancel()
+                    warn("Event failed: ", result)
+
+                    GameState.runFuncPerAlive(function(player)
+                        TextModule.setText(player, "An error occurred...")
+                    end)
+                    task.wait(5)
                 end
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
             end

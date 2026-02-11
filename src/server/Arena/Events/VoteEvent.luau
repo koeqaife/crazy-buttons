@@ -20,7 +20,7 @@ type EventType = EventTypeModule.Event
 local Event = {} :: EventType
 
 Event.chance = 0.1
-Event.maxPerGame = 5
+Event.maxPerGame = 7
 Event.minPlayers = 3
 
 local function getMostVoted(result: { [Player]: number }): Player?

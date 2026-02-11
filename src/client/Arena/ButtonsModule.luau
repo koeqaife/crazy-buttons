@@ -15,7 +15,7 @@ local buttonTemplate: Model = ReplicatedStorage:WaitForChild("ButtonTemplate")
 
 local GAP = 4;
 local BUTTONS = {
-    { color = Color3.new(1, 0, 0) },            -- Red
+    { color = Color3.new(0.95, 0.21, 0.21) },   -- Red
     { color = Color3.new(0, 0.35, 1) },         -- Blue
     { color = Color3.new(1, 0.14, 0.81) },      -- Pink
     { color = Color3.new(0.96, 0.8, 0.19) },    -- Yellow

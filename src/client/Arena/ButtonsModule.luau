@@ -48,10 +48,14 @@ local KEYS = {
 }
 
 local GAMEPAD_KEYS = {
+    Enum.KeyCode.ButtonA,
+    Enum.KeyCode.ButtonB,
     Enum.KeyCode.ButtonX,
     Enum.KeyCode.ButtonY,
-    Enum.KeyCode.ButtonB,
-    Enum.KeyCode.ButtonA,
+    Enum.KeyCode.DPadUp,
+    Enum.KeyCode.DPadDown,
+    Enum.KeyCode.DPadLeft,
+    Enum.KeyCode.DPadRight
 }
 
 local spawnedButtons: { Model } = {}

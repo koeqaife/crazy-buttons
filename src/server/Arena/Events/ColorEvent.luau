@@ -26,8 +26,11 @@ Event.maxPerGame = 2
 local chosenColors: {[Player]: number} = {}
 local COLOR_NAMES = { "red", "blue", "pink", "yellow", "green" }
 
+local counter = 0
+
 function Event.check()
-    return true
+    counter -= 1
+    return counter <= 0
 end
 
 function Event.onEvent()
@@ -132,6 +135,8 @@ function Event.onEvent()
             toSave[player] = color
         end):await()
         chosenColors = toSave
+
+        counter = 3
 
         task.wait(5)
         resolve()

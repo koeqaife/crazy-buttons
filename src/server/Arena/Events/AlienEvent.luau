@@ -21,6 +21,7 @@ local Event = {} :: EventType
 
 Event.chance = 0.005
 Event.minRound = 4
+Event.minPlayers = 7
 Event.maxPerGame = 1
 
 function Event.check()

@@ -24,7 +24,7 @@ Event.chance = 0.1
 Event.maxPerGame = 2
 
 local chosenColors: {[Player]: number} = {}
-local COLOR_NAMES = { "red", "blue", "pink", "yellow" }
+local COLOR_NAMES = { "red", "blue", "pink", "yellow", "green" }
 
 function Event.check()
     return true
@@ -50,6 +50,7 @@ function Event.onEvent()
                     { idx = 2, text = "Blue" },
                     { idx = 3, text = "Pink" },
                     { idx = 4, text = "Yellow" },
+                    { idx = 5, text = "Green" },
                 })
             end):await()
 
@@ -82,20 +83,25 @@ function Event.onEvent()
 
         GameState.runPromisePerAlive(function(player)
             return TextModule.showTextSequence(player, {
-                { text = "What is you favorite color?", delay = 2.5 },
-                { text = "I hope it's not yellow, I hate yellow", delay = 2.5 },
+                { text = "I'm about to show you some colors", delay = 2.5 },
+                { text = "Remember which one you pick, you'll need it later", delay = 2.5 },
             })
         end):await()
 
         TimerModule.setTime(15)
         GameState.runNewPromisePerAlive(function(player)
-            TextModule.setText(player, "Anyways, choose color you like the most")
-            ButtonsModule.setButtons(player, {
+            TextModule.setText(player, "Choose color you like the most now")
+            local buttons = {
                 { idx = 1, text = "Red" },
                 { idx = 2, text = "Blue" },
                 { idx = 3, text = "Pink" },
                 { idx = 4, text = "Yellow" },
-            })
+                { idx = 5, text = "Green" },
+            }
+            table.remove(buttons, math.random(1, #buttons))
+            table.remove(buttons, math.random(1, #buttons))
+
+            ButtonsModule.setButtons(player, buttons)
         end):await()
 
         local ok, chosen = ButtonsModule.initiateButtonChoice(15):await()
@@ -116,8 +122,10 @@ function Event.onEvent()
                 TextModule.setText(player, "Pink, sounds like a candy, yummy")
             elseif color == 4 then
                 TextModule.setText(player, "Yellow!?!? Fine, that's your choice")
+            elseif color == 5 then
+                TextModule.setText(player, "Green, the color of nature...")
             else
-                color = math.random(1, 4)
+                color = math.random(1, 5)
                 local colorName = COLOR_NAMES[color]
                 TextModule.setText(player, "Nothing? Let's go with " .. colorName .. " then")
             end

@@ -69,7 +69,7 @@ function Event.onEvent()
                     TextModule.showTextSequence(player, {
                         { text = "Woa, you actually remember!", delay = 3 },
                         { text = "Good job", delay = 2 },
-                    })
+                    }):await()
                 end
             end):await()
 

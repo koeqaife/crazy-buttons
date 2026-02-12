@@ -98,7 +98,8 @@ function ButtonsModule.setButtons(
     player: Player,
     buttons: Indices,
     sideEffect: SideEffectType.SideEffect?,
-    shuffle: boolean?
+    shuffle: boolean?,
+    seed: number?
 )
     if sideEffect then
         buttons = sideEffect.buttonsEffect(sideEffect)
@@ -116,7 +117,7 @@ function ButtonsModule.setButtons(
             end
         end
 
-        Helpers.shuffleTable(regularButtons)
+        Helpers.shuffleTable(regularButtons, seed)
 
         if greenButtonData then
             table.insert(regularButtons, greenButtonData)
@@ -125,7 +126,7 @@ function ButtonsModule.setButtons(
         buttons = regularButtons
     end
 
-    UpdateButtonsEvent:FireClient(player, "set", buttons)
+    UpdateButtonsEvent:FireClient(player, "set", buttons, seed)
     buttonsPerPlayer[player] = buttons
 end
 

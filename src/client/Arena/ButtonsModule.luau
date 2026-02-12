@@ -29,7 +29,7 @@ local BUTTONS = {
     { color = Color3.new(0.776, 0.93, 0.427) }, -- Light green
     { color = Color3.new(0.2, 0.8, 0.6) },      -- Mint Green
     { color = Color3.new(0.9, 0.9, 0.9) },      -- Light Gray
-    { color = Color3.new(0.3, 0.3, 0.3) },      -- Dark Gray
+    { color = Color3.new(0.16, 1, 0.7) },       -- Turquoise
     { color = Color3.new(0.7, 0, 0) },          -- Dark Red
     { color = Color3.new(0, 0.2, 0.5) },        -- Dark Blue
     { color = Color3.new(1, 1, 0.5) },          -- Light Yellow
@@ -38,6 +38,9 @@ local BUTTONS = {
     { color = Color3.new(0, 0.5, 0.5) },        -- Teal
     { color = Color3.new(1, 0.5, 0.5) },        -- Salmon
 }
+
+local MIN_DISTANCE = 23
+local MAX_DISTANCE = 150
 
 local KEYS = {
     Enum.KeyCode.One,
@@ -62,7 +65,70 @@ local spawnedButtons: { Model } = {}
 local spawnedButtonsMap: { [number]: Model } = {}
 local spawnedButtonsIndicesMap: { [number]: IndicesModule.Button } = {}
 
-function ButtonsModule.setButtons(indices: Indices)
+local function createButton(obj: IndicesModule.Button, buttonData: { color: Color3 }, num: number)
+    local buttonClone: Model = buttonTemplate:Clone()
+    buttonClone.Parent = workspace
+    buttonClone.Name = "ButtonModel"
+
+    local buttonPart = buttonClone:FindFirstChild("Button") :: Part
+    local buttonStand = buttonClone:FindFirstChild("ButtonStand") :: Part
+
+    local text = (buttonPart:FindFirstChild("BillboardGui"):: Part):FindFirstChild("Label") :: TextLabel
+    text.Text = obj.text or ""
+
+    local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
+    local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
+    local standHighlight = buttonStand:FindFirstChild("Highlight") :: Highlight
+
+    local promptPart = buttonClone:FindFirstChild("PromptPart") :: Part
+    local proximityPrompt = promptPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
+    proximityPrompt.Enabled = not obj.disabled and not obj.inputDisabled
+
+    if num > 0 then
+        proximityPrompt.KeyboardKeyCode = KEYS[(num - 1) % #KEYS + 1]
+        proximityPrompt.GamepadKeyCode = GAMEPAD_KEYS[(num - 1) % #GAMEPAD_KEYS + 1]
+    else
+        proximityPrompt.Exclusivity = Enum.ProximityPromptExclusivity.OneGlobally
+    end
+
+    proximityPrompt:SetAttribute("color", buttonData.color)
+    proximityPrompt:SetAttribute("highlighted", obj.highlighted)
+    proximityPrompt.RequiresLineOfSight = false
+
+    proximityPrompt.Triggered:Connect(function(_)
+        ButtonClickedEvent:FireServer(obj.idx)
+    end)
+
+    standHighlight.Enabled = obj.highlighted or false
+    if obj.highlighted then
+        highlight.OutlineTransparency = 0
+    else
+        highlight.OutlineTransparency = 1
+    end
+
+    local color
+    if obj.disabled then
+        color = Color3.new(0.17, 0.17, 0.17)
+    else
+        color = buttonData.color
+    end
+
+    highlight.FillColor = color
+    surfaceLight.Color = color
+    buttonPart.Color = color
+    text.TextColor3 = color
+
+    table.insert(spawnedButtons, buttonClone)
+    spawnedButtonsMap[obj.idx] = buttonClone
+    spawnedButtonsIndicesMap[obj.idx] = obj
+
+    return buttonClone
+end
+
+function ButtonsModule.setButtons(indices: Indices, seed: number?)
+    if seed then
+        math.randomseed(seed)
+    end
     for _, btn in ipairs(spawnedButtons) do
         if btn and btn.Parent then
             btn:Destroy()
@@ -71,66 +137,53 @@ function ButtonsModule.setButtons(indices: Indices)
     spawnedButtons = {}
     spawnedButtonsMap = {}
     spawnedButtonsIndicesMap = {}
-    local xOffset = -((#indices - 1) * GAP) / 2
 
-    for i, obj in ipairs(indices) do
-        local buttonData = BUTTONS[obj.showAs or ((obj.idx - 1) % #BUTTONS + 1)]
-        if buttonData then
-            local buttonClone: Model = buttonTemplate:Clone()
-            buttonClone.Parent = workspace
-            buttonClone.Name = "ButtonModel"
+    if #indices <= 20 then
+        local xOffset = -((#indices - 1) * GAP) / 2
 
-            local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
-            buttonClone:MoveTo(spawnPos)
-
-            local buttonPart = buttonClone:FindFirstChild("Button") :: Part
-            local buttonStand = buttonClone:FindFirstChild("ButtonStand") :: Part
-
-            local text = (buttonPart:FindFirstChild("BillboardGui"):: Part):FindFirstChild("Label") :: TextLabel
-            text.Text = obj.text or ""
-
-            local surfaceLight = buttonPart:FindFirstChild("SurfaceLight") :: SurfaceLight
-            local highlight = buttonPart:FindFirstChild("Highlight") :: Highlight
-            local standHighlight = buttonStand:FindFirstChild("Highlight") :: Highlight
-
-            local promptPart = buttonClone:FindFirstChild("PromptPart") :: Part
-            local proximityPrompt = promptPart:FindFirstChild("ProximityPrompt") :: ProximityPrompt
-            proximityPrompt.Enabled = not obj.disabled and not obj.inputDisabled
-            proximityPrompt.KeyboardKeyCode = KEYS[(i - 1) % #KEYS + 1]
-            proximityPrompt.GamepadKeyCode = GAMEPAD_KEYS[(i - 1) % #GAMEPAD_KEYS + 1]
-            proximityPrompt:SetAttribute("color", buttonData.color)
-            proximityPrompt:SetAttribute("highlighted", obj.highlighted)
-            proximityPrompt.RequiresLineOfSight = false
-
-            proximityPrompt.Triggered:Connect(function(_)
-                ButtonClickedEvent:FireServer(obj.idx)
-            end)
-
-            standHighlight.Enabled = obj.highlighted or false
-            if obj.highlighted then
-                highlight.OutlineTransparency = 0
-            else
-                highlight.OutlineTransparency = 1
+        for i, obj in ipairs(indices) do
+            local buttonData = BUTTONS[obj.showAs or ((obj.idx - 1) % #BUTTONS + 1)]
+            if buttonData then
+                local buttonClone = createButton(obj, buttonData, i)
+                local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
+                buttonClone:MoveTo(spawnPos)
+                xOffset += GAP
             end
+        end
+    else
+        for i, obj in ipairs(indices) do
+            local buttonData = BUTTONS[obj.showAs or ((obj.idx - 1) % #BUTTONS + 1)]
+            if buttonData then
+                local offset
+                local distance
+                local angle
 
-            local color
-            if obj.disabled then
-                color = Color3.new(0.17, 0.17, 0.17)
-            else
-                color = buttonData.color
+                while true do
+                    distance = math.random(MIN_DISTANCE, MAX_DISTANCE)
+                    angle = math.random() * 2 * math.pi
+                    offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * distance
+
+                    local tooClose = false
+                    for _, btn in ipairs(spawnedButtons) do
+                        local btnPos = (btn.PrimaryPart :: BasePart).Position
+                        if (btnPos - (buttonSpawn.Position + offset)).Magnitude < 7 then
+                            tooClose = true
+                        end
+                    end
+
+                    if not tooClose then
+                        break
+                    end
+                end
+
+                local buttonClone = createButton(obj, buttonData, -1)
+
+                local spawnPos = buttonSpawn.Position + offset
+                buttonClone:MoveTo(spawnPos)
             end
-
-            highlight.FillColor = color
-            surfaceLight.Color = color
-            buttonPart.Color = color
-            text.TextColor3 = color
-
-            table.insert(spawnedButtons, buttonClone)
-            spawnedButtonsMap[obj.idx] = buttonClone
-            spawnedButtonsIndicesMap[obj.idx] = obj
-            xOffset += GAP
         end
     end
+    math.randomseed(tick())
 end
 
 function ButtonsModule.updateButtons(indices: Indices)
@@ -138,7 +191,6 @@ function ButtonsModule.updateButtons(indices: Indices)
         local buttonData = BUTTONS[obj.showAs or obj.idx]
         local button = spawnedButtonsMap[obj.idx]
         local original = spawnedButtonsIndicesMap[obj.idx]
-        print(original)
 
         if buttonData and button then
             local buttonPart = button:FindFirstChild("Button") :: Part

@@ -94,13 +94,13 @@ local function buildColorScheme(accent: Color3)
 	return {
 		accent = accent,
 
-		background = withHSV(accent, 0.25, 0.15),
-		container = withHSV(accent, 0.25, 0.30),
+		background = withHSV(accent, 0.35, 0.15),
+		container = withHSV(accent, 0.35, 0.34),
 
 		textPrimary = withHSV(accent, 0.05, 1),
 		textSecondary = withHSV(accent, 0.05, 0.7),
 
-		icon = withHSV(accent, 0.6, 1),
+		icon = withHSV(accent, 0.7, 1.3),
 		iconMuted = withHSV(accent, 0.2, 0.6),
 
 		active = withHSV(accent, 0.8, 1.15),

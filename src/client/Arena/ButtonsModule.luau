@@ -188,7 +188,7 @@ end
 
 function ButtonsModule.updateButtons(indices: Indices)
     for _, obj in ipairs(indices) do
-        local buttonData = BUTTONS[obj.showAs or obj.idx]
+        local buttonData = BUTTONS[obj.showAs or ((obj.idx - 1) % #BUTTONS + 1)]
         local button = spawnedButtonsMap[obj.idx]
         local original = spawnedButtonsIndicesMap[obj.idx]
 
@@ -255,11 +255,11 @@ end
 
 function ButtonsModule.connect()
     UpdateButtonsEvent.OnClientEvent:Connect(
-        function(type: string, indices: Indices)
+        function(type: string, indices: Indices, seed: number?)
             if type == "update" then
                 ButtonsModule.updateButtons(indices)
             else
-                ButtonsModule.setButtons(indices)
+                ButtonsModule.setButtons(indices, seed)
             end
         end
     )

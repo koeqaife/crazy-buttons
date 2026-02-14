@@ -13,7 +13,6 @@ local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
-local Promise = require(ReplicatedStorage.Shared.Promise)
 
 type EventType = EventTypeModule.Event
 
@@ -42,94 +41,92 @@ function Event.check()
 end
 
 function Event.onEvent()
-    return Promise.new(function(resolve, reject, onCancel)
-        -- Honestly not the best code, but at least it works
+    -- Honestly not the best code, but at least it works
 
-        local amount
-        if #GameState.alivePlayers > 15 then
-            amount = 4
-        elseif #GameState.alivePlayers > 5 then
-            amount = 3
+    local amount
+    if #GameState.alivePlayers > 15 then
+        amount = 4
+    elseif #GameState.alivePlayers > 5 then
+        amount = 3
+    else
+        amount = 2
+    end
+
+    local playersForVote = GameState.pickPlayers(amount)
+    GameState.addHighlightTo(playersForVote)
+
+    TimerModule.setTime(5)
+    GameState.runPromisePerAlive(function(player, protect)
+        if table.find(playersForVote, player) then
+            return protect(TextModule.showTextSequence(player, {
+                { text = "Someone will be eliminated now", delay = 2.5 },
+                { text = "Other players will decide your fate...", delay = 2.5 },
+            }))
         else
-            amount = 2
+            return protect(TextModule.showTextSequence(player, {
+                { text = "Someone will be eliminated now", delay = 2.5 },
+                { text = "Choose wisely who should be eliminated", delay = 2.5 },
+            }))
         end
+    end):catch(error):await()
 
-        local playersForVote = GameState.pickPlayers(amount)
-        GameState.addHighlightTo(playersForVote)
+    TimerModule.setTime(25)
 
-        TimerModule.setTime(5)
-        GameState.runPromisePerAlive(function(player, protect)
-            if table.find(playersForVote, player) then
-                return protect(TextModule.showTextSequence(player, {
-                    { text = "Someone will be eliminated now", delay = 2.5 },
-                    { text = "Other players will decide your fate...", delay = 2.5 },
-                }))
-            else
-                return protect(TextModule.showTextSequence(player, {
-                    { text = "Someone will be eliminated now", delay = 2.5 },
-                    { text = "Choose wisely who should be eliminated", delay = 2.5 },
-                }))
-            end
-        end):catch(error):await()
+    local votingPromise = ButtonsModule.initiateButtonChoice(25)
 
-        TimerModule.setTime(25)
-
-        local votingPromise = ButtonsModule.initiateButtonChoice(25)
-
-        GameState.runNewPromisePerAlive(function(player, protect, await)
-            if table.find(playersForVote, player) then
-                task.wait(2.5)
-                await(TextModule.showTextSequence(player, {
-                    { text = "It may be a bit boring while they're voting?", delay = 2.5 },
-                    { text = "Many people are crazy", delay = 2.5 },
-                    { text = "They are gonna choose someone who just looks bad", delay = 2.5 },
-                    { text = "Or someone who did something bad", delay = 2.5 },
-                    { text = "If you know what I'm talking about", delay = 2.5 },
-                    { text = "You didn't make them mad, right?", delay = 5 },
-                    { text = "Let's see who was eliminated", delay = 5 },
-                }))
-            else
-                local buttons: IndicesType.Indices = {}
-                for i, playerForVote in ipairs(playersForVote) do
-                    table.insert(buttons, { idx = i, text = playerForVote.Name })
-                end
-                ButtonsModule.setButtons(player, buttons)
-            end
-        end)
-
-        local _, result = votingPromise:catch(error):await()
-
-        local votes: { [Player]: number } = {}
-        for _, idx in pairs(result) do
-            if idx then
-                local votedPlayer = playersForVote[idx]
-                votes[votedPlayer] = (votes[votedPlayer] or 0) + 1
-            end
-        end
-
-        local mostVoted = getMostVoted(votes)
-
-        local mostVotedPlayer
-        if mostVoted == nil then
-            local random = math.random(1, #playersForVote)
-            mostVotedPlayer = playersForVote[random]
+    GameState.runNewPromisePerAlive(function(player, protect, await)
+        if table.find(playersForVote, player) then
+            task.wait(2.5)
+            await(TextModule.showTextSequence(player, {
+                { text = "It may be a bit boring while they're voting?", delay = 2.5 },
+                { text = "Many people are crazy", delay = 2.5 },
+                { text = "They are gonna choose someone who just looks bad", delay = 2.5 },
+                { text = "Or someone who did something bad", delay = 2.5 },
+                { text = "If you know what I'm talking about", delay = 2.5 },
+                { text = "You didn't make them mad, right?", delay = 5 },
+                { text = "Let's see who was eliminated", delay = 5 },
+            }))
         else
-            mostVotedPlayer = mostVoted
-        end
-
-        TimerModule.setTime(5)
-        GameState.runFuncPerAll(function(player: Player)
-            if player == mostVotedPlayer then
-                TextModule.setText(player, "You were eliminated... I'm sorry")
-                GameState.kill(player)
-            else
-                TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was eliminated")
+            local buttons: IndicesType.Indices = {}
+            for i, playerForVote in ipairs(playersForVote) do
+                table.insert(buttons, { idx = i, text = playerForVote.Name })
             end
-        end)
-        task.wait(5)
-
-        resolve()
+            ButtonsModule.setButtons(player, buttons)
+        end
     end)
+
+    local _, result = votingPromise:catch(error):await()
+
+    local votes: { [Player]: number } = {}
+    for _, idx in pairs(result) do
+        if idx then
+            local votedPlayer = playersForVote[idx]
+            votes[votedPlayer] = (votes[votedPlayer] or 0) + 1
+        end
+    end
+
+    local mostVoted = getMostVoted(votes)
+
+    local mostVotedPlayer
+    if mostVoted == nil then
+        local random = math.random(1, #playersForVote)
+        mostVotedPlayer = playersForVote[random]
+    else
+        mostVotedPlayer = mostVoted
+    end
+
+    TimerModule.setTime(5)
+    GameState.runFuncPerAll(function(player: Player)
+        if player == mostVotedPlayer then
+            TextModule.setText(player, "You were eliminated... I'm sorry")
+            GameState.kill(player)
+        else
+            TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was eliminated")
+        end
+    end)
+    task.wait(5)
+
+    return
 end
 
 return Event

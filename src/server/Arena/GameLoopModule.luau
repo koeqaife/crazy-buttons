@@ -1,6 +1,8 @@
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Promise = require(ReplicatedStorage.Shared.Promise)
 local ButtonsModule = require(script.Parent.ButtonsModule)
 local EventType = require(ServerScriptService.Server.Arena.Events.EventType)
 local GameState = require(Arena.GameStateModule)
@@ -76,35 +78,43 @@ local function chooseRandomEvent(): Event?
     return validEvents[#validEvents]
 end
 
+local function runEvent(event: Event?)
+    if event == nil then
+        return
+    end
+
+    GameState.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {})
+    end)
+    GameState.removeHighlightFromAll()
+
+    local promise = Promise.promisify(event.onEvent)()
+    local ok, result = promise:await()
+    if not ok then
+        promise:cancel()
+        warn("Event failed: ", result)
+
+        GameState.cancelAll()
+        GameState.runFuncPerAlive(function(player)
+            TextModule.setText(player, "An error occurred...")
+        end)
+        task.wait(5)
+    end
+end
 
 function GameLoopModule.start()
     for _, player in ipairs(Players:GetPlayers()) do
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
-        StartEvent.onEvent():catch(warn):await()
+        runEvent(StartEvent)
 
         while #GameState.alivePlayers > 0 do
             GameState.round += 1
 
-            GameState.runFuncPerAlive(function(player)
-                ButtonsModule.setButtons(player, {})
-            end)
-            GameState.removeHighlightFromAll()
-
             local nextEvent = chooseRandomEvent()
             if nextEvent ~= nil then
-                local promise = nextEvent.onEvent()
-                local ok, result = promise:await()
-                if not ok then
-                    promise:cancel()
-                    warn("Event failed: ", result)
-
-                    GameState.runFuncPerAlive(function(player)
-                        TextModule.setText(player, "An error occurred...")
-                    end)
-                    task.wait(5)
-                end
+                runEvent(nextEvent)
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
             end
 

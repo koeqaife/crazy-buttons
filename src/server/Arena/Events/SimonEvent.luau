@@ -8,14 +8,12 @@
 -- Cause of how many different texts it can have
 -- On tests it was hard but after some time playing it, it became easier
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
-local Promise = require(ReplicatedStorage.Shared.Promise)
 
 type EventType = EventTypeModule.Event
 type Text = { opposite: boolean, text: string, idx: number?, custom: number? }
@@ -88,96 +86,94 @@ function Event.check()
 end
 
 function Event.onEvent()
-    return Promise.new(function(resolve, reject, onCancel)
-        local deathsThisEvent = 0
+    local deathsThisEvent = 0
 
-        TimerModule.setTime(5)
-        GameState.runPromisePerAlive(function(player, protect)
-            return protect(TextModule.showTextSequence(player, {
-                { text = "Alright, I'm Simon now", delay = 2.5 },
-                { text = "No \"Simon says\"? Then do the opposite", delay = 2.5 },
-            }))
-        end):catch(error):await()
+    TimerModule.setTime(5)
+    GameState.runPromisePerAlive(function(player, protect)
+        return protect(TextModule.showTextSequence(player, {
+            { text = "Alright, I'm Simon now", delay = 2.5 },
+            { text = "No \"Simon says\"? Then do the opposite", delay = 2.5 },
+        }))
+    end):catch(error):await()
 
-        GameState.runFuncPerAlive(function(player)
-            ButtonsModule.setButtons(player, {
-                { idx = 1, text = "Red" },
-                { idx = 2, text = "Blue" },
-                { idx = 3, text = "Pink" },
-                { idx = 4, text = "Yellow" },
-            })
-        end)
+    GameState.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {
+            { idx = 1, text = "Red" },
+            { idx = 2, text = "Blue" },
+            { idx = 3, text = "Pink" },
+            { idx = 4, text = "Yellow" },
+        })
+    end)
 
-        local lastChosen: {[Player]: number?} = {}
-        for i = 1, MAX_SUB_ROUNDS do
-            if deathsThisEvent >= MAX_DEATHS_ALLOWED then
-                break
-            end
-
-            local maxRange = ROUNDS_RANGE[i]
-            local randomTextRaw = texts[math.random(1, maxRange)]
-            local randomText: Text = {  -- Copy
-                text = randomTextRaw.text,
-                custom = randomTextRaw.custom,
-                idx = randomTextRaw.idx,
-                opposite = randomTextRaw.opposite
-            }
-            if randomText.custom == nil and randomText.idx == nil then
-                local randomColor = math.random(1, 4)
-                randomText.text = randomText.text .. COLOR_NAMES[randomColor]
-                randomText.idx = randomColor
-            end
-
-            local lastChosenCopy: {[Player]: number?} = {}
-            for player, idx in pairs(lastChosen) do
-                lastChosenCopy[player] = idx
-            end
-            GameState.runFuncPerAlive(function(player)
-                TextModule.setText(player, randomText.text)
-            end)
-
-            local clickedNow: {[Player]: boolean} = {}
-
-            TimerModule.setTime(5)
-            local _, chosen = ButtonsModule.initiateButtonChoice(
-                5,
-                function(playerWhoClicked)
-                    return not clickedNow[playerWhoClicked]
-                end,
-                function(playerWhoClicked)
-                    clickedNow[playerWhoClicked] = true
-                end,
-                lastChosenCopy
-            ):catch(error):await()
-
-            GameState.runNewPromisePerAlive(function(player)
-                local selected = chosen[player]
-                if randomText.idx then
-                    if (randomText.opposite and randomText.idx == selected) or
-                       (not randomText.opposite and randomText.idx ~= selected)
-                    then
-                        ButtonsModule.setButtons(player, {})
-                        GameState.kill(player)
-                        deathsThisEvent += 1
-                    end
-                elseif randomText.custom == 1 then
-                    local lastSelected = lastChosen[player]
-                    local didChange = (selected ~= lastSelected)
-                    if (randomText.opposite and didChange) or
-                       (not randomText.opposite and not didChange)
-                    then
-                        ButtonsModule.setButtons(player, {})
-                        GameState.kill(player)
-                        deathsThisEvent += 1
-                    end
-                end
-            end)
-
-            lastChosen = chosen
+    local lastChosen: {[Player]: number?} = {}
+    for i = 1, MAX_SUB_ROUNDS do
+        if deathsThisEvent >= MAX_DEATHS_ALLOWED then
+            break
         end
 
-        resolve()
-    end)
+        local maxRange = ROUNDS_RANGE[i]
+        local randomTextRaw = texts[math.random(1, maxRange)]
+        local randomText: Text = {  -- Copy
+            text = randomTextRaw.text,
+            custom = randomTextRaw.custom,
+            idx = randomTextRaw.idx,
+            opposite = randomTextRaw.opposite
+        }
+        if randomText.custom == nil and randomText.idx == nil then
+            local randomColor = math.random(1, 4)
+            randomText.text = randomText.text .. COLOR_NAMES[randomColor]
+            randomText.idx = randomColor
+        end
+
+        local lastChosenCopy: {[Player]: number?} = {}
+        for player, idx in pairs(lastChosen) do
+            lastChosenCopy[player] = idx
+        end
+        GameState.runFuncPerAlive(function(player)
+            TextModule.setText(player, randomText.text)
+        end)
+
+        local clickedNow: {[Player]: boolean} = {}
+
+        TimerModule.setTime(5)
+        local _, chosen = ButtonsModule.initiateButtonChoice(
+            5,
+            function(playerWhoClicked)
+                return not clickedNow[playerWhoClicked]
+            end,
+            function(playerWhoClicked)
+                clickedNow[playerWhoClicked] = true
+            end,
+            lastChosenCopy
+        ):catch(error):await()
+
+        GameState.runNewPromisePerAlive(function(player)
+            local selected = chosen[player]
+            if randomText.idx then
+                if (randomText.opposite and randomText.idx == selected) or
+                    (not randomText.opposite and randomText.idx ~= selected)
+                then
+                    ButtonsModule.setButtons(player, {})
+                    GameState.kill(player)
+                    deathsThisEvent += 1
+                end
+            elseif randomText.custom == 1 then
+                local lastSelected = lastChosen[player]
+                local didChange = (selected ~= lastSelected)
+                if (randomText.opposite and didChange) or
+                    (not randomText.opposite and not didChange)
+                then
+                    ButtonsModule.setButtons(player, {})
+                    GameState.kill(player)
+                    deathsThisEvent += 1
+                end
+            end
+        end)
+
+        lastChosen = chosen
+    end
+
+    return
 end
 
 return Event

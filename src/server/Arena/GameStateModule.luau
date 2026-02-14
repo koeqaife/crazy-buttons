@@ -298,4 +298,22 @@ function GameState.isDead(player: Player)
     return table.find(deadPlayers, player) ~= nil
 end
 
+function GameState.cancelAll()
+    local toWait: {Promise.TypedPromise<any>} = {}
+
+    for player, promises in pairs(runningPromises) do
+        table.insert(toWait, Promise.defer(function(resolve, reject, onCancel)
+            for i = #promises, 1, -1 do
+                print("Cancelling promise for", player.Name)
+                local promise = promises[i]
+                promise:cancel()
+            end
+            table.clear(promises)
+            resolve()
+        end))
+    end
+
+    Promise.allSettled(toWait):await()
+end
+
 return GameState

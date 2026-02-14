@@ -18,7 +18,6 @@ local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
-local Promise = require(ReplicatedStorage.Shared.Promise)
 
 type EventType = EventTypeModule.Event
 
@@ -121,119 +120,117 @@ function Event.check()
 end
 
 function Event.onEvent()
-    return Promise.new(function(resolve, reject, onCancel)
-        local randomQuiz = getQuiz()
-        local randomPlayer = GameState.alivePlayers[math.random(1, #GameState.alivePlayers)]
+    local randomQuiz = getQuiz()
+    local randomPlayer = GameState.alivePlayers[math.random(1, #GameState.alivePlayers)]
 
-        local answers = {randomQuiz.answer}
-        for _, incorrect in ipairs(randomQuiz.incorrectAnswers) do
-            table.insert(answers, incorrect)
+    local answers = {randomQuiz.answer}
+    for _, incorrect in ipairs(randomQuiz.incorrectAnswers) do
+        table.insert(answers, incorrect)
+    end
+    Helpers.shuffleTable(answers)
+
+    TimerModule.setTime(5)
+    GameState.addHighlightTo({randomPlayer})
+    GameState.runPromisePerAlive(function(player, protect)
+        if player == randomPlayer then
+            return protect(TextModule.showTextSequence(player, {
+                { text = "How good are you in math?", delay = 2.5 },
+                { text = "Other people lives depend on you now", delay = 2.5 },
+            }))
+        else
+            return protect(TextModule.showTextSequence(player, {
+                { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 2.5 },
+                { text = "You will have to find out", delay = 2.5 },
+            }))
         end
-        Helpers.shuffleTable(answers)
+    end):catch(error):await()
 
-        TimerModule.setTime(5)
-        GameState.addHighlightTo({randomPlayer})
-        GameState.runPromisePerAlive(function(player, protect)
-            if player == randomPlayer then
-                return protect(TextModule.showTextSequence(player, {
-                    { text = "How good are you in math?", delay = 2.5 },
-                    { text = "Other people lives depend on you now", delay = 2.5 },
-                }))
-            else
-                return protect(TextModule.showTextSequence(player, {
-                    { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 2.5 },
-                    { text = "You will have to find out", delay = 2.5 },
-                }))
-            end
-        end):catch(error):await()
+    TimerModule.setTime(30)
+    GameState.runFuncPerAlive(function(player)
+        if player == randomPlayer then
+            TextModule.setText(player, "Calculate this:\n" .. randomQuiz.exp)
 
-        TimerModule.setTime(30)
-        GameState.runFuncPerAlive(function(player)
-            if player == randomPlayer then
-                TextModule.setText(player, "Calculate this:\n" .. randomQuiz.exp)
-
-                local buttons: IndicesType.Indices = {}
-                for index, answer in answers do
-                    table.insert(buttons, { idx = index, text = tostring(answer) })
-                end
-
-                ButtonsModule.setButtons(player, buttons)
-            else
-                TextModule.setText(
-                    player,
-                    "Is " .. randomPlayer.Name ..
-                    " smart enough to calculate: \n" ..
-                    randomQuiz.exp .. "\n?"
-                )
-                ButtonsModule.setButtons(player, {
-                    { idx = 1, text = "No" },
-                    { idx = 2, text = "Yes" },
-                })
-            end
-        end)
-
-        local _, chosen = ButtonsModule.initiateButtonChoice(30):catch(error):await()
-
-        local answered = answers[chosen[randomPlayer] or 0] or -1
-        local isRight = answered == randomQuiz.answer
-        local yesCount = 0
-        local total = 0
-
-        GameState.runFuncPerAlive(function(player)
-            if player == randomPlayer then
-                return
+            local buttons: IndicesType.Indices = {}
+            for index, answer in answers do
+                table.insert(buttons, { idx = index, text = tostring(answer) })
             end
 
-            local choice = chosen[player] or math.random(1, 2)
-            total += 1
-
-            local predictedYes = choice == 2
-            if predictedYes then
-                yesCount += 1
-            end
-        end)
-
-        local playerMustDie = not isRight and (yesCount <= total / 2)
-
-        TimerModule.setTime(5)
-        GameState.runNewPromisePerAlive(function(player)
-            if player == randomPlayer then
-                if isRight then
-                    TextModule.setText(player, "Your answer was right")
-                    task.wait(5)
-                else
-                    TextModule.setText(player, "Your answer was wrong")
-                    if playerMustDie then
-                        task.wait(2)
-                        TextModule.setText(player, "But no one even believed in you...")
-                        GameState.kill(player)
-                        task.wait(3)
-                    else
-                        task.wait(5)
-                    end
-                end
-            else
-                local choice = chosen[player]
-                local isYes = choice == 2
-                if choice == nil then
-                    TextModule.setText(player, "You had to answer...")
-                    GameState.kill(player)
-                elseif isYes ~= isRight then
-                    if playerMustDie then
-                        TextModule.setText(player, "You were wrong, but lucky this time")
-                    else
-                        TextModule.setText(player, "You were wrong")
-                        GameState.kill(player)
-                    end
-                else
-                    TextModule.setText(player, "You were right")
-                end
-                task.wait(5)
-            end
-        end):catch(error):await()
-
-        resolve()
+            ButtonsModule.setButtons(player, buttons)
+        else
+            TextModule.setText(
+                player,
+                "Is " .. randomPlayer.Name ..
+                " smart enough to calculate: \n" ..
+                randomQuiz.exp .. "\n?"
+            )
+            ButtonsModule.setButtons(player, {
+                { idx = 1, text = "No" },
+                { idx = 2, text = "Yes" },
+            })
+        end
     end)
+
+    local _, chosen = ButtonsModule.initiateButtonChoice(30):catch(error):await()
+
+    local answered = answers[chosen[randomPlayer] or 0] or -1
+    local isRight = answered == randomQuiz.answer
+    local yesCount = 0
+    local total = 0
+
+    GameState.runFuncPerAlive(function(player)
+        if player == randomPlayer then
+            return
+        end
+
+        local choice = chosen[player] or math.random(1, 2)
+        total += 1
+
+        local predictedYes = choice == 2
+        if predictedYes then
+            yesCount += 1
+        end
+    end)
+
+    local playerMustDie = not isRight and (yesCount <= total / 2)
+
+    TimerModule.setTime(5)
+    GameState.runNewPromisePerAlive(function(player)
+        if player == randomPlayer then
+            if isRight then
+                TextModule.setText(player, "Your answer was right")
+                task.wait(5)
+            else
+                TextModule.setText(player, "Your answer was wrong")
+                if playerMustDie then
+                    task.wait(2)
+                    TextModule.setText(player, "But no one even believed in you...")
+                    GameState.kill(player)
+                    task.wait(3)
+                else
+                    task.wait(5)
+                end
+            end
+        else
+            local choice = chosen[player]
+            local isYes = choice == 2
+            if choice == nil then
+                TextModule.setText(player, "You had to answer...")
+                GameState.kill(player)
+            elseif isYes ~= isRight then
+                if playerMustDie then
+                    TextModule.setText(player, "You were wrong, but lucky this time")
+                else
+                    TextModule.setText(player, "You were wrong")
+                    GameState.kill(player)
+                end
+            else
+                TextModule.setText(player, "You were right")
+            end
+            task.wait(5)
+        end
+    end):catch(error):await()
+
+    return
 end
 
 return Event

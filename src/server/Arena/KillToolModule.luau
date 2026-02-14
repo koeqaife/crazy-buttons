@@ -169,7 +169,7 @@ local function onAction(player: Player, action: ActionType)
         end
     elseif action.name == "showTool" then
         local meta = getMeta(player)
-        meta.active = true
+        meta.active = not meta.active
         updateIcon(player)
         if not action.showTool then
             selectPlayer(meta.lastSelected, false)

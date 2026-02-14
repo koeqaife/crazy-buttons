@@ -13,9 +13,12 @@ local deadPlayers: {Player} = {}
 
 local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
 
+local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
+
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.round = 0
+GameState.OnPlayerDied = OnPlayerDied
 
 local function ensureRunningPromises(player: Player)
     if runningPromises[player] == nil then
@@ -52,6 +55,7 @@ function GameState.kill(player: Player, reason: string?)
     cancelPlayerPromises(player)
 
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
+    OnPlayerDied:Fire(player)
 end
 
 local function protect<T>(player: Player, promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>

@@ -21,7 +21,6 @@ local BUTTONS = {
     { color = Color3.new(0.96, 0.8, 0.19) },    -- Yellow
     { color = Color3.new(0.06, 0.96, 0) },      -- Green
 
-    -- ID>5 is for event "What?"
     { color = Color3.new(1, 0.55, 0) },         -- Orange
     { color = Color3.new(0, 1, 1) },            -- Cyan
     { color = Color3.new(0.6, 0.4, 0.2) },      -- Brown

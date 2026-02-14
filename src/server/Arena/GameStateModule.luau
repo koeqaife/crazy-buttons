@@ -28,13 +28,15 @@ local function ensureRunningPromises(player: Player)
 end
 
 local function cancelPlayerPromises(player: Player)
-    local playerRunningPromises = ensureRunningPromises(player)
-    for i = #playerRunningPromises, 1, -1 do
-        print("Cancelling promise for", player.Name)
-        local promise = playerRunningPromises[i]
-        promise:cancel()
-    end
-    table.clear(playerRunningPromises)
+    Promise.defer(function(resolve, reject, onCancel)
+        local playerRunningPromises = ensureRunningPromises(player)
+        for i = #playerRunningPromises, 1, -1 do
+            print("Cancelling promise for", player.Name)
+            local promise = playerRunningPromises[i]
+            promise:cancel()
+        end
+        table.clear(playerRunningPromises)
+    end):catch(warn)
 end
 
 GameState.cancelPlayerPromises = cancelPlayerPromises
@@ -52,10 +54,10 @@ function GameState.kill(player: Player, reason: string?)
     end
     table.insert(deadPlayers, player)
 
-    cancelPlayerPromises(player)
-
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
     OnPlayerDied:Fire(player)
+
+    cancelPlayerPromises(player)
 end
 
 local function protect<T>(player: Player, promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>

@@ -126,9 +126,8 @@ local function createButton(obj: IndicesModule.Button, buttonData: { color: Colo
 end
 
 function ButtonsModule.setButtons(indices: Indices, seed: number?)
-    if seed then
-        math.randomseed(seed)
-    end
+    local rng = Random.new(seed)
+
     for _, btn in ipairs(spawnedButtons) do
         if btn and btn.Parent then
             btn:Destroy()
@@ -159,8 +158,8 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
                 local angle
 
                 while true do
-                    distance = math.random(MIN_DISTANCE, MAX_DISTANCE)
-                    angle = math.random() * 2 * math.pi
+                    distance = rng:NextInteger(MIN_DISTANCE, MAX_DISTANCE)
+                    angle = rng:NextNumber() * 2 * math.pi
                     offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * distance
 
                     local tooClose = false
@@ -183,7 +182,6 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
             end
         end
     end
-    math.randomseed(tick())
 end
 
 function ButtonsModule.updateButtons(indices: Indices)

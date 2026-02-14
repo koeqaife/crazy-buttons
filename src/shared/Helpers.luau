@@ -1,14 +1,11 @@
 local HelpersModule = {}
 
 function HelpersModule.shuffleTable(tbl, seed: number?)
-	if seed then
-		math.randomseed(seed)
-	end
+	local rng = Random.new(seed)
 	for i = #tbl, 2, -1 do
-		local j = math.random(i)
+		local j = rng:NextInteger(1, i)
 		tbl[i], tbl[j] = tbl[j], tbl[i]
 	end
-	math.randomseed(tick())
 	return tbl
 end
 

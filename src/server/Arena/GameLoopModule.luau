@@ -23,6 +23,7 @@ local ComboEvent = require(Arena.Events.ComboEvent)
 local AlienEvent = require(Arena.Events.AlienEvent)
 local SacrificeEvent = require(Arena.Events.SacrificeEvent)
 local GodBtnEvent = require(Arena.Events.GodBtnEvent)
+local HandoutEvent = require(Arena.Events.HandoutEvent)
 
 local events: {Event} = {
     ColorEvent,
@@ -35,7 +36,8 @@ local events: {Event} = {
     ComboEvent,
     AlienEvent,
     SacrificeEvent,
-    GodBtnEvent
+    GodBtnEvent,
+    HandoutEvent
 }
 local eventCounts: {[Event]: number} = {}
 

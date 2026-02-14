@@ -47,7 +47,8 @@ local function onSyncEvent(
     died: boolean,
     player: Player,
     dead: {Player},
-    alive: {Player}
+    alive: {Player},
+    reason: string?  -- nil | "byKillTool"
 )
     if not player then
         return
@@ -93,6 +94,13 @@ local function onSyncEvent(
 
     Helpers.shuffleTable(descendants)
 
+    local color
+    if reason == "byKillTool" then
+        color = Color3.fromRGB(255, 238, 0)
+    else
+        color = Color3.fromRGB(56, 138, 245)
+    end
+
     local opacity
     if died then
         opacity = {
@@ -130,7 +138,7 @@ local function onSyncEvent(
             highlight.Parent = obj
             highlight.OutlineTransparency = 1
             highlight.FillTransparency = opacity.highlightStart
-            highlight.FillColor = Color3.fromRGB(56, 138, 245)
+            highlight.FillColor = color
             highlight.DepthMode = Enum.HighlightDepthMode.Occluded
 
             Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightTo })

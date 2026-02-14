@@ -16,7 +16,7 @@ GameState.deadPlayers = deadPlayers
 GameState.round = 0
 
 
-function GameState.kill(player: Player)
+function GameState.kill(player: Player, reason: string?)
     if not player or not player.Parent then
         return
     end
@@ -29,10 +29,10 @@ function GameState.kill(player: Player)
     end
     table.insert(deadPlayers, player)
 
-    SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers)
+    SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
 end
 
-function GameState.revive(player: Player)
+function GameState.revive(player: Player, reason: string?)
     if not player or not player.Parent then
         return
     end
@@ -45,7 +45,7 @@ function GameState.revive(player: Player)
     end
     table.insert(alivePlayers, player)
 
-    SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers)
+    SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers, reason)
 end
 
 local function runNewPromisePer(array: {Player}, func: (player: Player) -> nil)

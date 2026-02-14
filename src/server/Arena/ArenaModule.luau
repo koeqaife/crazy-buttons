@@ -11,6 +11,7 @@ local PlayerLoaded = Instance.new("RemoteEvent", ReplicatedStorage)
 PlayerLoaded.Name = "PlayerLoaded"
 
 local GameStateModule = require(script.Parent.GameStateModule)
+local KillToolModule = require(script.Parent.KillToolModule)
 local GameLoopModule = require(Arena.GameLoopModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
@@ -33,6 +34,7 @@ end
 
 function ArenaModule.init()
     ButtonsModule.init()
+    KillToolModule.init()
     TimerModule.start()
     GameStateModule.connect()
 

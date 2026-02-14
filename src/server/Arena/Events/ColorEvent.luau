@@ -27,6 +27,7 @@ local COLOR_NAMES = { "red", "blue", "pink", "yellow", "green" }
 local counter = 0
 
 function Event.check()
+    Event.chance += 0.03
     counter -= 1
     return counter <= 0
 end
@@ -125,8 +126,8 @@ function Event.onEvent()
     end)
     chosenColors = toSave
 
-    -- Can show this event only after 3 rounds
-    counter = 3
+    -- Can show this event only after 5 rounds
+    counter = 5
 
     task.wait(5)
 

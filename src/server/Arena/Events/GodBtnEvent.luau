@@ -2,13 +2,12 @@
 --!optimize 2
 
 -- Description:
--- Event that is always first
--- Kills those who didn't click the button
+-- 100 buttons will appear, one of them is the god button
+-- First one to find it gets a reward
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local KillToolModule = require(ServerScriptService.Server.Arena.KillToolModule)
+local KillToolModule = require(Arena.KillToolModule)
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)

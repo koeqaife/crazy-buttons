@@ -133,19 +133,19 @@ function Event.onEvent()
 
         TimerModule.setTime(5)
         GameState.addHighlightTo({randomPlayer})
-        GameState.runPromisePerAlive(function(player)
+        GameState.runPromisePerAlive(function(player, protect)
             if player == randomPlayer then
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "How good are you in math?", delay = 2.5 },
                     { text = "Other people lives depend on you now", delay = 2.5 },
-                })
+                }))
             else
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 2.5 },
                     { text = "You will have to find out", delay = 2.5 },
-                })
+                }))
             end
-        end):await()
+        end):catch(error):await()
 
         TimerModule.setTime(30)
         GameState.runFuncPerAlive(function(player)
@@ -172,10 +172,7 @@ function Event.onEvent()
             end
         end)
 
-        local ok, chosen = ButtonsModule.initiateButtonChoice(30):await()
-        if not ok then
-            reject(chosen)
-        end
+        local _, chosen = ButtonsModule.initiateButtonChoice(30):catch(error):await()
 
         local answered = answers[chosen[randomPlayer] or 0] or -1
         local isRight = answered == randomQuiz.answer
@@ -233,7 +230,7 @@ function Event.onEvent()
                 end
                 task.wait(5)
             end
-        end):await()
+        end):catch(error):await()
 
         resolve()
     end)

@@ -31,26 +31,26 @@ function Event.onEvent()
         TimerModule.setTime(5)
         local randomPlayer = GameState.alivePlayers[math.random(1, #GameState.alivePlayers)]
 
-        GameState.runPromisePerAlive(function(player)
+        GameState.runPromisePerAlive(function(player, protect)
             if player == randomPlayer then
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "You have been chosen...", delay = 2.5 },
                     { text = "People will decide your fate", delay = 2.5 }
-                })
+                }))
             else
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = randomPlayer.Name .. " has been chosen...", delay = 2.5 },
                     { text = "Will someone sacrifice themselves to save them?", delay = 2.5 }
-                })
+                }))
             end
-        end):await()
+        end):catch(error):await()
 
         local toKill: {Player} = {}
 
         GameState.addHighlightTo({randomPlayer})
 
         TimerModule.setTime(30)
-        GameState.runNewPromisePerAlive(function(player)
+        GameState.runNewPromisePerAlive(function(player, protect, await)
             if player == randomPlayer then
                 return
             end
@@ -59,7 +59,7 @@ function Event.onEvent()
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "Sacrifice yourself" }
             })
-            local _, clicked = ButtonsModule.waitForIdxClick(player, 30, 1):await()
+            local clicked = await(ButtonsModule.waitForIdxClick(player, 30, 1))
 
             ButtonsModule.setButtons(player, {})
 
@@ -68,7 +68,7 @@ function Event.onEvent()
                 table.insert(toKill, player)
                 task.wait(3)
             end
-        end):await()
+        end):catch(error):await()
 
         local playerMustBeKilled = #toKill == 0
 

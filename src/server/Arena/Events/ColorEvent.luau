@@ -38,15 +38,15 @@ function Event.onEvent()
         return Promise.new(function(resolve, reject, onCancel)
             TimerModule.setTime(5)
 
-            GameState.runPromisePerAlive(function(player)
-                return TextModule.showTextSequence(player, {
+            GameState.runPromisePerAlive(function(player, protect)
+                return protect(TextModule.showTextSequence(player, {
                     { text = "Do you remember the color you chose before?", delay = 2.5 },
                     { text = "Let's check your memory", delay = 2.5 },
-                })
-            end):await()
+                }))
+            end):catch(error):await()
 
             TimerModule.setTime(15)
-            GameState.runNewPromisePerAlive(function(player)
+            GameState.runFuncPerAlive(function(player)
                 TextModule.setText(player, "So, which one did you choose?")
                 ButtonsModule.setButtons(player, {
                     { idx = 1, text = "Red" },
@@ -55,27 +55,24 @@ function Event.onEvent()
                     { idx = 4, text = "Yellow" },
                     { idx = 5, text = "Green" },
                 })
-            end):await()
+            end)
 
-            local ok, chosen = ButtonsModule.initiateButtonChoice(15):await()
-            if not ok then
-                reject(chosen)
-            end
+            local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
 
             TimerModule.setTime(5)
-            GameState.runNewPromisePerAlive(function(player)
+            GameState.runNewPromisePerAlive(function(player, protect, await)
                 local color = chosen[player] or 0
                 if color ~= chosenColors[player] then
                     TextModule.setText(player, "That was not the color you chose")
                     GameState.kill(player)
                     task.wait(5)
                 else
-                    TextModule.showTextSequence(player, {
+                    await(TextModule.showTextSequence(player, {
                         { text = "Woa, you actually remember!", delay = 3 },
                         { text = "Good job", delay = 2 },
-                    }):await()
+                    }))
                 end
-            end):await()
+            end):catch(error):await()
 
             resolve()
         end)
@@ -84,15 +81,15 @@ function Event.onEvent()
     return Promise.new(function(resolve, reject, onCancel)
         TimerModule.setTime(5)
 
-        GameState.runPromisePerAlive(function(player)
-            return TextModule.showTextSequence(player, {
+        GameState.runPromisePerAlive(function(player, protect)
+            return protect(TextModule.showTextSequence(player, {
                 { text = "I'm about to show you some colors", delay = 2.5 },
                 { text = "Remember which one you pick, you'll need it later", delay = 2.5 },
-            })
-        end):await()
+            }))
+        end):catch(error):await()
 
         TimerModule.setTime(15)
-        GameState.runNewPromisePerAlive(function(player)
+        GameState.runFuncPerAlive(function(player)
             TextModule.setText(player, "Choose color you like the most now")
             local buttons = {
                 { idx = 1, text = "Red" },
@@ -105,17 +102,14 @@ function Event.onEvent()
             table.remove(buttons, math.random(1, #buttons))
 
             ButtonsModule.setButtons(player, buttons)
-        end):await()
+        end)
 
-        local ok, chosen = ButtonsModule.initiateButtonChoice(15):await()
-        if not ok then
-            reject(chosen)
-        end
+        local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
 
         local toSave: {[Player]: number} = {}
 
         TimerModule.setTime(5)
-        GameState.runNewPromisePerAlive(function(player)
+        GameState.runFuncPerAlive(function(player)
             local color = chosen[player] or 0
             if color == 1 then
                 TextModule.setText(player, "Red? An interesting choice")
@@ -133,7 +127,7 @@ function Event.onEvent()
                 TextModule.setText(player, "Nothing? Let's go with " .. colorName .. " then")
             end
             toSave[player] = color
-        end):await()
+        end)
         chosenColors = toSave
 
         counter = 3

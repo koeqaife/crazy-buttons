@@ -11,10 +11,18 @@ SyncDeadEvent.Name = "SyncDeadEvent"
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
 
+local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
+
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.round = 0
 
+local function ensureRunningPromises(player: Player)
+    if runningPromises[player] == nil then
+        runningPromises[player] = {}
+    end
+    return runningPromises[player]
+end
 
 function GameState.kill(player: Player, reason: string?)
     if not player or not player.Parent then
@@ -29,8 +37,56 @@ function GameState.kill(player: Player, reason: string?)
     end
     table.insert(deadPlayers, player)
 
+    Promise.defer(function(resolve, reject, onCancel)
+        local playerRunningPromises = ensureRunningPromises(player)
+        for i = #playerRunningPromises, 1, -1 do
+            print("Cancelling promise for", player.Name)
+            local promise = playerRunningPromises[i]
+            promise:cancel()
+        end
+        table.clear(playerRunningPromises)
+        resolve()
+    end):catch(warn)
+
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
 end
+
+local function protect<T>(player: Player, promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>
+    local newPromise = Promise.new(function(resolve, reject, onCancel)
+        promise:andThen(resolve):catch(reject)
+        onCancel(function()
+            promise:cancel()
+        end)
+    end)
+
+    local playerRunningPromises = ensureRunningPromises(player)
+
+    newPromise:finally(function(status)
+        local idx = table.find(playerRunningPromises, newPromise)
+        if idx ~= nil then table.remove(playerRunningPromises, idx) end
+    end)
+
+    if newPromise:getStatus() == "Started" then -- check just in case of UB
+        table.insert(playerRunningPromises, newPromise)
+    end
+
+    return newPromise
+end
+
+
+local function protectedAwait<T>(player: Player, promise: Promise.TypedPromise<T?>): T
+    local protectedPromise = protect(player, promise)
+    local ok, result = protectedPromise:await()
+    if protectedPromise:getStatus() == "Cancelled" then
+        return result
+    elseif not ok then
+        error(result)
+    end
+    return result
+end
+
+GameState.protect = protect
+GameState.protectedAwait = protectedAwait
 
 function GameState.revive(player: Player, reason: string?)
     if not player or not player.Parent then
@@ -48,56 +104,91 @@ function GameState.revive(player: Player, reason: string?)
     SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers, reason)
 end
 
-local function runNewPromisePer(array: {Player}, func: (player: Player) -> nil)
+type NewPromiseFunc = (
+    player: Player,
+    protect: <T>(promise: Promise.TypedPromise<T?>) -> Promise.TypedPromise<T>,
+    await: <T>(promise: Promise.TypedPromise<T?>) -> T
+) -> nil
+
+type PromiseFunc = (
+    player: Player,
+    protect: <T>(promise: Promise.TypedPromise<T?>) -> Promise.TypedPromise<T>,
+    await: <T>(promise: Promise.TypedPromise<T?>) -> T
+) -> Promise.TypedPromise<any>
+
+local function runNewPromisePer(
+    array: {Player},
+    func: NewPromiseFunc
+)
     local promises = {}
     for _, player in ipairs(array) do
         if not player or not player.Parent then
             continue
         end
 
-        table.insert(promises, Promise.new(function(resolve)
-            func(player)
+        local function protectForPlayer<T>(promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>
+            return protect(player, promise)
+        end
+
+        local function awaitForPlayer<T>(promise: Promise.TypedPromise<T?>): T
+            return protectedAwait(player, promise)
+        end
+
+        local newPromise = protect(player, Promise.new(function(resolve)
+            func(player, protectForPlayer, awaitForPlayer)
             resolve()
         end))
+
+        table.insert(promises, newPromise)
     end
-    return Promise.all(promises)
+    return Promise.allSettled(promises)
 end
 
-local function runPromisePer(array: {Player}, promise: (player: Player) -> Promise.TypedPromise<nil>)
+local function runPromisePer(array: {Player}, func: PromiseFunc)
     local promises = {}
     for _, player in ipairs(array) do
         if not player or not player.Parent then
             continue
         end
 
-        table.insert(promises, promise(player))
+        local function protectForPlayer<T>(promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>
+            return protect(player, promise)
+        end
+
+        local function awaitForPlayer<T>(promise: Promise.TypedPromise<T?>): T
+            return protectedAwait(player, promise)
+        end
+
+        local newPromise = protect(player, func(player, protectForPlayer, awaitForPlayer))
+
+        table.insert(promises, newPromise)
     end
-    return Promise.all(promises)
+    return Promise.allSettled(promises)
 end
 
 -- New
-function GameState.runNewPromisePerAll(func: (player: Player) -> nil)
+function GameState.runNewPromisePerAll(func: NewPromiseFunc)
     return runNewPromisePer(Players:GetPlayers(), func)
 end
 
-function GameState.runNewPromisePerAlive(func: (player: Player) -> nil)
+function GameState.runNewPromisePerAlive(func: NewPromiseFunc)
     return runNewPromisePer(alivePlayers, func)
 end
 
-function GameState.runNewPromisePerDead(func: (player: Player) -> nil)
+function GameState.runNewPromisePerDead(func: NewPromiseFunc)
     return runNewPromisePer(deadPlayers, func)
 end
 
 -- Existing
-function GameState.runPromisePerAll(promise: (player: Player) -> Promise.TypedPromise<nil>)
+function GameState.runPromisePerAll(promise: PromiseFunc)
     return runPromisePer(Players:GetPlayers(), promise)
 end
 
-function GameState.runPromisePerAlive(promise: (player: Player) -> Promise.TypedPromise<nil>)
+function GameState.runPromisePerAlive(promise: PromiseFunc)
     return runPromisePer(alivePlayers, promise)
 end
 
-function GameState.runPromisePerDead(promise: (player: Player) -> Promise.TypedPromise<nil>)
+function GameState.runPromisePerDead(promise: PromiseFunc)
     return runPromisePer(deadPlayers, promise)
 end
 
@@ -201,6 +292,10 @@ function GameState.rewardBadge(player: Player, id: number): Promise.TypedPromise
             return BadgeService:AwardBadgeAsync(player.UserId, id)
         end)()
     end, 5, withJitter(15))
+end
+
+function GameState.isDead(player: Player)
+    return table.find(deadPlayers, player) ~= nil
 end
 
 return GameState

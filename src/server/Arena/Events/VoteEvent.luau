@@ -58,28 +58,28 @@ function Event.onEvent()
         GameState.addHighlightTo(playersForVote)
 
         TimerModule.setTime(5)
-        GameState.runPromisePerAlive(function(player: Player)
+        GameState.runPromisePerAlive(function(player, protect)
             if table.find(playersForVote, player) then
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "Someone will be eliminated now", delay = 2.5 },
                     { text = "Other players will decide your fate...", delay = 2.5 },
-                })
+                }))
             else
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "Someone will be eliminated now", delay = 2.5 },
                     { text = "Choose wisely who should be eliminated", delay = 2.5 },
-                })
+                }))
             end
-        end):await()
+        end):catch(error):await()
 
         TimerModule.setTime(25)
 
         local votingPromise = ButtonsModule.initiateButtonChoice(25)
 
-        GameState.runNewPromisePerAlive(function(player: Player)
+        GameState.runNewPromisePerAlive(function(player, protect, await)
             if table.find(playersForVote, player) then
                 task.wait(2.5)
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = "It may be a bit boring while they're voting?", delay = 2.5 },
                     { text = "Many people are crazy", delay = 2.5 },
                     { text = "They are gonna choose someone who just looks bad", delay = 2.5 },
@@ -87,7 +87,7 @@ function Event.onEvent()
                     { text = "If you know what I'm talking about", delay = 2.5 },
                     { text = "You didn't make them mad, right?", delay = 5 },
                     { text = "Let's see who was eliminated", delay = 5 },
-                }):await()
+                }))
             else
                 local buttons: IndicesType.Indices = {}
                 for i, playerForVote in ipairs(playersForVote) do
@@ -97,10 +97,7 @@ function Event.onEvent()
             end
         end)
 
-        local ok, result = votingPromise:await()
-        if not ok then
-            return reject(result)
-        end
+        local _, result = votingPromise:catch(error):await()
 
         local votes: { [Player]: number } = {}
         for _, idx in pairs(result) do
@@ -128,7 +125,7 @@ function Event.onEvent()
             else
                 TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was eliminated")
             end
-        end):await()
+        end)
         task.wait(5)
 
         resolve()

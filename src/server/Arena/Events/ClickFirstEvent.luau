@@ -34,13 +34,13 @@ end
 function Event.onEvent()
     return Promise.new(function(resolve, reject, onCancel)
         TimerModule.setTime(10)
-        GameState.runPromisePerAlive(function(player)
-            return TextModule.showTextSequence(player, {
+        GameState.runPromisePerAlive(function(player, protect)
+            return protect(TextModule.showTextSequence(player, {
                 { text = "Now you will have to click the button", delay = 3.25 },
                 { text = "Click faster than the others", delay = 3.25 },
                 { text = "The last one to click will be eliminated", delay = 3.5 },
-            })
-        end):catch(reject):await()
+            }))
+        end):catch(error):await()
 
         GameState.runFuncPerAlive(function(player)
             ButtonsModule.setButtons(player, {
@@ -55,7 +55,7 @@ function Event.onEvent()
         local lastClickPerPlayer: {[Player]: number} = {}
 
         -- With cooldown of 1 second, so people can't just click really fast
-        local promise = GameState.runPromisePerAlive(function(player)
+        local promise = GameState.runPromisePerAlive(function(player, protect, await)
             return Promise.new(function(resolve2, reject2, onCancel2)
                 while task.wait() do
                     local promise = ButtonsModule.waitForClick(player, toWait)
@@ -63,13 +63,9 @@ function Event.onEvent()
                         promise:cancel()
                     end)
 
-                    local ok, clicked = promise:await()
-                    if not ok then
-                        reject2(clicked)
-                        return
-                    end
+                    local clicked = await(promise)
 
-                    if ok and clicked then
+                    if clicked then
                         lastClickPerPlayer[player] = os.clock()
                         ButtonsModule.updateButtons(player, {
                             { idx = 1, disabled = true }
@@ -81,12 +77,12 @@ function Event.onEvent()
                     end
                 end
             end)
-        end):catch(reject)
+        end):catch(error)
 
         task.wait(toWait)
         promise:cancel()
 
-        GameState.runNewPromisePerAlive(function(player)
+        GameState.runNewPromisePerAlive(function(player, protect, await)
             -- Apply cooldown
             local now = os.clock()
             if lastClickPerPlayer[player] and now - lastClickPerPlayer[player] < COOLDOWN then
@@ -99,16 +95,13 @@ function Event.onEvent()
             ButtonsModule.setButtons(player, {
                 { idx = 5, text = "CLICK ME" }
             })
-            local ok, clicked = ButtonsModule.waitForIdxClick(player, 10, 5):await()
-            if not ok then
-                reject(clicked)
-                return
-            end
+            local clicked = await(ButtonsModule.waitForIdxClick(player, 10, 5))
+
             if not clicked then
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = "You didn't click the button", delay = 2.5 },
                     { text = "You will be eliminated", delay = 2.5 },
-                }):await()
+                }))
                 GameState.kill(player)
                 return
             end
@@ -116,18 +109,18 @@ function Event.onEvent()
 
             counter -= 1
             if counter <= 0 then
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = "You were the last one to click", delay = 2.5 },
                     { text = "You will be eliminated", delay = 2.5 },
-                }):await()
+                }))
                 GameState.kill(player)
             else
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = "You clicked the button", delay = 2.5 },
                     { text = "Wait for the others to click", delay = 2.5 },
-                }):await()
+                }))
             end
-        end):catch(reject):await()
+        end):catch(error):await()
 
         resolve()
     end)

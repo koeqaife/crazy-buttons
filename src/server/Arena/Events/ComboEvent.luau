@@ -81,13 +81,13 @@ end
 function Event.onEvent()
     return Promise.new(function(resolve, reject, onCancel)
         TimerModule.setTime(10)
-        GameState.runPromisePerAlive(function(player)
-            return TextModule.showTextSequence(player, {
+        GameState.runPromisePerAlive(function(player, protect)
+            return protect(TextModule.showTextSequence(player, {
                 { text = "Now you will have to repeat after me", delay = 2.5 },
                 { text = "Players with the highest amount of mistakes will be eliminated", delay = 5 },
                 { text = "And now we start", delay = 2.5 },
-            })
-        end):catch(reject):await()
+            }))
+        end):catch(error):await()
 
         GameState.runFuncPerAlive(function(player)
             ButtonsModule.setButtons(player, {
@@ -101,7 +101,7 @@ function Event.onEvent()
         local mistakes: { [Player]: number } = {}
 
         TimerModule.setTime(-1)
-        GameState.runNewPromisePerAlive(function(player)
+        GameState.runNewPromisePerAlive(function(player, protect, await)
             for round = 1, COMBO_COUNT do
                 local combo: {number} = {}
                 for i = 1, ROUND_COMBO_LENGTH[round] do
@@ -134,10 +134,7 @@ function Event.onEvent()
                     enableAllBtn(player)
 
                     TextModule.setText(player, tostring(i))
-                    local ok, clicked = ButtonsModule.waitForClick(player, 10):await()
-                    if not ok then
-                        return reject(ok)
-                    end
+                    local clicked = await(ButtonsModule.waitForClick(player, 10))
 
                     if not clicked then
                         TextModule.setText(player, "You didn't click anything")
@@ -157,7 +154,7 @@ function Event.onEvent()
             end
             TextModule.setText(player, "Let's wait for others to finish")
             task.wait(2)
-        end):catch(reject):await()
+        end):catch(error):await()
 
         local toCount = {}
         for player, mistakeCount in pairs(mistakes) do
@@ -189,11 +186,11 @@ function Event.onEvent()
         end
 
         TimerModule.setTime(10)
-        GameState.runNewPromisePerAlive(function(player)
-            TextModule.showTextSequence(player, {
+        GameState.runNewPromisePerAlive(function(player, protect, await)
+            await(TextModule.showTextSequence(player, {
                 { text = "You have " .. mistakes[player] .. " mistakes...", delay = 2 },
                 { text = "Let's see what we got here", delay = 3 }
-            }):await()
+            }))
 
             if table.find(toKill, player) then
                 TextModule.setText(player, "You are the one of people who are eliminated")
@@ -202,7 +199,7 @@ function Event.onEvent()
                 TextModule.setText(player, "You survived")
             end
             task.wait(5)
-        end):await()
+        end):catch(error):await()
 
         resolve()
     end)

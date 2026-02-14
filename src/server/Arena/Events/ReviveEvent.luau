@@ -48,20 +48,20 @@ local function onEventVariant()
         local randomPlayer = GameState.deadPlayers[math.random(1, #GameState.alivePlayers)]
 
         TimerModule.setTime(10)
-        GameState.runNewPromisePerAll(function(player: Player)
+        GameState.runNewPromisePerAll(function(player, protect, await)
             if player == randomPlayer then
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = "Someone will be revived now", delay = 5 },
                     { text = "You were revived!", delay = 5 },
-                }):await()
+                }))
                 GameState.revive(player)
             else
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = "Someone will be revived now", delay = 5 },
                     { text = "Player " .. randomPlayer.Name .. " was revived", delay = 5 },
-                }):await()
+                }))
             end
-        end):await()
+        end):catch(error):await()
     end)
 end
 
@@ -86,28 +86,28 @@ function Event.onEvent()
         GameState.addHighlightTo(playersForVote)
 
         TimerModule.setTime(5)
-        GameState.runPromisePerAll(function(player: Player)
+        GameState.runPromisePerAll(function(player, protect)
             if table.find(playersForVote, player) then
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "Someone will be revived now", delay = 2.5 },
                     { text = "Other players will decide if that's you...", delay = 2.5 },
-                })
+                }))
             elseif table.find(GameState.deadPlayers, player) then
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "Someone will be revived now", delay = 2.5 },
                     { text = "But not you, sadly...", delay = 2.5 },
-                })
+                }))
             else
-                return TextModule.showTextSequence(player, {
+                return protect(TextModule.showTextSequence(player, {
                     { text = "Someone will be revived now", delay = 2.5 },
                     { text = "Choose wisely who should be revived", delay = 2.5 },
-                })
+                }))
             end
         end):await()
 
         TimerModule.setTime(25)
 
-        GameState.runNewPromisePerAlive(function(player: Player)
+        GameState.runFuncPerAlive(function(player: Player)
             if not table.find(playersForVote, player) then
                 local buttons: IndicesType.Indices = {}
                 for i, playerForVote in ipairs(playersForVote) do
@@ -117,10 +117,7 @@ function Event.onEvent()
             end
         end)
 
-        local ok, result = ButtonsModule.initiateButtonChoice(25):await()
-        if not ok then
-            return reject(result)
-        end
+        local _, result = ButtonsModule.initiateButtonChoice(25):catch(error):await()
 
         local votes: { [Player]: number } = {}
         for _, idx in pairs(result) do

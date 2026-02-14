@@ -32,36 +32,35 @@ function Event.onEvent()
     return Promise.new(function(resolve, reject, onCancel)
         TimerModule.setTime(-1)
 
-        GameState.runNewPromisePerAlive(function(player)
-
-            TextModule.showTextSequence(player, {
+        GameState.runNewPromisePerAlive(function(player, protect, await)
+            await(TextModule.showTextSequence(player, {
                 { text = "I have a question for you", delay = 2 },
                 { text = "Do you like aliens?", delay = 3 },
-            }):catch(reject):await()
+            }))
 
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "Yes" },
                 { idx = 2, text = "No" }
             })
 
-            local _, clicked = ButtonsModule.waitForClick(player, 15):catch(reject):await()
+            local clicked = await(ButtonsModule.waitForClick(player, 15))
 
             ButtonsModule.setButtons(player, {})
             if clicked ~= 1 then
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = "Oh no...", delay = 2 },
                     { text = "That's not nice.....", delay = 3 }
-                }):catch(reject):await()
+                }))
                 GameState.kill(player)
             else
-                TextModule.showTextSequence(player, {
+                await(TextModule.showTextSequence(player, {
                     { text = ":D", delay = 2 },
                     { text = "That's cool", delay = 3 }
-                }):catch(reject):await()
+                }))
             end
 
             GameState.rewardBadge(player, BADGE_ID):andThenCall(print, "rewardBadge: success")
-        end):catch(reject):await()
+        end):catch(error):await()
 
         resolve()
     end)

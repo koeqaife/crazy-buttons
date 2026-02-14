@@ -14,11 +14,22 @@ local function fire(player: Player)
 end
 
 function TextModule.showTextSequence(player: Player, sequence: {{text: string, delay: number?}})
-    return Promise.new(function(resolve)
+    return Promise.new(function(resolve, reject, onCancel)
+        local cancelled = false
+
+        onCancel(function()
+            print("Player", player.Name, "sequence was cancelled")
+            cancelled = true
+        end)
+
         for _, step in ipairs(sequence) do
+            if cancelled then
+                return
+            end
+
             TextModule.setText(player, step.text)
             if step.delay then
-                task.wait(step.delay)
+                Promise.delay(step.delay):await()
             end
         end
         resolve()

@@ -92,21 +92,21 @@ function Event.onEvent()
         local deathsThisEvent = 0
 
         TimerModule.setTime(5)
-        GameState.runPromisePerAlive(function(player)
-            return TextModule.showTextSequence(player, {
+        GameState.runPromisePerAlive(function(player, protect)
+            return protect(TextModule.showTextSequence(player, {
                 { text = "Alright, I'm Simon now", delay = 2.5 },
                 { text = "No \"Simon says\"? Then do the opposite", delay = 2.5 },
-            })
-        end):await()
+            }))
+        end):catch(error):await()
 
-        GameState.runNewPromisePerAlive(function(player)
+        GameState.runFuncPerAlive(function(player)
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "Red" },
                 { idx = 2, text = "Blue" },
                 { idx = 3, text = "Pink" },
                 { idx = 4, text = "Yellow" },
             })
-        end):await()
+        end)
 
         local lastChosen: {[Player]: number?} = {}
         for i = 1, MAX_SUB_ROUNDS do
@@ -139,7 +139,7 @@ function Event.onEvent()
             local clickedNow: {[Player]: boolean} = {}
 
             TimerModule.setTime(5)
-            local ok, chosen = ButtonsModule.initiateButtonChoice(
+            local _, chosen = ButtonsModule.initiateButtonChoice(
                 5,
                 function(playerWhoClicked)
                     return not clickedNow[playerWhoClicked]
@@ -148,10 +148,7 @@ function Event.onEvent()
                     clickedNow[playerWhoClicked] = true
                 end,
                 lastChosenCopy
-            ):await()
-            if not ok then
-                reject(chosen)
-            end
+            ):catch(error):await()
 
             GameState.runNewPromisePerAlive(function(player)
                 local selected = chosen[player]

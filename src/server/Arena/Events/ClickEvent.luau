@@ -39,8 +39,8 @@ function Event.onEvent()
         local variant = math.random(1, 2)
 
         TimerModule.setTime(15)
-        GameState.runPromisePerAlive(function(player)
-            return TextModule.showTextSequence(player, {
+        GameState.runPromisePerAlive(function(player, protect)
+            return protect(TextModule.showTextSequence(player, {
                 { text = "Now you will have to click or not the button", delay = 3 },
                 { text = "But you will not have much time", delay = 3 }, -- 6s
                 { text = "Only two seconds", delay = 3 }, -- 9s
@@ -48,8 +48,8 @@ function Event.onEvent()
                 { text = "3...", delay = 1 }, -- 13s
                 { text = "2...", delay = 1 }, -- 14s
                 { text = "1...", delay = 1 }, -- 15s
-            })
-        end):await()
+            }))
+        end):catch(error):await()
 
         TimerModule.setTime(2)
         GameState.runFuncPerAlive(function(player)
@@ -76,10 +76,7 @@ function Event.onEvent()
             TextModule.setText(player, screenText)
         end)
 
-        local ok, chosen = ButtonsModule.initiateButtonChoice(2.5):await()
-        if not ok then
-            reject(chosen)
-        end
+        local _, chosen = ButtonsModule.initiateButtonChoice(2.5):catch(error):await()
 
         GameState.runFuncPerAlive(function(player)
             ButtonsModule.setButtons(player, {})
@@ -97,7 +94,7 @@ function Event.onEvent()
             else
                 TextModule.setText(player, "You survived")
             end
-        end):await()
+        end):catch(error):await()
         task.wait(5)
 
         resolve()

@@ -206,7 +206,7 @@ function GameState.runFuncPerAlive(func: (player: Player) -> nil)
 end
 
 function GameState.runFuncPerDead(func: (player: Player) -> nil)
-    for _, player in ipairs(alivePlayers) do
+    for _, player in ipairs(deadPlayers) do
         func(player)
     end
 end

@@ -50,7 +50,7 @@ function Event.onEvent()
             }))
         else
             await(TextModule.showTextSequence(player, {
-                { text = "Oh, so you're ignore me?", delay = 2 }, -- 27s
+                { text = "Oh, so you're ignoring me?", delay = 2 }, -- 27s
                 { text = "That's not nice...", delay = 3 } -- 30s
             }))
             GameState.kill(player)

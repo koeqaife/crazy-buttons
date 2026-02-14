@@ -24,6 +24,18 @@ local function ensureRunningPromises(player: Player)
     return runningPromises[player]
 end
 
+local function cancelPlayerPromises(player: Player)
+    local playerRunningPromises = ensureRunningPromises(player)
+    for i = #playerRunningPromises, 1, -1 do
+        print("Cancelling promise for", player.Name)
+        local promise = playerRunningPromises[i]
+        promise:cancel()
+    end
+    table.clear(playerRunningPromises)
+end
+
+GameState.cancelPlayerPromises = cancelPlayerPromises
+
 function GameState.kill(player: Player, reason: string?)
     if not player or not player.Parent then
         return
@@ -37,16 +49,7 @@ function GameState.kill(player: Player, reason: string?)
     end
     table.insert(deadPlayers, player)
 
-    Promise.defer(function(resolve, reject, onCancel)
-        local playerRunningPromises = ensureRunningPromises(player)
-        for i = #playerRunningPromises, 1, -1 do
-            print("Cancelling promise for", player.Name)
-            local promise = playerRunningPromises[i]
-            promise:cancel()
-        end
-        table.clear(playerRunningPromises)
-        resolve()
-    end):catch(warn)
+    cancelPlayerPromises(player)
 
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
 end
@@ -299,21 +302,9 @@ function GameState.isDead(player: Player)
 end
 
 function GameState.cancelAll()
-    local toWait: {Promise.TypedPromise<any>} = {}
-
-    for player, promises in pairs(runningPromises) do
-        table.insert(toWait, Promise.defer(function(resolve, reject, onCancel)
-            for i = #promises, 1, -1 do
-                print("Cancelling promise for", player.Name)
-                local promise = promises[i]
-                promise:cancel()
-            end
-            table.clear(promises)
-            resolve()
-        end))
+    for i, player in ipairs(Players:GetPlayers()) do
+        cancelPlayerPromises(player)
     end
-
-    Promise.allSettled(toWait):await()
 end
 
 return GameState

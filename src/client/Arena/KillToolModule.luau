@@ -8,11 +8,18 @@ local UserInputService = game:GetService("UserInputService")
 local ActivateKillTool: RemoteEvent = ReplicatedStorage:WaitForChild("ActivateKillTool")
 local KillToolAction: RemoteEvent = ReplicatedStorage:WaitForChild("KillToolAction")
 
-local KillToolButton: ImageButton = Players.LocalPlayer
+local KillToolButtonFrame: Frame = Players.LocalPlayer
     :WaitForChild("PlayerGui")
     :WaitForChild("ScreenGui")
-    :WaitForChild("KillToolButton")
-KillToolButton.Visible = false
+    :WaitForChild("KillToolButtonFrame")
+
+local KillToolButton = KillToolButtonFrame:WaitForChild("KillToolButton") :: ImageButton
+
+local KeybindFrame = KillToolButtonFrame:WaitForChild("KeybindFrame") :: Frame
+
+local KeybindLabel = KeybindFrame:WaitForChild("Keybind") :: TextLabel
+
+KillToolButtonFrame.Visible = false
 
 
 local INACTIVE_BUTTON_ID = "rbxassetid://137034209932466"
@@ -76,9 +83,20 @@ local function toggleActive()
     })
 end
 
+local function setButtonPos(isTouch: boolean)
+    if isTouch then
+        KillToolButtonFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        KillToolButtonFrame.Position = UDim2.new(0.5, 0, 0.9, 0)
+    else
+        KillToolButtonFrame.AnchorPoint = Vector2.new(1, 1)
+        KillToolButtonFrame.Position = UDim2.new(0.98, 0, 0.965, 0)
+    end
+end
+
+
 function KillToolModule.connect()
     ActivateKillTool.OnClientEvent:Connect(function(visible)
-        KillToolButton.Visible = visible
+        KillToolButtonFrame.Visible = visible
         if not visible then
             active = false
             KillToolButton.Image = INACTIVE_BUTTON_ID
@@ -88,7 +106,7 @@ function KillToolModule.connect()
     -- Keybinds
     UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
-        if not KillToolButton.Visible then return end
+        if not KillToolButtonFrame.Visible then return end
 
         if input.KeyCode == Enum.KeyCode.Q or input.KeyCode == Enum.KeyCode.ButtonL2 then
             toggleActive()
@@ -106,7 +124,7 @@ function KillToolModule.connect()
     mouse.Move:Connect(function()
         if debounce then return end
         if not active then return end
-        if not KillToolButton.Visible then return end
+        if not KillToolButtonFrame.Visible then return end
         debounce = true
 
         local newTarget = checkTargetFromScreenPos(Vector2.new(mouse.X, mouse.Y))
@@ -126,7 +144,7 @@ function KillToolModule.connect()
     -- Gamepad player selection (not tested)
     UserInputService.InputChanged:Connect(function(input)
         if not active then return end
-        if not KillToolButton.Visible then return end
+        if not KillToolButtonFrame.Visible then return end
         if input.UserInputType == Enum.UserInputType.Gamepad1 then
             if debounce then return end
             debounce = true
@@ -150,7 +168,7 @@ function KillToolModule.connect()
     UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
         if not active then return end
-        if not KillToolButton.Visible then return end
+        if not KillToolButtonFrame.Visible then return end
 
         if (input.UserInputType == Enum.UserInputType.Gamepad1
             and input.KeyCode == Enum.KeyCode.ButtonR2)
@@ -166,6 +184,33 @@ function KillToolModule.connect()
         end
     end)
 
+    -- Keybind label
+    setButtonPos(UserInputService.TouchEnabled)
+    if UserInputService.TouchEnabled then
+        KeybindFrame.Visible = false
+    elseif UserInputService.GamepadEnabled then
+        KeybindFrame.Visible = true
+        KeybindLabel.Text = "L2"
+    else
+        KeybindFrame.Visible = true
+        KeybindLabel.Text = "Q"
+    end
+
+    -- Update keybind label
+    UserInputService.LastInputTypeChanged:Connect(function(inputType)
+        setButtonPos(inputType == Enum.UserInputType.Touch)
+        if inputType == Enum.UserInputType.Touch then
+            KeybindFrame.Visible = false
+        elseif inputType == Enum.UserInputType.Gamepad1 then
+            KeybindFrame.Visible = true
+            KeybindLabel.Text = "L2"
+        elseif inputType == Enum.UserInputType.Keyboard then
+            KeybindFrame.Visible = true
+            KeybindLabel.Text = "Q"
+        end
+    end)
+
+    -- Preload images
     local preload = {
         INACTIVE_BUTTON_ID,
         ACTIVE_BUTTON_ID,
@@ -173,7 +218,6 @@ function KillToolModule.connect()
         SKULL_ICON
     }
 
-    -- Preload images
     local preloadImages: {ImageLabel} = {}
     for i, id in ipairs(preload) do
         local instance = Instance.new("ImageLabel")

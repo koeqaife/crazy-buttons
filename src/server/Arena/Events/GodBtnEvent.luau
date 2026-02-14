@@ -64,7 +64,7 @@ function Event.onEvent()
         awardedPlayerPromise,
         GameState.runPromisePerAlive(function(player, protect, await)
             return Promise.new(function(resolve, reject, onCancel)
-                while task.wait() do
+                while task.wait(0.3) do -- for debouncing
                     local clickPromise = ButtonsModule.waitForClick(player, 60)
                     onCancel(function()
                         clickPromise:cancel()

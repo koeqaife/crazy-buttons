@@ -22,6 +22,13 @@ Event.chance = 0.1
 Event.maxPerGame = 7
 Event.minPlayers = 3
 
+local highlightColors = {
+    Color3.new(0.95, 0.21, 0.21),   -- Red
+    Color3.new(0, 0.35, 1),         -- Blue
+    Color3.new(1, 0.14, 0.81),      -- Pink
+    Color3.new(0.96, 0.8, 0.19),    -- Yellow
+}
+
 local function getMostVoted(result: { [Player]: number }): Player?
     local maxVotes = -math.huge
     local topPlayer: Player? = nil
@@ -53,7 +60,6 @@ function Event.onEvent()
     end
 
     local playersForVote = GameState.pickPlayers(amount)
-    GameState.addHighlightTo(playersForVote)
 
     TimerModule.setTime(5)
     GameState.runPromisePerAlive(function(player, protect)
@@ -72,7 +78,20 @@ function Event.onEvent()
 
     TimerModule.setTime(25)
 
-    local votingPromise = ButtonsModule.initiateButtonChoice(25)
+    local votingPromise = ButtonsModule.initiateButtonChoice(25, nil, function(player, idx)
+        GameState.removeHighlightFromOne(player)
+        if idx ~= nil then
+            GameState.addHighlightToOne(player, highlightColors[idx])
+        end
+    end, nil, true)
+
+    local buttons: IndicesType.Indices = {}
+    for i, playerForVote in ipairs(playersForVote) do
+        table.insert(buttons, { idx = i, text = playerForVote.Name })
+
+        local color = highlightColors[i]
+        GameState.addHighlightToOne(playerForVote, color, color)
+    end
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         if table.find(playersForVote, player) then
@@ -87,10 +106,6 @@ function Event.onEvent()
                 { text = "Let's see who was eliminated", delay = 5 },
             }))
         else
-            local buttons: IndicesType.Indices = {}
-            for i, playerForVote in ipairs(playersForVote) do
-                table.insert(buttons, { idx = i, text = playerForVote.Name })
-            end
             ButtonsModule.setButtons(player, buttons)
         end
     end)

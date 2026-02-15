@@ -32,7 +32,7 @@ function Event.onEvent()
         if player == randomPlayer then
             return protect(TextModule.showTextSequence(player, {
                 { text = "You have been chosen...", delay = 2.5 },
-                { text = "People will decide your fate", delay = 2.5 }
+                { text = "Someone has to sacrifice themselves to save you", delay = 2.5 }
             }))
         else
             return protect(TextModule.showTextSequence(player, {

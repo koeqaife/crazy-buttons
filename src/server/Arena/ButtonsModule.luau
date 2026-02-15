@@ -56,7 +56,7 @@ end
 function ButtonsModule.initiateButtonChoice(
     forTime: number,
     filter: ((Player, number) -> boolean)?,
-    post: ((Player, number) -> nil)?,
+    post: ((Player, number?) -> nil)?,
     currentChoices: {[Player]: number?}?,
     allowCancel: boolean?
 )
@@ -85,7 +85,7 @@ function ButtonsModule.initiateButtonChoice(
             end
 
             if post then
-                post(playerWhoClicked, idx)
+                post(playerWhoClicked, choices[playerWhoClicked])
             end
         end)
         onCancel(function()

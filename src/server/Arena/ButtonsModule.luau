@@ -57,7 +57,8 @@ function ButtonsModule.initiateButtonChoice(
     forTime: number,
     filter: ((Player, number) -> boolean)?,
     post: ((Player, number) -> nil)?,
-    currentChoices: {[Player]: number?}?
+    currentChoices: {[Player]: number?}?,
+    allowCancel: boolean?
 )
     return Promise.new(function(resolve, reject, onCancel)
         local choices: {[Player]: number?} = currentChoices or {}
@@ -76,8 +77,13 @@ function ButtonsModule.initiateButtonChoice(
                 ButtonsModule.updateButtons(playerWhoClicked, {{ idx = lastChoice, highlighted = false }})
             end
 
-            choices[playerWhoClicked] = idx
-            ButtonsModule.updateButtons(playerWhoClicked, {{ idx = idx, highlighted = true }})
+            if idx ~= lastChoice or not allowCancel then
+                choices[playerWhoClicked] = idx
+                ButtonsModule.updateButtons(playerWhoClicked, {{ idx = idx, highlighted = true }})
+            else
+                choices[playerWhoClicked] = nil
+            end
+
             if post then
                 post(playerWhoClicked, idx)
             end

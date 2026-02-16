@@ -2,7 +2,7 @@
 --!optimize 2
 
 -- Description:
--- Event where one random person is gonna be killed if no one will sacrifice themselves
+-- Event where two random people are gonna be killed if no one will sacrifice themselves
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)
@@ -18,7 +18,7 @@ local Event = {} :: EventType
 Event.chance = 0.09
 Event.minRound = 2
 Event.maxPerGame = 2
-Event.minPlayers = 3
+Event.minPlayers = 4
 
 function Event.check()
     return true
@@ -26,17 +26,17 @@ end
 
 function Event.onEvent()
     TimerModule.setTime(5)
-    local randomPlayer = GameState.alivePlayers[math.random(1, #GameState.alivePlayers)]
+    local randomPlayers = GameState.pickPlayers(2)
 
     GameState.runPromisePerAlive(function(player, protect)
-        if player == randomPlayer then
+        if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
                 { text = "You have been chosen...", delay = 2.5 },
                 { text = "Someone has to sacrifice themselves to save you", delay = 2.5 }
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = randomPlayer.Name .. " has been chosen...", delay = 2.5 },
+                { text = randomPlayers[0].Name .. " and " .. randomPlayers[1].Name .. "are chosen.", delay = 2.5 },
                 { text = "Will someone sacrifice themselves to save them?", delay = 2.5 }
             }))
         end
@@ -44,11 +44,11 @@ function Event.onEvent()
 
     local toKill: {Player} = {}
 
-    GameState.addHighlightTo({randomPlayer})
+    GameState.addHighlightTo(randomPlayers)
 
     TimerModule.setTime(30)
     GameState.runNewPromisePerAlive(function(player, protect, await)
-        if player == randomPlayer then
+        if table.find(randomPlayers, player) then
             return
         end
 
@@ -72,20 +72,20 @@ function Event.onEvent()
     TimerModule.setTime(5)
     GameState.runFuncPerAlive(function(player)
         if playerMustBeKilled then
-            if player == randomPlayer then
+            if table.find(randomPlayers, player) then
                 TextModule.setText(player, "You're eliminated")
                 GameState.kill(player)
             else
-                TextModule.setText(player, randomPlayer.Name .. " is eliminated")
+                TextModule.setText(player, "They are eliminated")
             end
         else
-            if player == randomPlayer then
-                TextModule.setText(player, "Somebody saved you")
+            if table.find(randomPlayers, player) then
+                TextModule.setText(player, "You're saved")
             elseif table.find(toKill, player) then
-                TextModule.setText(player, "You saved " .. randomPlayer.Name)
+                TextModule.setText(player, "You saved them")
                 GameState.kill(player)
             else
-                TextModule.setText(player, randomPlayer.Name .. " was saved!")
+                TextModule.setText(player, "They were saved!")
             end
         end
     end)

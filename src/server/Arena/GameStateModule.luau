@@ -129,8 +129,9 @@ local function runNewPromisePer(
     array: {Player},
     func: NewPromiseFunc
 )
+    local snapshot = table.clone(array)
     local promises = {}
-    for _, player in ipairs(array) do
+    for _, player in ipairs(snapshot) do
         if not player or not player.Parent then
             continue
         end
@@ -154,8 +155,9 @@ local function runNewPromisePer(
 end
 
 local function runPromisePer(array: {Player}, func: PromiseFunc)
+    local snapshot = table.clone(array)
     local promises = {}
-    for _, player in ipairs(array) do
+    for _, player in ipairs(snapshot) do
         if not player or not player.Parent then
             continue
         end

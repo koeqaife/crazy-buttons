@@ -2,6 +2,9 @@
 --!optimize 2
 
 -- Description:
+-- Event where players will have to choose whether to press the button or not
+-- If the total amount of presses is odd, those who pressed are eliminated
+-- If it's even, those who didn't press are eliminated
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)

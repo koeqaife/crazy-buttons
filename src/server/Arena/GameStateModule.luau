@@ -203,19 +203,22 @@ end
 
 -- Func
 function GameState.runFuncPerAll(func: (player: Player) -> nil)
-    for _, player in ipairs(Players:GetPlayers()) do
+    local snapshot = table.clone(Players:GetPlayers())
+    for _, player in ipairs(snapshot) do
         func(player)
     end
 end
 
 function GameState.runFuncPerAlive(func: (player: Player) -> nil)
-    for _, player in ipairs(alivePlayers) do
+    local snapshot = table.clone(alivePlayers)
+    for _, player in ipairs(snapshot) do
         func(player)
     end
 end
 
 function GameState.runFuncPerDead(func: (player: Player) -> nil)
-    for _, player in ipairs(deadPlayers) do
+    local snapshot = table.clone(deadPlayers)
+    for _, player in ipairs(snapshot) do
         func(player)
     end
 end

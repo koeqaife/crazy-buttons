@@ -236,6 +236,14 @@ function GameState.pickPlayers(amount: number, from: {Player}?): {Player}
     return result
 end
 
+function GameState.pickOnePlayer(from: {Player}?): Player
+    local fromArray = from or alivePlayers
+
+    Helpers.shuffleTable(fromArray)
+
+    return fromArray[0]
+end
+
 local function addHighlightToOne(player: Player, color: Color3?, outlineColor: Color3?)
     local colorToPut = color or Color3.fromRGB(255, 140, 91)
     if player.Character and not player.Character:FindFirstChild("EventHighlight") then

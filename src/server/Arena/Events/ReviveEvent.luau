@@ -43,7 +43,7 @@ end
 
 local function onEventVariant()
     -- Revive random player
-    local randomPlayer = GameState.deadPlayers[math.random(1, #GameState.alivePlayers)]
+    local randomPlayer = GameState.pickOnePlayer(GameState.deadPlayers)
 
     TimerModule.setTime(10)
     GameState.runNewPromisePerAll(function(player, protect, await)

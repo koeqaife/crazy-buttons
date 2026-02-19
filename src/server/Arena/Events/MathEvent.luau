@@ -121,7 +121,7 @@ end
 
 function Event.onEvent()
     local randomQuiz = getQuiz()
-    local randomPlayer = GameState.alivePlayers[math.random(1, #GameState.alivePlayers)]
+    local randomPlayer = GameState.pickOnePlayer()
 
     local answers = {randomQuiz.answer}
     for _, incorrect in ipairs(randomQuiz.incorrectAnswers) do

@@ -34,7 +34,7 @@ function Event.onEvent()
         }))
     end):catch(error):await()
 
-    local randomPlayer = GameState.alivePlayers[math.random(1, #GameState.alivePlayers)]
+    local randomPlayer = GameState.pickOnePlayer()
 
     TimerModule.setTime(10)
     GameState.runNewPromisePerAlive(function(player, protect, await)

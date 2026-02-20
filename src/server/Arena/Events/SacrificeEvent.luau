@@ -52,7 +52,7 @@ function Event.onEvent()
             return
         end
 
-        TextModule.setText(player, "Press to save " .. player.Name)
+        TextModule.setText(player, "Press to save them")
         ButtonsModule.setButtons(player, {
             { idx = 1, text = "Sacrifice yourself" }
         })

@@ -37,7 +37,7 @@ function Event.onEvent()
         else
             return protect(TextModule.showTextSequence(player, {
                 { text = randomPlayers[0].Name .. " and " .. randomPlayers[1].Name .. "are chosen.", delay = 2.5 },
-                { text = "Will someone sacrifice themselves to save them?", delay = 2.5 }
+                { text = "Will you sacrifice yourself to save them?", delay = 2.5 }
             }))
         end
     end):catch(error):await()

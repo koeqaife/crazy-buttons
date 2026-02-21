@@ -12,6 +12,9 @@ local ButtonsModule = {}
 
 local buttonSpawn: Part = workspace:WaitForChild("ButtonSpawn")
 local buttonTemplate: Model = ReplicatedStorage:WaitForChild("ButtonTemplate")
+local clickSound: Sound = ReplicatedStorage
+    :WaitForChild("Sounds")
+    :WaitForChild("ClickSound")
 
 local GAP = 4;
 local BUTTONS = {
@@ -88,6 +91,11 @@ local function createButton(obj: IndicesModule.Button, buttonData: { color: Colo
     proximityPrompt.RequiresLineOfSight = false
 
     proximityPrompt.Triggered:Connect(function(_)
+        local sound = clickSound:Clone()
+        sound.PlayOnRemove = true
+        sound.Parent = buttonClone
+        sound:Destroy()
+
         ButtonClickedEvent:FireServer(obj.idx)
     end)
 

@@ -14,7 +14,7 @@ local function spawnCoolPlatforms()
     local PLATFORM_SIZE = 350
     local GAP = 350
 
-    local GRID_RADIUS = 5
+    local GRID_RADIUS = 7
     local MIN_HEIGHT = -300
     local MAX_HEIGHT = 500
 
@@ -47,10 +47,11 @@ end
 if game.PlaceId == LOBBY_PLACE_ID then
     local LobbyModule = require(Scripts.Lobby.LobbyModule)
     LobbyModule.init()
-    spawnCoolPlatforms()
 elseif game.PlaceId == ARENA_PLACE_ID then
     local ArenaModule = require(Scripts.Arena.ArenaModule)
     ArenaModule.init()
 else
     print("Who am I....")
 end
+
+spawnCoolPlatforms()

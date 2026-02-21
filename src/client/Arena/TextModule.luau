@@ -25,19 +25,35 @@ local delayBonusCharacter = {
     ["?"] = 0.35,
 }
 
-local function setText(current: string, new: string, speed: number)
+local currentGeneration = 0
+local generationIsRunning = false
+
+local function setText(
+    current: string,
+    new: string,
+    speed: number,
+    generation: number
+): ()
     local result = ""
     local maxLength = math.max(#current, #new)
+
+    generationIsRunning = true
     for i = 1, maxLength do
+        if generation ~= currentGeneration then
+            mainText.Text = new
+            return
+        end
+
         local char = new:sub(i, i)
 
         if i <= #new then
-            result = result .. char
+            result ..= char
         end
 
         mainText.Text = result
 
         local bonus = delayBonusCharacter[char] or 0
+
         if bonus == 0 or char == " " then
             local sound = blipSound:Clone()
             sound.Parent = screen
@@ -46,18 +62,34 @@ local function setText(current: string, new: string, speed: number)
 
         task.wait(speed + bonus)
     end
+    generationIsRunning = false
 end
 
-function TextModule.connect()
-    game:GetService("ContentProvider"):PreloadAsync({mainText})
+function TextModule.connect(): ()
+    game:GetService("ContentProvider")
+        :PreloadAsync({mainText})
 
-    UpdateTextEvent.OnClientEvent:Connect(function(action: "set" | "append", text: string)
-        if action == "set" then
-            setText("mainText.Text", text, 0.03)
-        elseif action == "append" then
-            setText(mainText.Text, mainText.Text .. text, 0.03)
+    UpdateTextEvent.OnClientEvent:Connect(
+        function(action: "set" | "append", text: string)
+            currentGeneration += 1
+            local myGeneration = currentGeneration
+
+            if generationIsRunning then
+                task.wait(0.25)
+            end
+
+            if action == "set" then
+                setText("", text, 0.03, myGeneration)
+            elseif action == "append" then
+                setText(
+                    mainText.Text,
+                    mainText.Text .. text,
+                    0.03,
+                    myGeneration
+                )
+            end
         end
-    end)
+    )
 end
 
 return TextModule

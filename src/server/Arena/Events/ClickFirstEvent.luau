@@ -32,14 +32,14 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(10)
+    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to click the button", delay = 3.25 },
-            { text = "Click faster than the others", delay = 3.25 },
-            { text = "The last one to click will be eliminated", delay = 3.5 },
+            { text = "Now you will have to click the button", delay = 4 },
+            { text = "Click faster than the others", delay = 4 },
+            { text = "The last one to click will be eliminated", delay = 4 },
         }))
-    end)
+    end):await()
 
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
@@ -47,7 +47,6 @@ function Event.onEvent()
         })
         TextModule.setText(player, "Wait until the button turns green")
     end)
-    TimerModule.setTime(-1)
 
     local counter = #GameState.alivePlayers
     local toWait = math.random(10, 35)

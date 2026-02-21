@@ -187,6 +187,7 @@ end
 function KillToolModule.init()
     KillToolAction.OnServerEvent:Connect(onAction)
     GameState.OnPlayerDied.Event:Connect(function(player: Player)
+        task.wait(3)  -- Give player some time to kill someone else
         KillToolModule.removeTool(player)
         selectPlayer(player, false)
         updateIcon(player)

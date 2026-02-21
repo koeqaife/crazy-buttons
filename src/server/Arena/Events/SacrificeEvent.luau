@@ -25,19 +25,19 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(5)
+    TimerModule.setTime(-1)
     local randomPlayers = GameState.pickPlayers(2)
 
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You have been chosen...", delay = 2.5 },
-                { text = "Someone has to sacrifice themselves to save you", delay = 2.5 }
+                { text = "You have been chosen...", delay = 3 },
+                { text = "Someone has to sacrifice themselves to save you", delay = 4 }
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = randomPlayers[0].Name .. " and " .. randomPlayers[1].Name .. "are chosen.", delay = 2.5 },
-                { text = "Will you sacrifice yourself to save them?", delay = 2.5 }
+                { text = randomPlayers[1].Name .. " and " .. randomPlayers[2].Name .. " are chosen.", delay = 3 },
+                { text = "Will you sacrifice yourself to save them?", delay = 4 }
             }))
         end
     end):catch(error):await()

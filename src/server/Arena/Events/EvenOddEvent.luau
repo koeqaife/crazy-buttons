@@ -26,14 +26,14 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(16)
+    TimerModule.setTime(-1)
 
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "You will choose whether to press the button or not", delay = 4 },
-            { text = "Once everyone has decided, I'll count the presses", delay = 4 },
-            { text = "If the total is odd, all who pressed are eliminated", delay = 4 },
-            { text = "If it's even, those who didn't press are eliminated", delay = 4 },
+            { text = "You will choose whether to press the button or not", delay = 5 },
+            { text = "Once everyone has decided, I'll count the presses", delay = 5 },
+            { text = "If the total is odd, all who pressed are eliminated", delay = 5 },
+            { text = "If it's even, those who didn't press are eliminated", delay = 5 },
         }))
     end):await()
 
@@ -76,7 +76,7 @@ function Event.onEvent()
 
     local isEven = count % 2 == 0
 
-    TimerModule.setTime(10)
+    TimerModule.setTime(-1)
 
     GameState.runNewPromisePerAlive(function(player)
         if isEven then

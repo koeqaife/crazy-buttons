@@ -31,8 +31,8 @@ function Event.onEvent()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
-            { text = "I have a question for you", delay = 2 },
-            { text = "Do you like aliens?", delay = 3 },
+            { text = "I have a question for you", delay = 4 },
+            { text = "Do you like aliens?", delay = 4 },
         }))
 
         ButtonsModule.setButtons(player, {

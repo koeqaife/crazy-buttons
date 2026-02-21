@@ -45,7 +45,7 @@ local function onEventVariant()
     -- Revive random player
     local randomPlayer = GameState.pickOnePlayer(GameState.deadPlayers)
 
-    TimerModule.setTime(10)
+    TimerModule.setTime(-1)
     GameState.runNewPromisePerAll(function(player, protect, await)
         if player == randomPlayer then
             await(TextModule.showTextSequence(player, {
@@ -81,22 +81,22 @@ function Event.onEvent()
     local playersForVote = GameState.pickPlayers(amount, GameState.deadPlayers)
     GameState.addHighlightTo(playersForVote)
 
-    TimerModule.setTime(5)
+    TimerModule.setTime(-1)
     GameState.runPromisePerAll(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 2.5 },
-                { text = "Other players will decide if that's you...", delay = 2.5 },
+                { text = "Someone will be revived now", delay = 3 },
+                { text = "Other players will decide if that's you...", delay = 4 },
             }))
         elseif table.find(GameState.deadPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 2.5 },
-                { text = "But not you, sadly...", delay = 2.5 },
+                { text = "Someone will be revived now", delay = 3 },
+                { text = "But not you, sadly...", delay = 4 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 2.5 },
-                { text = "Choose wisely who should be revived", delay = 2.5 },
+                { text = "Someone will be revived now", delay = 3 },
+                { text = "Choose wisely who should be revived", delay = 4 },
             }))
         end
     end):await()
@@ -133,7 +133,7 @@ function Event.onEvent()
         mostVotedPlayer = mostVoted
     end
 
-    TimerModule.setTime(5)
+    TimerModule.setTime(-1)
     GameState.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
             TextModule.setText(player, "You were revived!")

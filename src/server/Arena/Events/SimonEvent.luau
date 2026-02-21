@@ -88,11 +88,11 @@ end
 function Event.onEvent()
     local deathsThisEvent = 0
 
-    TimerModule.setTime(5)
+    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Alright, I'm Simon now", delay = 2.5 },
-            { text = "No \"Simon says\"? Then do the opposite", delay = 2.5 },
+            { text = "Alright, I'm Simon now", delay = 3 },
+            { text = "No \"Simon says\"? Then do the opposite", delay = 4 },
         }))
     end):catch(error):await()
 

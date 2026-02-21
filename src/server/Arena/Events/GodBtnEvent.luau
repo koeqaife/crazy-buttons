@@ -30,13 +30,13 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(10)
+    TimerModule.setTime(-1)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Are you ready for searching?", delay = 3.33 },
-            { text = "Because now there are gonna be 100 buttons", delay = 3.33 },
-            { text = "First to find it will be awarded", delay = 3.34 },
+            { text = "Are you ready for searching?", delay = 4 },
+            { text = "Because now there are gonna be 100 buttons", delay = 4 },
+            { text = "First to find it will be awarded", delay = 3.5 },
         }))
     end):catch(error):await()
 
@@ -89,7 +89,7 @@ function Event.onEvent()
         Promise.delay(60)
     }):catch(error):await()
 
-    TimerModule.setTime(10)
+    TimerModule.setTime(-1)
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
         if awardedPlayer ~= nil then

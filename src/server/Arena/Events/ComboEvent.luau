@@ -78,12 +78,12 @@ local function enableAllBtn(player: Player)
 end
 
 function Event.onEvent()
-    TimerModule.setTime(10)
+    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to repeat after me", delay = 2.5 },
+            { text = "Now you will have to repeat after me", delay = 4 },
             { text = "Players with the highest amount of mistakes will be eliminated", delay = 5 },
-            { text = "And now we start", delay = 2.5 },
+            { text = "And now we start", delay = 3 },
         }))
     end):catch(error):await()
 

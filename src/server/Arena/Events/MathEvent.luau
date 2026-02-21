@@ -129,18 +129,18 @@ function Event.onEvent()
     end
     Helpers.shuffleTable(answers)
 
-    TimerModule.setTime(5)
+    TimerModule.setTime(-1)
     GameState.addHighlightTo({randomPlayer})
     GameState.runPromisePerAlive(function(player, protect)
         if player == randomPlayer then
             return protect(TextModule.showTextSequence(player, {
-                { text = "How good are you in math?", delay = 2.5 },
-                { text = "Other people lives depend on you now", delay = 2.5 },
+                { text = "How good are you in math?", delay = 3 },
+                { text = "Other people lives depend on you now", delay = 3 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 2.5 },
-                { text = "You will have to find out", delay = 2.5 },
+                { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 3 },
+                { text = "You will have to find out", delay = 3 },
             }))
         end
     end):catch(error):await()

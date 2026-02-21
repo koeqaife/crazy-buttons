@@ -9,6 +9,9 @@ local function spawnCoolPlatforms()
     local Platform: Model = ReplicatedStorage:WaitForChild("Platform")
     local Workspace = game:GetService("Workspace")
 
+    local Folder = Instance.new("Folder", Workspace)
+    Folder.Name = "CoolPlatforms"
+
     local CENTER = Vector3.new(-93.886, -1023.5, -146.603)
 
     local PLATFORM_SIZE = 350
@@ -37,7 +40,7 @@ local function spawnCoolPlatforms()
                     )
 
                 local newPlatform = Platform:Clone()
-                newPlatform.Parent = Workspace
+                newPlatform.Parent = Folder
                 newPlatform:MoveTo(pos)
             end
         end

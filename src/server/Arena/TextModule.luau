@@ -7,10 +7,8 @@ local TextModule = {}
 local UpdateTextEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 UpdateTextEvent.Name = "UpdateTextEvent"
 
-local textPerPlayer: {[Player]: string} = {}
-
-local function fire(player: Player)
-    UpdateTextEvent:FireClient(player, textPerPlayer[player])
+local function fire(player: Player, type: "set" | "append", text: string)
+    UpdateTextEvent:FireClient(player, type, text)
 end
 
 function TextModule.showTextSequence(player: Player, sequence: {{text: string, delay: number?}})
@@ -37,13 +35,11 @@ function TextModule.showTextSequence(player: Player, sequence: {{text: string, d
 end
 
 function TextModule.setText(player: Player, text: string)
-    textPerPlayer[player] = text
-    fire(player)
+    fire(player, "set", text)
 end
 
 function TextModule.appendText(player: Player, text: string)
-    textPerPlayer[player] ..= text
-    fire(player)
+    fire(player, "append", text)
 end
 
 return TextModule

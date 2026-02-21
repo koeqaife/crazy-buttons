@@ -246,7 +246,7 @@ function GameState.pickOnePlayer(from: {Player}?): Player
 
     Helpers.shuffleTable(fromArray)
 
-    return fromArray[0]
+    return fromArray[1]
 end
 
 local function addHighlightToOne(player: Player, color: Color3?, outlineColor: Color3?)

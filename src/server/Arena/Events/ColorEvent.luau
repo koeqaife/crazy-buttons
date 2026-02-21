@@ -34,12 +34,11 @@ end
 
 function Event.onEvent()
     if next(chosenColors) then
-        TimerModule.setTime(5)
-
+        TimerModule.setTime(-1)
         GameState.runPromisePerAlive(function(player, protect)
             return protect(TextModule.showTextSequence(player, {
-                { text = "Do you remember the color you chose before?", delay = 2.5 },
-                { text = "Let's check your memory", delay = 2.5 },
+                { text = "Do you remember the color you chose before?", delay = 4 },
+                { text = "Let's check your memory", delay = 4 },
             }))
         end):catch(error):await()
 
@@ -57,7 +56,7 @@ function Event.onEvent()
 
         local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
 
-        TimerModule.setTime(5)
+        TimerModule.setTime(-1)
         GameState.runNewPromisePerAlive(function(player, protect, await)
             local color = chosen[player] or 0
             if color ~= chosenColors[player] then
@@ -66,7 +65,7 @@ function Event.onEvent()
                 task.wait(5)
             else
                 await(TextModule.showTextSequence(player, {
-                    { text = "Woa, you actually remember!", delay = 3 },
+                    { text = "Woa, you actually remember!", delay = 4 },
                     { text = "Good job", delay = 2 },
                 }))
             end
@@ -75,12 +74,11 @@ function Event.onEvent()
         return
     end
 
-    TimerModule.setTime(5)
-
+    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "I'm about to show you some colors", delay = 2.5 },
-            { text = "Remember which one you pick, you'll need it later", delay = 2.5 },
+            { text = "I'm about to show you some colors", delay = 3 },
+            { text = "Remember which one you pick, you'll need it later", delay = 4.5 },
         }))
     end):catch(error):await()
 

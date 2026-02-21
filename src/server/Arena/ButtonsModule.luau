@@ -112,24 +112,7 @@ function ButtonsModule.setButtons(
     end
 
     if shuffle == nil or shuffle then
-        local regularButtons = {}
-        local greenButtonData = nil
-
-        for _, buttonData in ipairs(buttons) do
-            if buttonData.idx == 5 then
-                greenButtonData = buttonData
-            else
-                table.insert(regularButtons, buttonData)
-            end
-        end
-
-        Helpers.shuffleTable(regularButtons, seed)
-
-        if greenButtonData then
-            table.insert(regularButtons, greenButtonData)
-        end
-
-        buttons = regularButtons
+        Helpers.shuffleTable(buttons, seed)
     end
 
     UpdateButtonsEvent:FireClient(player, "set", buttons, seed)

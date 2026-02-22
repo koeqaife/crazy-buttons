@@ -141,7 +141,7 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
         local xOffset = -((#indices - 1) * GAP) / 2
 
         for i, obj in ipairs(indices) do
-            local buttonData = BUTTONS[obj.showAs or ((obj.idx - 1) % #BUTTONS + 1)]
+            local buttonData = BUTTONS[((obj.showAs or obj.idx) - 1) % #BUTTONS + 1]
             if buttonData then
                 local buttonClone = createButton(obj, buttonData, i)
                 local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
@@ -151,7 +151,7 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
         end
     else
         for i, obj in ipairs(indices) do
-            local buttonData = BUTTONS[obj.showAs or ((obj.idx - 1) % #BUTTONS + 1)]
+            local buttonData = BUTTONS[((obj.showAs or obj.idx) - 1) % #BUTTONS + 1]
             if buttonData then
                 local offset
                 local distance
@@ -186,9 +186,9 @@ end
 
 function ButtonsModule.updateButtons(indices: Indices)
     for _, obj in ipairs(indices) do
-        local buttonData = BUTTONS[obj.showAs or ((obj.idx - 1) % #BUTTONS + 1)]
         local button = spawnedButtonsMap[obj.idx]
         local original = spawnedButtonsIndicesMap[obj.idx]
+        local buttonData = BUTTONS[((obj.showAs or original.showAs or obj.idx) - 1) % #BUTTONS + 1]
 
         if buttonData and button then
             local buttonPart = button:FindFirstChild("Button") :: Part

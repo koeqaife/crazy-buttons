@@ -7,6 +7,7 @@ local ButtonsModule = require(script.Parent.ButtonsModule)
 local EventType = require(ServerScriptService.Server.Arena.Events.EventType)
 local GameState = require(Arena.GameStateModule)
 local TimerModule = require(Arena.TimerModule)
+local AmbienceModule = require(Arena.AmbienceModule)
 local TextModule = require(Arena.TextModule)
 local GameLoopModule = {}
 
@@ -91,6 +92,7 @@ local function runEvent(event: Event?)
     end
 
     TimerModule.setTime(-1)
+    AmbienceModule.stopAll()
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
     end)
@@ -115,6 +117,7 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
+        runEvent(ClickFirstEvent)
         runEvent(StartEvent)
 
         while #GameState.alivePlayers > 0 do

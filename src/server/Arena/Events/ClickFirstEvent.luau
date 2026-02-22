@@ -15,6 +15,7 @@ local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
+local AmbienceModule = require(Arena.AmbienceModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 
 type EventType = EventTypeModule.Event
@@ -52,10 +53,12 @@ function Event.onEvent()
     end)
 
     local counter = #GameState.alivePlayers
-    local toWait = math.random(10, 35)
+    local toWait = math.random(15, 60)
     local lastClickPerPlayer: {[Player]: number} = {}
 
-    TimerModule.setTime(100, true)
+    task.delay(1, function()
+        AmbienceModule.playEerieHorrorRising()
+    end)
     -- With cooldown of 1 second, so people can't just click really fast
     local promise = GameState.runPromisePerAlive(function(player, protect, await)
         return Promise.new(function(resolve2, reject2, onCancel2)
@@ -83,6 +86,8 @@ function Event.onEvent()
 
     task.wait(toWait)
     promise:cancel()
+
+    AmbienceModule.stopEerieHorrorRising()
 
     TimerModule.setTime(-1)
     local sound = clickSound:Clone()

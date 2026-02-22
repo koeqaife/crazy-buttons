@@ -117,6 +117,7 @@ local function createButton(obj: IndicesModule.Button, buttonData: { color: Colo
     surfaceLight.Color = color
     buttonPart.Color = color
     text.TextColor3 = color
+    standHighlight.OutlineColor = color
 
     table.insert(spawnedButtons, buttonClone)
     spawnedButtonsMap[obj.idx] = buttonClone
@@ -230,6 +231,7 @@ function ButtonsModule.updateButtons(indices: Indices)
                 surfaceLight.Color = color
                 buttonPart.Color = color
                 text.TextColor3 = color
+                standHighlight.OutlineColor = color
             end
 
             local disabled = obj.disabled

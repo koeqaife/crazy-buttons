@@ -14,6 +14,10 @@ local Blur: BlurEffect = Lighting:WaitForChild("Blur")
 local ColorCorrection: ColorCorrectionEffect = Lighting:WaitForChild("ColorCorrection")
 local Atmosphere: Atmosphere = Lighting:WaitForChild("Atmosphere")
 
+local dieSound: Sound = ReplicatedStorage
+    :WaitForChild("Sounds")
+    :WaitForChild("DieSound")
+
 Blur.Enabled = true
 Blur.Size = 16
 ColorCorrection.Enabled = true
@@ -126,6 +130,10 @@ local function onSyncEvent(
         }
     end
 
+    local sound = dieSound:Clone()
+    sound.Parent = workspace
+    sound:Destroy()
+
     for _, obj in ipairs(descendants) do
         if obj:IsA("BasePart") and obj.Name ~= "HumanoidRootPart" then
             task.wait(0.05)
@@ -151,6 +159,7 @@ local function onSyncEvent(
 
                 Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightEnd })
                 Spring.completed(highlight, function()
+
                     highlight:Destroy()
                     if not itsMe and not localPlayerIsDead then
                         obj.Transparency = opacity.objEnd

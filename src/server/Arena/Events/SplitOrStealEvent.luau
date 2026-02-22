@@ -78,8 +78,8 @@ function Event.onEvent()
     AmbienceModule.playEerieHorrorRising()
     local _, chosen = ButtonsModule.initiateButtonChoice(59):catch(error):await()
 
-    GameState.removeHighlightFrom(randomPlayers)
     task.wait(1)
+    GameState.removeHighlightFrom(randomPlayers)
     clickSound:Play()
     AmbienceModule.stopEerieHorrorRising()
 

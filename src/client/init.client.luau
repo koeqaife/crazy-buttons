@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local Scripts = Players.LocalPlayer.PlayerScripts.Client
 
 local LOBBY_PLACE_ID = 115379867051786
@@ -47,6 +48,18 @@ local function spawnCoolPlatforms()
     end
 end
 
+local function disableReset()
+    local ok
+    repeat
+        ok = pcall(function()
+            StarterGui:SetCore("ResetButtonCallback", false)
+        end)
+        if not ok then
+            task.wait(0.1)
+        end
+    until ok
+end
+
 if game.PlaceId == LOBBY_PLACE_ID then
     local LobbyModule = require(Scripts.Lobby.LobbyModule)
     LobbyModule.init()
@@ -58,3 +71,4 @@ else
 end
 
 spawnCoolPlatforms()
+disableReset()

@@ -2,8 +2,19 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
 local SoundsFolder = ReplicatedStorage:WaitForChild("Ambience") :: Folder
 local SpawnSoundsParts = workspace:WaitForChild("SpawnSoundParts") :: Folder
+
+local screenLight: SurfaceLight = workspace
+    :WaitForChild("TerminalScreen")
+    :WaitForChild("ScreenLight")
+
+local screenLabel = workspace
+    :WaitForChild("TerminalScreen")
+    :WaitForChild("SurfaceGui")
+    :WaitForChild("mainText") :: TextLabel
 
 local sounds: {Sound} = {}
 local spawnLocations: {Part} = {}
@@ -94,6 +105,47 @@ local function timer()
     end
 end
 
+local function getTextIntensity()
+    local text = screenLabel.Text
+
+    local visible = 0
+
+    for i = 1, #text do
+        local char = string.sub(text, i, i)
+
+        if char ~= " " and char ~= "\n" then
+            visible += 1
+        end
+    end
+
+    return visible / 60
+end
+
+local function screenLightCrtEffect()
+    local originalBase = screenLight.Brightness + 0.1
+    local fastNoiseScale = 35
+    local slowDriftSpeed = 0.4
+
+    local time = math.random() * 1000
+
+    RunService.Heartbeat:Connect(function(dt: number)
+        time += dt
+
+        local textFactor = getTextIntensity()
+
+        local dynamicBase =
+            originalBase - 0.5 + textFactor * 0.5
+
+        local fastNoise =
+            (math.noise(time * fastNoiseScale) - 0.5) * 0.12
+
+        local slowDrift =
+            math.sin(time * slowDriftSpeed) * 0.08
+
+        screenLight.Brightness =
+            dynamicBase + fastNoise + slowDrift
+    end)
+end
 
 function AmbienceModule.init()
     for _, child in ipairs(SoundsFolder:GetChildren()) do
@@ -154,6 +206,7 @@ function AmbienceModule.init()
         end
     end)
 
+    screenLightCrtEffect()
     task.spawn(timer)
 end
 

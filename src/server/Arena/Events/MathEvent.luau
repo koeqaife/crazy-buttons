@@ -129,7 +129,6 @@ function Event.onEvent()
     end
     Helpers.shuffleTable(answers)
 
-    TimerModule.setTime(-1)
     GameState.addHighlightTo({randomPlayer})
     GameState.runPromisePerAlive(function(player, protect)
         if player == randomPlayer then
@@ -193,7 +192,6 @@ function Event.onEvent()
 
     local playerMustDie = not isRight and (yesCount <= total / 2)
 
-    TimerModule.setTime(5)
     GameState.runNewPromisePerAlive(function(player)
         if player == randomPlayer then
             if isRight then

@@ -13,7 +13,6 @@ local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
-local TimerModule = require(Arena.TimerModule)
 
 type EventType = EventTypeModule.Event
 type Text = { opposite: boolean, text: string, idx: number?, custom: number? }
@@ -88,7 +87,6 @@ end
 function Event.onEvent()
     local deathsThisEvent = 0
 
-    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Alright, I'm Simon now", delay = 3 },
@@ -135,7 +133,6 @@ function Event.onEvent()
 
         local clickedNow: {[Player]: boolean} = {}
 
-        TimerModule.setTime(5)
         local _, chosen = ButtonsModule.initiateButtonChoice(
             5,
             function(playerWhoClicked)

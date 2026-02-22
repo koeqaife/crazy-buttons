@@ -30,8 +30,6 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(-1)
-
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Are you ready for searching?", delay = 4 },
@@ -89,7 +87,6 @@ function Event.onEvent()
         Promise.delay(60)
     }):catch(error):await()
 
-    TimerModule.setTime(-1)
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
         if awardedPlayer ~= nil then

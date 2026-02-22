@@ -25,7 +25,6 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(-1)
     local randomPlayers = GameState.pickPlayers(2)
 
     GameState.runPromisePerAlive(function(player, protect)
@@ -69,7 +68,6 @@ function Event.onEvent()
 
     local playerMustBeKilled = #toKill == 0
 
-    TimerModule.setTime(5)
     GameState.runFuncPerAlive(function(player)
         if playerMustBeKilled then
             if table.find(randomPlayers, player) then

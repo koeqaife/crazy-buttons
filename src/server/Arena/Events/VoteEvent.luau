@@ -61,7 +61,6 @@ function Event.onEvent()
 
     local playersForVote = GameState.pickPlayers(amount)
 
-    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
@@ -129,7 +128,6 @@ function Event.onEvent()
         mostVotedPlayer = mostVoted
     end
 
-    TimerModule.setTime(-1)
     GameState.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
             TextModule.setText(player, "You were eliminated... I'm sorry")

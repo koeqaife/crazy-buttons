@@ -26,8 +26,6 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(-1)
-
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { text = "You will choose whether to press the button or not", delay = 5 },
@@ -46,7 +44,6 @@ function Event.onEvent()
 
     TimerModule.setTime(25)
     local _, chosen = ButtonsModule.initiateButtonChoice(25, nil, nil, nil, true):catch(error):await()
-    TimerModule.setTime(-1)
 
     local count = 0
     local clickedPlayers: {Player} = {}
@@ -75,8 +72,6 @@ function Event.onEvent()
     end
 
     local isEven = count % 2 == 0
-
-    TimerModule.setTime(-1)
 
     GameState.runNewPromisePerAlive(function(player)
         if isEven then

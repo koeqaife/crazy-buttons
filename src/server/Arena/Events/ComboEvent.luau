@@ -13,7 +13,6 @@ local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
-local TimerModule = require(Arena.TimerModule)
 
 type EventType = EventTypeModule.Event
 
@@ -78,7 +77,6 @@ local function enableAllBtn(player: Player)
 end
 
 function Event.onEvent()
-    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to repeat after me", delay = 4 },
@@ -98,7 +96,6 @@ function Event.onEvent()
 
     local mistakes: { [Player]: number } = {}
 
-    TimerModule.setTime(-1)
     GameState.runNewPromisePerAlive(function(player, protect, await)
         for round = 1, COMBO_COUNT do
             local combo: {number} = {}
@@ -183,7 +180,6 @@ function Event.onEvent()
         table.insert(toKill, info.player)
     end
 
-    TimerModule.setTime(10)
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
             { text = "You have " .. mistakes[player] .. " mistakes...", delay = 2 },

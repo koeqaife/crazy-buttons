@@ -35,7 +35,6 @@ function Event.onEvent()
     -- 2 -> button says to not click
     local variant = math.random(1, 2)
 
-    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to click or not the button", delay = 4 },
@@ -78,7 +77,7 @@ function Event.onEvent()
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
     end)
-    TimerModule.setTime(5)
+
     GameState.runNewPromisePerAlive(function(player)
         local clicked = chosen[player] ~= nil
 

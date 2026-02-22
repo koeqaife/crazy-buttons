@@ -45,7 +45,6 @@ local function onEventVariant()
     -- Revive random player
     local randomPlayer = GameState.pickOnePlayer(GameState.deadPlayers)
 
-    TimerModule.setTime(-1)
     GameState.runNewPromisePerAll(function(player, protect, await)
         if player == randomPlayer then
             await(TextModule.showTextSequence(player, {
@@ -81,7 +80,6 @@ function Event.onEvent()
     local playersForVote = GameState.pickPlayers(amount, GameState.deadPlayers)
     GameState.addHighlightTo(playersForVote)
 
-    TimerModule.setTime(-1)
     GameState.runPromisePerAll(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
@@ -133,7 +131,6 @@ function Event.onEvent()
         mostVotedPlayer = mostVoted
     end
 
-    TimerModule.setTime(-1)
     GameState.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
             TextModule.setText(player, "You were revived!")

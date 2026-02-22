@@ -34,7 +34,6 @@ end
 
 function Event.onEvent()
     if next(chosenColors) then
-        TimerModule.setTime(-1)
         GameState.runPromisePerAlive(function(player, protect)
             return protect(TextModule.showTextSequence(player, {
                 { text = "Do you remember the color you chose before?", delay = 4 },
@@ -56,7 +55,6 @@ function Event.onEvent()
 
         local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
 
-        TimerModule.setTime(-1)
         GameState.runNewPromisePerAlive(function(player, protect, await)
             local color = chosen[player] or 0
             if color ~= chosenColors[player] then
@@ -74,7 +72,6 @@ function Event.onEvent()
         return
     end
 
-    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "I'm about to show you some colors", delay = 3 },
@@ -102,7 +99,6 @@ function Event.onEvent()
 
     local toSave: {[Player]: number} = {}
 
-    TimerModule.setTime(5)
     GameState.runFuncPerAlive(function(player)
         local color = chosen[player] or 0
         if color == 1 then

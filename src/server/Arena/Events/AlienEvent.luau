@@ -10,7 +10,6 @@ local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
-local TimerModule = require(Arena.TimerModule)
 
 type EventType = EventTypeModule.Event
 
@@ -27,8 +26,6 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(-1)
-
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
             { text = "I have a question for you", delay = 4 },

@@ -6,6 +6,7 @@ local Promise = require(ReplicatedStorage.Shared.Promise)
 local ButtonsModule = require(script.Parent.ButtonsModule)
 local EventType = require(ServerScriptService.Server.Arena.Events.EventType)
 local GameState = require(Arena.GameStateModule)
+local TimerModule = require(Arena.TimerModule)
 local TextModule = require(Arena.TextModule)
 local GameLoopModule = {}
 
@@ -89,6 +90,7 @@ local function runEvent(event: Event?)
         return
     end
 
+    TimerModule.setTime(-1)
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
     end)

@@ -23,6 +23,10 @@ local COOLDOWN = 1
 
 local Event = {} :: EventType
 
+local clickSound = ReplicatedStorage
+    :WaitForChild("Sounds")
+    :WaitForChild("LoudClickSound") :: Sound
+
 Event.chance = 0.10
 Event.minPlayers = 4
 Event.maxPerGame = 3
@@ -32,7 +36,6 @@ function Event.check()
 end
 
 function Event.onEvent()
-    TimerModule.setTime(-1)
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to click the button", delay = 4 },
@@ -52,6 +55,7 @@ function Event.onEvent()
     local toWait = math.random(10, 35)
     local lastClickPerPlayer: {[Player]: number} = {}
 
+    TimerModule.setTime(100, true)
     -- With cooldown of 1 second, so people can't just click really fast
     local promise = GameState.runPromisePerAlive(function(player, protect, await)
         return Promise.new(function(resolve2, reject2, onCancel2)
@@ -79,6 +83,12 @@ function Event.onEvent()
 
     task.wait(toWait)
     promise:cancel()
+
+    TimerModule.setTime(-1)
+    local sound = clickSound:Clone()
+    sound.Parent = workspace
+    sound.PlayOnRemove = true
+    sound:Destroy()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         -- Apply cooldown

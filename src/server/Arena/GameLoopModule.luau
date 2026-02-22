@@ -117,7 +117,6 @@ function GameLoopModule.start()
         table.insert(GameState.alivePlayers, player)
     end
     task.spawn(function()
-        runEvent(ClickFirstEvent)
         runEvent(StartEvent)
 
         while #GameState.alivePlayers > 0 do

@@ -28,6 +28,7 @@ local GodBtnEvent = require(Arena.Events.GodBtnEvent)
 local HandoutEvent = require(Arena.Events.HandoutEvent)
 local EvenOddEvent = require(Arena.Events.EvenOddEvent)
 local SplitOrStealEvent = require(Arena.Events.SplitOrStealEvent)
+local AttackDefendTrustEvent = require(Arena.Events.AttackDefendTrustEvent)
 
 local events: {Event} = {
     ColorEvent,
@@ -43,7 +44,8 @@ local events: {Event} = {
     GodBtnEvent,
     HandoutEvent,
     EvenOddEvent,
-    SplitOrStealEvent
+    SplitOrStealEvent,
+    AttackDefendTrustEvent
 }
 local eventCounts: {[Event]: number} = {}
 

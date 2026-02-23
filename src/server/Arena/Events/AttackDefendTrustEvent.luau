@@ -85,7 +85,7 @@ function Event.onEvent()
         end
     end):await()
 
-    while task.wait() do
+    for attempt = 1, 6 do
         GameState.removeHighlightFromAll()
         GameState.addHighlightTo({p1, p2})
 
@@ -106,11 +106,16 @@ function Event.onEvent()
         TimerModule.setTime(15)
         local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
 
-        -- If they didn't choose, they trust by default
-        if chosen[p1] == nil then
+        if chosen[p1] == nil and chosen[p2] == nil then
+            GameState.runFuncPerAlive(function(player)
+                TextModule.setText(player, "Both players did not move")
+            end)
+            GameState.kill(p1)
+            GameState.kill(p2)
+            break
+        elseif chosen[p1] == nil then
             chosen[p1] = 3
-        end
-        if chosen[p2] == nil then
+        elseif chosen[p2] == nil then
             chosen[p2] = 3
         end
 

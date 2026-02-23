@@ -26,6 +26,10 @@ function Event.check()
 end
 
 function Event.onEvent()
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "They're answering to some secret question...")
+    end)
+
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
             { text = "I have a question for you", delay = 4 },

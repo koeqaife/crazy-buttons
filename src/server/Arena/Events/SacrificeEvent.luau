@@ -27,6 +27,10 @@ end
 function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
 
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "They will need to sacrifice for " .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name)
+    end)
+
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
@@ -68,7 +72,7 @@ function Event.onEvent()
 
     local playerMustBeKilled = #toKill == 0
 
-    GameState.runFuncPerAlive(function(player)
+    GameState.runFuncPerAll(function(player)
         if playerMustBeKilled then
             if table.find(randomPlayers, player) then
                 TextModule.setText(player, "You're eliminated")

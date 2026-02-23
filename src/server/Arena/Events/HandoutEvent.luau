@@ -24,6 +24,10 @@ function Event.check()
 end
 
 function Event.onEvent()
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "Someone will get a gift")
+    end)
+
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { text = "One very lucky player will get a gift now", delay = 4 },
@@ -32,6 +36,10 @@ function Event.onEvent()
     end):catch(error):await()
 
     local randomPlayer = GameState.pickOnePlayer()
+
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, randomPlayer.Name .. " got a gift")
+    end)
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         if player == randomPlayer then

@@ -61,6 +61,10 @@ function Event.onEvent()
 
     local playersForVote = GameState.pickPlayers(amount)
 
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "They're voting for who to eliminate")
+    end)
+
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {

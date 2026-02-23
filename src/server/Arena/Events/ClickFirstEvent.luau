@@ -53,6 +53,13 @@ function Event.onEvent()
 
     local textNumber = numbers[toKill]
 
+    GameState.runPromisePerDead(function(player, protect)
+        return protect(TextModule.showTextSequence(player, {
+            { text = "Now they will have to click the button", delay = 4 },
+            { text = "And the last " .. textNumber .. " to click will be eliminated", delay = 4 },
+        }))
+    end):andThen(function() end)
+
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to click the button", delay = 4 },

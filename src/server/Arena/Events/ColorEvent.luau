@@ -35,6 +35,10 @@ end
 
 function Event.onEvent()
     if next(chosenColors) then
+        GameState.runFuncPerDead(function(player)
+            TextModule.setText(player, "They're getting checked if they remember the color")
+        end)
+
         GameState.runPromisePerAlive(function(player, protect)
             return protect(TextModule.showTextSequence(player, {
                 { text = "Do you remember the color you chose before?", delay = 4 },
@@ -72,6 +76,10 @@ function Event.onEvent()
 
         return
     end
+
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "They're asked to choose a color")
+    end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {

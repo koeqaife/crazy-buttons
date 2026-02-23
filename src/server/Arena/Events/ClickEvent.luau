@@ -35,6 +35,10 @@ function Event.onEvent()
     -- 2 -> button says to not click
     local variant = math.random(1, 2)
 
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "They have reaction test with a button")
+    end)
+
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to click or not the button", delay = 4 },

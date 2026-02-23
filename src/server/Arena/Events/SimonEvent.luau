@@ -87,6 +87,10 @@ end
 function Event.onEvent()
     local deathsThisEvent = 0
 
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "They're playing Simon says")
+    end)
+
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Alright, I'm Simon now", delay = 3 },

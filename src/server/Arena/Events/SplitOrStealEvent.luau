@@ -35,7 +35,7 @@ end
 function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
 
-    GameState.runPromisePerAlive(function(player, protect, await)
+    GameState.runPromisePerAll(function(player, protect, await)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
                 { text = "You have been chosen for the Split or Steal", delay = 3 },
@@ -62,7 +62,7 @@ function Event.onEvent()
     local STEAL_BTN = 1
     local SPLIT_BTN = 5
 
-    GameState.runFuncPerAlive(function(player)
+    GameState.runFuncPerAll(function(player)
         if table.find(randomPlayers, player) then
             ButtonsModule.setButtons(player, {
                 { idx = SPLIT_BTN, text = "Split" },
@@ -90,7 +90,7 @@ function Event.onEvent()
     local c2 = chosen[p2]
 
     if c1 == STEAL_BTN and c2 == STEAL_BTN then
-        GameState.runFuncPerAlive(function(player)
+        GameState.runFuncPerAll(function(player)
             TextModule.setText(
                 player,
                 "Both players chose to steal, they both die"
@@ -106,7 +106,7 @@ function Event.onEvent()
         local stealer = c1 == STEAL_BTN and p1 or p2
         local victim = c1 == STEAL_BTN and p2 or p1
 
-        GameState.runFuncPerAlive(function(player)
+        GameState.runFuncPerAll(function(player)
             TextModule.setText(
                 player,
                 stealer.Name
@@ -123,7 +123,7 @@ function Event.onEvent()
         GameState.kill(victim)
     else
         GameState.addHighlightTo(randomPlayers, Color3.new(0.3, 1, 0))
-        GameState.runFuncPerAlive(function(player)
+        GameState.runFuncPerAll(function(player)
             TextModule.setText(
                 player,
                 "Both players chose to split, they both survive"

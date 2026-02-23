@@ -77,6 +77,10 @@ local function enableAllBtn(player: Player)
 end
 
 function Event.onEvent()
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, "They're doing combos now, three players will be eliminated")
+    end)
+
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to repeat after me", delay = 4 },

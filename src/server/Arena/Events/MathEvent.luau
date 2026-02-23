@@ -129,6 +129,10 @@ function Event.onEvent()
     end
     Helpers.shuffleTable(answers)
 
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, randomPlayer.Name .. " will do math quiz now")
+    end)
+
     GameState.addHighlightTo({randomPlayer})
     GameState.runPromisePerAlive(function(player, protect)
         if player == randomPlayer then

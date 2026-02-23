@@ -64,6 +64,10 @@ function Event.onEvent()
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
 
+    GameState.runFuncPerDead(function(player)
+        TextModule.setText(player, p1.Name .. " and " .. p2.Name .. " are playing Attack, Defend, Trust")
+    end)
+
     GameState.addHighlightTo({p1, p2})
     GameState.runPromisePerAlive(function(player, protect)
         if player == p1 or player == p2 then
@@ -89,7 +93,7 @@ function Event.onEvent()
         GameState.removeHighlightFromAll()
         GameState.addHighlightTo({p1, p2})
 
-        GameState.runFuncPerAlive(function(player)
+        GameState.runFuncPerAll(function(player)
             if player == p1 or player == p2 then
                 ButtonsModule.setButtons(player, {})
                 ButtonsModule.setButtons(player, {
@@ -107,7 +111,7 @@ function Event.onEvent()
         local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
 
         if chosen[p1] == nil and chosen[p2] == nil then
-            GameState.runFuncPerAlive(function(player)
+            GameState.runFuncPerAll(function(player)
                 TextModule.setText(player, "Both players did not move")
             end)
             GameState.kill(p1)
@@ -125,7 +129,7 @@ function Event.onEvent()
         task.wait(2)
 
         if chosen[p1] == chosen[p2] then
-            GameState.runPromisePerAlive(function(player, protect)
+            GameState.runPromisePerAll(function(player, protect)
                 if player == p1 or player == p2 then
                     return protect(TextModule.showTextSequence(player, {
                         { text = "You both chose " .. buttons[chosen[player]].text, delay = 4 },
@@ -145,7 +149,7 @@ function Event.onEvent()
             if beats[winner] == loser then
                 TextModule.setText(p1, beatsText[winner][loser])
                 TextModule.setText(p2, beatsText[loser][winner])
-                GameState.runFuncPerAlive(function(player)
+                GameState.runFuncPerAll(function(player)
                     if player ~= p1 and player ~= p2 then
                         TextModule.setText(player, p1.Name .. " won against " .. p2.Name)
                     end
@@ -156,7 +160,7 @@ function Event.onEvent()
             else
                 TextModule.setText(p2, beatsText[winner][loser])
                 TextModule.setText(p1, beatsText[loser][winner])
-                GameState.runFuncPerAlive(function(player)
+                GameState.runFuncPerAll(function(player)
                     if player ~= p1 and player ~= p2 then
                         TextModule.setText(player, p2.Name .. " won against " .. p1.Name .. "!")
                     end

@@ -1,6 +1,8 @@
 local BadgeService = game:GetService("BadgeService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local ButtonsModule = require(script.Parent.ButtonsModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local GameState = {}
@@ -19,6 +21,8 @@ GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.round = 0
 GameState.OnPlayerDied = OnPlayerDied
+
+local LOBBY_PLACE_ID = 115379867051786
 
 local function ensureRunningPromises(player: Player)
     if runningPromises[player] == nil then
@@ -58,6 +62,27 @@ function GameState.kill(player: Player, reason: string?)
     OnPlayerDied:Fire(player)
 
     cancelPlayerPromises(player)
+
+    Promise.defer(function(resolve)
+        task.wait(1)
+        GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
+            ButtonsModule.setButtons(player, {
+                { idx = 5, text = "Return to lobby" }
+            })
+
+            local promise = ButtonsModule.waitForIdxClick(player, -1, 5)
+            onCancel(function()
+                promise:cancel()
+            end)
+
+            local _, clicked = promise:catch(error):await()
+            if clicked then
+                TeleportService:Teleport(LOBBY_PLACE_ID, player)
+                resolve2()
+            end
+        end)):catch(warn)
+        resolve()
+    end):catch(warn)
 end
 
 local function protect<T>(player: Player, promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>
@@ -111,6 +136,7 @@ function GameState.revive(player: Player, reason: string?)
     table.insert(alivePlayers, player)
 
     SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers, reason)
+    ButtonsModule.setButtons(player, {})
 
     cancelPlayerPromises(player)
 end

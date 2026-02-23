@@ -107,6 +107,10 @@ local function onSyncEvent(
 
     local opacity
     if died then
+        for _, obj in ipairs(descendants) do
+            obj.CanQuery = false
+        end
+
         opacity = {
             highlightStart = 1,
             highlightTo = 0,
@@ -118,6 +122,10 @@ local function onSyncEvent(
             objEndForMe = 0.65
         }
     else
+        for _, obj in ipairs(descendants) do
+            obj.CanQuery = true
+        end
+
         opacity = {
             highlightStart = 1,
             highlightTo = 0,
@@ -133,6 +141,8 @@ local function onSyncEvent(
     local sound = dieSound:Clone()
     sound.Parent = workspace
     sound:Destroy()
+
+
 
     for _, obj in ipairs(descendants) do
         if obj:IsA("BasePart") and obj.Name ~= "HumanoidRootPart" then

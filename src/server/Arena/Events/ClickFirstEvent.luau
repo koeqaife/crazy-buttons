@@ -22,6 +22,8 @@ type EventType = EventTypeModule.Event
 
 local COOLDOWN = 1
 
+local numbers = {"one", "two", "three", "four"}
+
 local Event = {} :: EventType
 
 local clickSound = ReplicatedStorage
@@ -37,11 +39,25 @@ function Event.check()
 end
 
 function Event.onEvent()
+    local toKill
+
+    if #GameState.alivePlayers >= 15 then
+        toKill = 4
+    elseif #GameState.alivePlayers >= 10 then
+        toKill = 3
+    elseif #GameState.alivePlayers >= 5 then
+        toKill = 2
+    else
+        toKill = 1
+    end
+
+    local textNumber = numbers[toKill]
+
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to click the button", delay = 4 },
             { text = "Click faster than the others", delay = 4 },
-            { text = "The last one to click will be eliminated", delay = 4 },
+            { text = "The last " .. textNumber .. " to click will be eliminated", delay = 4 },
         }))
     end):await()
 
@@ -52,7 +68,8 @@ function Event.onEvent()
         TextModule.setText(player, "Wait until the button turns green")
     end)
 
-    local counter = #GameState.alivePlayers
+    local counter = #GameState.alivePlayers - toKill
+
     local toWait = math.random(15, 60)
     local lastClickPerPlayer: {[Player]: number} = {}
 
@@ -121,15 +138,15 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
 
         counter -= 1
-        if counter <= 0 then
+        if counter < 0 then
             await(TextModule.showTextSequence(player, {
-                { text = "You were the last one to click", delay = 2.5 },
+                { text = "You clicked too slow", delay = 2.5 },
                 { text = "You will be eliminated", delay = 2.5 },
             }))
             GameState.kill(player)
         else
             await(TextModule.showTextSequence(player, {
-                { text = "You clicked the button", delay = 2.5 },
+                { text = "You survived", delay = 2.5 },
                 { text = "Wait for the others to click", delay = 2.5 },
             }))
         end

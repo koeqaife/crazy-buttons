@@ -111,6 +111,8 @@ function GameState.revive(player: Player, reason: string?)
     table.insert(alivePlayers, player)
 
     SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers, reason)
+
+    cancelPlayerPromises(player)
 end
 
 type NewPromiseFunc = (

@@ -326,7 +326,9 @@ end
 function GameState.rewardBadge(player: Player, id: number): Promise.TypedPromise<nil>
     return Promise.retryWithDelay(function()
         return Promise.promisify(function()
-            return BadgeService:AwardBadgeAsync(player.UserId, id)
+            if not BadgeService:UserHasBadgeAsync(player.UserId, id) then
+                BadgeService:AwardBadgeAsync(player.UserId, id)
+            end
         end)()
     end, 5, withJitter(15))
 end

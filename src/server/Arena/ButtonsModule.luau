@@ -35,8 +35,11 @@ local function waitForButton(player: Player, timeout: number, filter: ((Player, 
             end)
         end),
         Promise.new(function(resolve)
-            task.wait(timeout)
-            resolve(nil)
+            -- Never resolve promise on timeout -1
+            if timeout ~= -1 then
+                task.wait(timeout)
+                resolve(nil)
+            end
         end)
     })
 end

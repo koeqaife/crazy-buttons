@@ -19,6 +19,7 @@ type EventType = EventTypeModule.Event
 local Event = {} :: EventType
 
 Event.chance = 0.1
+Event.minPlayers = 2
 Event.maxPerGame = 2
 
 local chosenColors: {[Player]: number} = {}

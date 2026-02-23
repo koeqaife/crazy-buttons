@@ -21,7 +21,9 @@ local boardText = {
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local TeleportService = game:GetService("TeleportService")
+local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 
 local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
 local active: {[Player]: boolean} = {}
@@ -254,6 +256,19 @@ local function onPlayerExit(player: Player)
 end
 
 function LobbyModule.init()
+    DataStoreModule.init()
+
+    game.Players.PlayerAdded:Connect(function(player: Player)
+        local leaderstats = Instance.new("Folder")
+        leaderstats.Name = "leaderstats"
+        leaderstats.Parent = player
+
+        local survives = Instance.new("IntValue")
+        survives.Name = "Survives"
+        survives.Value = DataStoreModule.dataPerPlayer[player] and DataStoreModule.dataPerPlayer[player].survives or 0
+        survives.Parent = leaderstats
+    end)
+
     -- On touched
     pad.Touched:Connect(function(hit)
         local character = hit.Parent

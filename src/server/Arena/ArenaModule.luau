@@ -2,6 +2,7 @@
 --!optimize 2
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 
 local ArenaModule = {}
@@ -10,6 +11,7 @@ local loadedPlayers = {}
 local PlayerLoaded = Instance.new("RemoteEvent", ReplicatedStorage)
 PlayerLoaded.Name = "PlayerLoaded"
 
+local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local GameStateModule = require(script.Parent.GameStateModule)
 local KillToolModule = require(script.Parent.KillToolModule)
 local GameLoopModule = require(Arena.GameLoopModule)
@@ -33,6 +35,7 @@ local function allPlayersLoaded()
 end
 
 function ArenaModule.init()
+    DataStoreModule.init()
     ButtonsModule.init()
     KillToolModule.init()
     TimerModule.start()

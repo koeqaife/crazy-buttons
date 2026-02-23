@@ -6,6 +6,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
 
+local SurvivesUpdated = Instance.new("BindableEvent")
+
 local DataStoreModule = {}
 
 type PlayerData = {
@@ -19,11 +21,12 @@ local defaultData: PlayerData = {
 local dataPerPlayer: {[Player]: PlayerData} = {}
 
 DataStoreModule.dataPerPlayer = dataPerPlayer
+DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
 
-    if not data then
+    if data == nil then
         finalData = table.clone(defaultData)
     else
         for key, value in pairs(defaultData) do
@@ -31,9 +34,11 @@ local function setData(player: Player, data: PlayerData?)
                 data[key] = value
             end
         end
+        finalData = data
     end
 
     dataPerPlayer[player] = finalData
+    return finalData
 end
 
 function DataStoreModule.increaseSurvives(player: Player)
@@ -41,12 +46,16 @@ function DataStoreModule.increaseSurvives(player: Player)
         return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
             local finalData: PlayerData
 
-            if not data then
+            if data == nil then
                 finalData = table.clone(defaultData)
+            else
+                finalData = data
             end
 
             finalData.survives += 1
             dataPerPlayer[player].survives = finalData.survives
+            print("Changed survives counter for", player.Name, "to", finalData.survives)
+            SurvivesUpdated:Fire(finalData.survives)
 
             return finalData
         end)
@@ -68,10 +77,11 @@ function DataStoreModule.init()
             return Promise.promisify(function()
                 return PlayerDataStore:GetAsync(player.UserId)
             end)()
-        end, 5, 3)
+        end, 5, 3):await()
 
         if success then
-            setData(player, data)
+            local finalData = setData(player, data)
+            SurvivesUpdated:Fire(finalData.survives)
         else
             warn("Failed to load data for", player.Name, data)
         end

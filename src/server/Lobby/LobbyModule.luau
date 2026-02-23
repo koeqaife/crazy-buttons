@@ -263,10 +263,16 @@ function LobbyModule.init()
         leaderstats.Name = "leaderstats"
         leaderstats.Parent = player
 
-        local survives = Instance.new("IntValue")
+        local survives = Instance.new("StringValue")
         survives.Name = "Survives"
-        survives.Value = DataStoreModule.dataPerPlayer[player] and DataStoreModule.dataPerPlayer[player].survives or 0
+        survives.Value = "—"
         survives.Parent = leaderstats
+
+        if DataStoreModule.getSurvives(player) == nil then
+            DataStoreModule.SurvivesUpdatedEvent.Event:Wait()
+        end
+
+        survives.Value = tostring(DataStoreModule.getSurvives(player) or "—")
     end)
 
     -- On touched

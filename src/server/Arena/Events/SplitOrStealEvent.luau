@@ -38,21 +38,21 @@ function Event.onEvent()
     GameState.runPromisePerAll(function(player, protect, await)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You have been chosen for the Split or Steal", delay = 3 },
-                { text = "You will be paired with " .. (if randomPlayers[1] == player then randomPlayers[2] else randomPlayers[1]).Name, delay = 4 },
-                { text = "You both will choose whether to split or steal", delay = 4 },
-                { text = "If both split, nothing happens", delay = 4 },
-                { text = "If one steals, the other dies", delay = 4 },
-                { text = "If both steal, you both die", delay = 4 },
+                { text = "You have been chosen for the Split or Steal", delay = 3, face = "shy" },
+                { text = "You will be paired with " .. (if randomPlayers[1] == player then randomPlayers[2] else randomPlayers[1]).Name, delay = 4, face = "scared" },
+                { text = "You both will choose whether to split or steal", delay = 4, face = "unamused" },
+                { text = "If both split, nothing happens", delay = 4, face = "happy" },
+                { text = "If one steals, the other dies", delay = 4, face = "scared" },
+                { text = "If both steal, you both die", delay = 4, face = "laughing" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Two players have been chosen for the Split or Steal", delay = 3 },
-                { text = "They are " .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name, delay = 4 },
-                { text = "They both will choose whether to split or steal", delay = 4 },
-                { text = "If both split, nothing happens", delay = 4 },
-                { text = "If one steals, the other dies", delay = 4 },
-                { text = "If both steal, they both die", delay = 4 },
+                { text = "Two players have been chosen for the Split or Steal", delay = 3, face = "shy" },
+                { text = "They are " .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name, delay = 4, face = "happy" },
+                { text = "They both will choose whether to split or steal", delay = 4, face = "unamused" },
+                { text = "If both split, nothing happens", delay = 4, face = "happy" },
+                { text = "If one steals, the other dies", delay = 4, face = "scared" },
+                { text = "If both steal, they both die", delay = 4, face = "laughing" },
             }))
         end
     end):catch(error):await()
@@ -68,9 +68,9 @@ function Event.onEvent()
                 { idx = SPLIT_BTN, text = "Split" },
                 { idx = STEAL_BTN, text = "Steal" }
             })
-            TextModule.setText(player, "Choose wisely")
+            TextModule.setText(player, "Choose wisely", "nerd")
         else
-            TextModule.setText(player, "Waiting for the players to choose")
+            TextModule.setText(player, "Waiting for the players to choose", "normal")
         end
     end)
 
@@ -93,7 +93,8 @@ function Event.onEvent()
         GameState.runFuncPerAll(function(player)
             TextModule.setText(
                 player,
-                "Both players chose to steal, they both die"
+                "Both players chose to steal, they both die",
+                "laughing"
             )
         end)
 
@@ -112,7 +113,8 @@ function Event.onEvent()
                 stealer.Name
                     .. " chose to steal, "
                     .. victim.Name
-                    .. " is eliminated"
+                    .. " is eliminated",
+                "unamused"
             )
         end)
 
@@ -126,7 +128,8 @@ function Event.onEvent()
         GameState.runFuncPerAll(function(player)
             TextModule.setText(
                 player,
-                "Both players chose to split, they both survive"
+                "Both players chose to split, they both survive",
+                "happy"
             )
         end)
         task.wait(10)

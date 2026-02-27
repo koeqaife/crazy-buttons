@@ -130,20 +130,20 @@ function Event.onEvent()
     Helpers.shuffleTable(answers)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, randomPlayer.Name .. " will do math quiz now")
+        TextModule.setText(player, randomPlayer.Name .. " will do math quiz now", "nerd")
     end)
 
     GameState.addHighlightTo({randomPlayer})
     GameState.runPromisePerAlive(function(player, protect)
         if player == randomPlayer then
             return protect(TextModule.showTextSequence(player, {
-                { text = "How good are you in math?", delay = 3 },
-                { text = "Other people lives depend on you now", delay = 3 },
+                { text = "How good are you in math?", delay = 4, face = "nerd" },
+                { text = "Other people lives depend on you now", delay = 4, face = "scared" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 3 },
-                { text = "You will have to find out", delay = 3 },
+                { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 4, face = "nerd" },
+                { text = "You will have to find out", delay = 4, face = "shy" },
             }))
         end
     end):catch(error):await()
@@ -151,7 +151,7 @@ function Event.onEvent()
     TimerModule.setTime(30)
     GameState.runFuncPerAlive(function(player)
         if player == randomPlayer then
-            TextModule.setText(player, "Calculate this:\n" .. randomQuiz.exp)
+            TextModule.setText(player, "Calculate this:\n" .. randomQuiz.exp, "nerd")
 
             local buttons: IndicesType.Indices = {}
             for index, answer in answers do
@@ -164,7 +164,8 @@ function Event.onEvent()
                 player,
                 "Is " .. randomPlayer.Name ..
                 " smart enough to calculate: \n" ..
-                randomQuiz.exp .. "\n?"
+                randomQuiz.exp .. "\n?",
+                "nerd"
             )
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "No" },
@@ -199,13 +200,13 @@ function Event.onEvent()
     GameState.runNewPromisePerAlive(function(player)
         if player == randomPlayer then
             if isRight then
-                TextModule.setText(player, "Your answer was right")
+                TextModule.setText(player, "Your answer was right", "happy")
                 task.wait(5)
             else
-                TextModule.setText(player, "Your answer was wrong")
+                TextModule.setText(player, "Your answer was wrong", "scared")
                 if playerMustDie then
                     task.wait(2)
-                    TextModule.setText(player, "But no one even believed in you...")
+                    TextModule.setText(player, "But no one even believed in you...", "dead")
                     GameState.kill(player)
                     task.wait(3)
                 else
@@ -216,17 +217,17 @@ function Event.onEvent()
             local choice = chosen[player]
             local isYes = choice == 2
             if choice == nil then
-                TextModule.setText(player, "You had to answer...")
+                TextModule.setText(player, "You had to answer...", "dead")
                 GameState.kill(player)
             elseif isYes ~= isRight then
                 if playerMustDie then
-                    TextModule.setText(player, "You were wrong, but lucky this time")
+                    TextModule.setText(player, "You were wrong, but lucky this time", "happy")
                 else
-                    TextModule.setText(player, "You were wrong")
+                    TextModule.setText(player, "You were wrong", "dead")
                     GameState.kill(player)
                 end
             else
-                TextModule.setText(player, "You were right")
+                TextModule.setText(player, "You were right", "happy")
             end
             task.wait(5)
         end

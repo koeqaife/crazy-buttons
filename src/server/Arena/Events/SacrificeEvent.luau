@@ -28,19 +28,19 @@ function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They will need to sacrifice for " .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name)
+        TextModule.setText(player, "They will need to sacrifice for " .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name, "scared")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You have been chosen...", delay = 3 },
-                { text = "Someone has to sacrifice themselves to save you", delay = 4 }
+                { text = "You have been chosen...", delay = 3, face = "scared" },
+                { text = "Someone has to sacrifice themselves to save you", delay = 4, face = "scared" }
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = randomPlayers[1].Name .. " and " .. randomPlayers[2].Name .. " are chosen.", delay = 3 },
-                { text = "Will you sacrifice yourself to save them?", delay = 4 }
+                { text = randomPlayers[1].Name .. " and " .. randomPlayers[2].Name .. " are chosen.", delay = 3, face = "laughing" },
+                { text = "Will you sacrifice yourself to save them?", delay = 4, face = "shy" }
             }))
         end
     end):catch(error):await()
@@ -55,7 +55,7 @@ function Event.onEvent()
             return
         end
 
-        TextModule.setText(player, "Press to save them")
+        TextModule.setText(player, "Press to save them", "shy")
         ButtonsModule.setButtons(player, {
             { idx = 1, text = "Sacrifice yourself" }
         })
@@ -64,7 +64,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
 
         if clicked then
-            TextModule.setText(player, "Your choice cannot be undone")
+            TextModule.setText(player, "Your choice cannot be undone", "dead")
             table.insert(toKill, player)
             task.wait(3)
         end
@@ -75,19 +75,19 @@ function Event.onEvent()
     GameState.runFuncPerAll(function(player)
         if playerMustBeKilled then
             if table.find(randomPlayers, player) then
-                TextModule.setText(player, "You're eliminated")
+                TextModule.setText(player, "You're eliminated", "dead")
                 GameState.kill(player)
             else
-                TextModule.setText(player, "They are eliminated")
+                TextModule.setText(player, "They are eliminated", "scared")
             end
         else
             if table.find(randomPlayers, player) then
-                TextModule.setText(player, "You're saved")
+                TextModule.setText(player, "You're saved", "happy")
             elseif table.find(toKill, player) then
-                TextModule.setText(player, "You saved them")
+                TextModule.setText(player, "You saved them", "dead")
                 GameState.kill(player)
             else
-                TextModule.setText(player, "They were saved!")
+                TextModule.setText(player, "They were saved!", "happy")
             end
         end
     end)

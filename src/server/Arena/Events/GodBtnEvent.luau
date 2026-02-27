@@ -31,14 +31,14 @@ end
 
 function Event.onEvent()
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're searching one button between 100 buttons")
+        TextModule.setText(player, "They're searching one button between 100 buttons", "laughing")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Are you ready for searching?", delay = 4 },
-            { text = "Because now there are gonna be 100 buttons", delay = 4 },
-            { text = "First to find it will be awarded", delay = 3.5 },
+            { text = "Are you ready for searching?", delay = 4, face = "happy" },
+            { text = "Because now there are gonna be 100 buttons", delay = 4, face = "scared" },
+            { text = "First to find it will be awarded", delay = 3.5, face = "shy" },
         }))
     end):catch(error):await()
 
@@ -53,7 +53,7 @@ function Event.onEvent()
     TimerModule.setTime(60)
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, buttons, nil, nil, seed)
-        TextModule.setText(player, "Good luck finding it")
+        TextModule.setText(player, "Good luck finding it", "laughing")
     end)
 
     local awardedPlayer: Player? = nil
@@ -95,14 +95,14 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
         if awardedPlayer ~= nil then
             if awardedPlayer == player then
-                TextModule.setText(player, "You found the button!")
+                TextModule.setText(player, "You found the button!", "happy")
                 KillToolModule.giveTool(player)
                 GameState.rewardBadge(player, BADGE_ID)
             else
-                TextModule.setText(player, awardedPlayer.Name .. " found the button")
+                TextModule.setText(player, awardedPlayer.Name .. " found the button", "scared")
             end
         else
-            TextModule.setText(player, "No one found the button...")
+            TextModule.setText(player, "No one found the button...", "laughing")
         end
     end)
     task.wait(10)

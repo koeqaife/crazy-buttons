@@ -62,19 +62,19 @@ function Event.onEvent()
     local playersForVote = GameState.pickPlayers(amount)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're voting for who to eliminate")
+        TextModule.setText(player, "They're voting for who to eliminate", "shy")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be eliminated now", delay = 3 },
-                { text = "Other players will decide your fate...", delay = 4 },
+                { text = "Someone will be eliminated now", delay = 3, face = "normal" },
+                { text = "Other players will decide your fate...", delay = 4, face = "scared" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be eliminated now", delay = 3 },
-                { text = "Choose wisely who should be eliminated", delay = 4 },
+                { text = "Someone will be eliminated now", delay = 3, face = "normal" },
+                { text = "Choose wisely who should be eliminated", delay = 4, face = "happy" },
             }))
         end
     end):catch(error):await()
@@ -99,13 +99,13 @@ function Event.onEvent()
     GameState.runNewPromisePerAlive(function(player, protect, await)
         if table.find(playersForVote, player) then
             await(TextModule.showTextSequence(player, {
-                { text = "It may be a bit boring while they're voting?", delay = 4 },
-                { text = "Many people are crazy", delay = 4 },
-                { text = "They are gonna choose someone who just looks bad", delay = 5 },
-                { text = "Or someone who did something bad", delay = 4 },
-                { text = "If you know what I'm talking about", delay = 5 },
-                { text = "You didn't make them mad, right?", delay = 4 },
-                { text = "Let's see who was eliminated", delay = 4 },
+                { text = "It may be a bit boring while they're voting?", delay = 4, face = "normal" },
+                { text = "Many people are crazy", delay = 4, face = "shy" },
+                { text = "They are gonna choose someone who just looks bad", delay = 5, face = "normal" },
+                { text = "Or someone who did something bad", delay = 4, face = "scared" },
+                { text = "If you know what I'm talking about", delay = 5, face = "normal" },
+                { text = "You didn't make them mad, right?", delay = 4, face = "shy" },
+                { text = "Let's see who was eliminated", delay = 4, face = "scared" },
             }))
         else
             ButtonsModule.setButtons(player, buttons)
@@ -134,10 +134,10 @@ function Event.onEvent()
 
     GameState.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
-            TextModule.setText(player, "You were eliminated... I'm sorry")
+            TextModule.setText(player, "You were eliminated... I'm sorry", "dead")
             GameState.kill(player)
         else
-            TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was eliminated")
+            TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was eliminated", "dead")
         end
     end)
     task.wait(5)

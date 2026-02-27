@@ -36,18 +36,18 @@ function Event.onEvent()
     local variant = math.random(1, 2)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They have reaction test with a button")
+        TextModule.setText(player, "They have reaction test with a button", "click_button_icon")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to click or not the button", delay = 4 },
-            { text = "But you will not have much time", delay = 4 },
-            { text = "Only two seconds", delay = 3 },
-            { text = "Be ready", delay = 3 },
-            { text = "3...", delay = 1.5 },
-            { text = "2...", delay = 1.5 },
-            { text = "1...", delay = 1.5 },
+            { text = "Now you will have to click or not the button", delay = 4, face = "click_button_icon" },
+            { text = "But you will not have much time", delay = 4, face = "no_mouth" },
+            { text = "Only two seconds", delay = 3, face = "scared" },
+            { text = "Be ready", delay = 3, face = "shy" },
+            { text = "3...", delay = 1.5, face = { text = "3" }},
+            { text = "2...", delay = 1.5, face = { text = "2" }},
+            { text = "1...", delay = 1.5, face = { text = "1" }},
         }))
     end):catch(error):await()
 
@@ -73,10 +73,12 @@ function Event.onEvent()
             screenText = "BUTTON SAYS LIE"
         end
 
-        TextModule.setText(player, screenText)
+        TextModule.setText(player, screenText, "click_button_icon")
     end)
 
-    local _, chosen = ButtonsModule.initiateButtonChoice(2.5):catch(error):await()
+    -- Longer delay for the case when player doesn't have to click
+    local toWait = if randomAction == 1 then 2.5 else 4
+    local _, chosen = ButtonsModule.initiateButtonChoice(toWait):catch(error):await()
 
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
@@ -86,13 +88,13 @@ function Event.onEvent()
         local clicked = chosen[player] ~= nil
 
         if randomAction == 1 and not clicked then
-            TextModule.setText(player, "You should've clicked")
+            TextModule.setText(player, "You should've clicked", "dead")
             GameState.kill(player)
         elseif randomAction == 2 and clicked then
-            TextModule.setText(player, "You shouldn't have to click")
+            TextModule.setText(player, "You shouldn't have to click", "dead")
             GameState.kill(player)
         else
-            TextModule.setText(player, "You survived")
+            TextModule.setText(player, "You survived", "happy")
         end
     end):catch(error):await()
     task.wait(5)

@@ -29,15 +29,15 @@ function Event.onEvent()
     local survivor = GameState.alivePlayers[1]
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, survivor.Name .. " made it to the end")
+        TextModule.setText(player, survivor.Name .. " made it to the end", "happy")
     end)
 
     TextModule.showTextSequence(survivor, {
-        { text = "Oh, looks like you're the one who is left", delay = 4 },
-        { text = "Congratulations!", delay = 4 },
-        { text = "But we cannot continue the experiment...", delay = 4 },
-        { text = "So I will have to eliminate you", delay = 4 },
-        { text = "Otherwise, there is just nowhere to go for you", delay = 4 },
+        { text = "Oh, looks like you're the one who is left", delay = 4, face = "shy" },
+        { text = "Congratulations!", delay = 4, face = "happy" },
+        { text = "But we cannot continue the experiment...", delay = 4, face = "normal" },
+        { text = "So I will have to eliminate you", delay = 4, face = "scared" },
+        { text = "Otherwise, there is just nowhere to go for you", delay = 4, face = "dead" },
     }):catch(warn):await()
 
     DataStoreModule.increaseSurvives(survivor):await()

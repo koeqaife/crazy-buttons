@@ -47,7 +47,7 @@ end
 
 function AmbienceModule.playEerieHorrorRising()
     if not table.find(runningSounds, EerieHorrorRising) then
-        fadeIn(EerieHorrorRising, 20, 0.5)
+        fadeIn(EerieHorrorRising, 20, 1)
         table.insert(runningSounds, EerieHorrorRising)
     end
 end

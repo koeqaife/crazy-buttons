@@ -28,19 +28,19 @@ end
 function Event.onEvent()
     GameState.runPromisePerDead(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "They will choose whether to press the button or not", delay = 5 },
-            { text = "Once everyone has decided, I'll count the presses", delay = 5 },
-            { text = "If the total is odd, all who pressed are eliminated", delay = 5 },
-            { text = "If it's even, those who didn't press are eliminated", delay = 5 },
+            { text = "They will choose whether to press the button or not", delay = 5, face = "click_button_icon" },
+            { text = "Once everyone has decided, I'll count the presses", delay = 5, face = "nerd" },
+            { text = "If the total is odd, all who pressed are eliminated", delay = 5, face = "even_odd_event_icon" },
+            { text = "If it's even, those who didn't press are eliminated", delay = 5, face = "even_odd_event_icon" },
         }))
     end):andThen(function() end)
 
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "You will choose whether to press the button or not", delay = 5 },
-            { text = "Once everyone has decided, I'll count the presses", delay = 5 },
-            { text = "If the total is odd, all who pressed are eliminated", delay = 5 },
-            { text = "If it's even, those who didn't press are eliminated", delay = 5 },
+            { text = "You will choose whether to press the button or not", delay = 5, face = "click_button_icon" },
+            { text = "Once everyone has decided, I'll count the presses", delay = 5, face = "nerd" },
+            { text = "If the total is odd, all who pressed are eliminated", delay = 5, face = "even_odd_event_icon" },
+            { text = "If it's even, those who didn't press are eliminated", delay = 5, face = "even_odd_event_icon" },
         }))
     end):await()
 
@@ -48,7 +48,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {
             { idx = 2 }
         })
-        TextModule.setText(player, "Remember to talk with others")
+        TextModule.setText(player, "Remember to talk with others", "shy")
     end)
 
     TimerModule.setTime(25)
@@ -66,7 +66,7 @@ function Event.onEvent()
 
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
-        TextModule.setText(player, "Time to count")
+        TextModule.setText(player, "Time to count", "scared")
     end)
     task.wait(2)
 
@@ -74,7 +74,7 @@ function Event.onEvent()
         GameState.addHighlightToOne(player)
 
         GameState.runFuncPerAlive(function(playerToShow)
-            TextModule.setText(playerToShow, player.Name .. " clicked")
+            TextModule.setText(playerToShow, player.Name .. " clicked", "normal")
         end)
 
         task.wait(math.random(2, 4))
@@ -84,18 +84,18 @@ function Event.onEvent()
 
     GameState.runNewPromisePerAlive(function(player)
         if isEven then
-            TextModule.setText(player, "It's even")
+            TextModule.setText(player, "It's even", "normal")
         else
-            TextModule.setText(player, "It's odd")
+            TextModule.setText(player, "It's odd", "normal")
         end
         task.wait(5)
 
         if (isEven and table.find(clickedPlayers, player)) or
            (not isEven and not table.find(clickedPlayers, player))
         then
-            TextModule.setText(player, "You survived")
+            TextModule.setText(player, "You survived", "happy")
         else
-            TextModule.setText(player, "You're eliminated")
+            TextModule.setText(player, "You're eliminated", "dead")
             GameState.kill(player)
         end
         task.wait(5)

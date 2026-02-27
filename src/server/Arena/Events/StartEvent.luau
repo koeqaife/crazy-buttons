@@ -25,16 +25,16 @@ end
 function Event.onEvent()
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Hey " .. player.DisplayName .. "!", delay = 3 },
-            { text = "This is a Button Experiment", delay = 4 },
-            { text = "You're gonna be tested in different scenarios", delay = 4 },
-            { text = "Some of them will be easy, some of them will be hard", delay = 5 },
-            { text = "Let's start with something simple", delay = 4 },
+            { text = "Hey " .. player.DisplayName .. "!", delay = 3, face = "shy" },
+            { text = "This is a Button Experiment", delay = 4, face = "normal" },
+            { text = "You're gonna be tested in different scenarios", delay = 4, face = "scared" },
+            { text = "Some of them will be easy, some of them will be hard", delay = 5, face = "dead" },
+            { text = "Let's start with something simple", delay = 4, face = "no_mouth" },
         }))
     end):catch(error):await()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
-        TextModule.setText(player, "You see this button?\nDo whatever it says")
+        TextModule.setText(player, "You see this button?\nDo whatever it says", "click_button_icon")
         ButtonsModule.setButtons(player, {{ idx = 1, text = "Press me!" }})
 
         local clicked = await(ButtonsModule.waitForClick(player, 15))
@@ -42,14 +42,14 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
         if clicked then
             await(TextModule.showTextSequence(player, {
-                { text = "Good, you can follow simple instructions", delay = 4 },
-                { text = "That's already more than some people", delay = 4 },
-                { text = "Let's see how long you last", delay = 4 }
+                { text = "Good, you can follow simple instructions", delay = 4, face = "happy" },
+                { text = "That's already more than some people", delay = 4, face = "laughing" },
+                { text = "Let's see how long you last", delay = 4, face = "no_mouth" }
             }))
         else
             await(TextModule.showTextSequence(player, {
-                { text = "Oh, so you're ignoring me?", delay = 3 },
-                { text = "That's not nice...", delay = 3 }
+                { text = "Oh, so you're ignoring me?", delay = 3, face = "angry" },
+                { text = "That's not nice...", delay = 3, face = "unamused" }
             }))
             GameState.kill(player)
         end
@@ -57,11 +57,11 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Before we start you should remember a few rules", delay = 4 },
-            { text = "What you see might kill you", delay = 4 },
-            { text = "What you hear might lie to you", delay = 4 },
-            { text = "What you do might betray you", delay = 4 },
-            { text = "Let's begin", delay = 3 },
+            { text = "Before we start you should remember a few rules", delay = 4, face = "nerd" },
+            { text = "What you see might kill you", delay = 4, face = { text = "1" } },
+            { text = "What you hear might lie to you", delay = 4, face = { text = "2" } },
+            { text = "What you do might betray you", delay = 4, face = { text = "3" } },
+            { text = "Let's begin", delay = 3, face = "shy" },
         }))
     end):catch(error):await()
 

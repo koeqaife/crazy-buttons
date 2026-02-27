@@ -78,14 +78,14 @@ end
 
 function Event.onEvent()
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're doing combos now, three players will be eliminated")
+        TextModule.setText(player, "They're doing combos now, three players will be eliminated", "combo_event_icon")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to repeat after me", delay = 4 },
-            { text = "Players with the highest amount of mistakes will be eliminated", delay = 5 },
-            { text = "And now we start", delay = 3 },
+            { text = "Now you will have to repeat after me", delay = 4, face = "combo_event_icon" },
+            { text = "Players with the highest amount of mistakes will be eliminated", delay = 5, face = "dead" },
+            { text = "And now we start", delay = 3, face = "shy" },
         }))
     end):catch(error):await()
 
@@ -114,17 +114,17 @@ function Event.onEvent()
                 table.insert(combo, nextIdx)
             end
 
-            TextModule.setText(player, "My turn")
+            TextModule.setText(player, "My turn", "normal")
             enableAllBtn(player)
             disableInput(player)
             task.wait(2)
             for i, idx in ipairs(combo) do
-                TextModule.setText(player, tostring(i))
+                TextModule.setText(player, tostring(i), "normal")
                 disableAllBtnExcept(player, idx)
                 task.wait(1)
             end
 
-            TextModule.setText(player, "Your turn")
+            TextModule.setText(player, "Your turn", "nerd")
             enableAllBtn(player)
             task.wait(2)
 
@@ -132,11 +132,11 @@ function Event.onEvent()
                 enableInput(player)
                 enableAllBtn(player)
 
-                TextModule.setText(player, tostring(i))
+                TextModule.setText(player, tostring(i), "nerd")
                 local clicked = await(ButtonsModule.waitForClick(player, 10))
 
                 if not clicked then
-                    TextModule.setText(player, "You didn't click anything")
+                    TextModule.setText(player, "You didn't click anything", "dead")
                     GameState.kill(player)
                     return
                 end
@@ -151,7 +151,7 @@ function Event.onEvent()
                 task.wait(1)
             end
         end
-        TextModule.setText(player, "Let's wait for others to finish")
+        TextModule.setText(player, "Let's wait for others to finish", "normal")
         task.wait(2)
     end):catch(error):await()
 
@@ -186,15 +186,15 @@ function Event.onEvent()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
-            { text = "You have " .. mistakes[player] .. " mistakes...", delay = 2 },
-            { text = "Let's see what we got here", delay = 3 }
+            { text = "You have " .. mistakes[player] .. " mistakes...", delay = 3, face = "laughing" },
+            { text = "Let's see what we got here", delay = 4, face = "scared" }
         }))
 
         if table.find(toKill, player) then
-            TextModule.setText(player, "You are the one of people who are eliminated")
+            TextModule.setText(player, "You are the one of people who are eliminated", "dead")
             GameState.kill(player)
         else
-            TextModule.setText(player, "You survived")
+            TextModule.setText(player, "You survived", "happy")
         end
         task.wait(5)
     end):catch(error):await()

@@ -42,20 +42,20 @@ function Event.onEvent()
     local p2 = randomPlayers[2]
 
     GameState.runFuncPerDead(function(player)
-        return TextModule.setText(player, p1.Name .. " and " .. p2.Name .. " will play a duel now")
+        return TextModule.setText(player, p1.Name .. " and " .. p2.Name .. " will play a duel now", "click_button_icon")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         if player == p1 or player == p2 then
             local otherPlayer = if player == p1 then p2 else p1
             return protect(TextModule.showTextSequence(player, {
-                { text = "You and " .. otherPlayer.Name .. " will play a duel now", delay = 4 },
-                { text = "The first one to click survives", delay = 4 },
+                { text = "You and " .. otherPlayer.Name .. " will play a duel now", delay = 4, face = "click_button_icon" },
+                { text = "The first one to click survives", delay = 4, face = "normal" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = p1.Name .. " and " .. p2.Name .. " will play a duel now", delay = 4 },
-                { text = "The first one to click survives", delay = 4 },
+                { text = p1.Name .. " and " .. p2.Name .. " will play a duel now", delay = 4, face = "click_button_icon" },
+                { text = "The first one to click survives", delay = 4, face = "normal" },
             }))
         end
     end):await()
@@ -65,7 +65,7 @@ function Event.onEvent()
             ButtonsModule.setButtons(player, {
                 { idx = 1 }
             })
-            TextModule.setText(player, "Wait until the button turns green")
+            TextModule.setText(player, "Wait until the button turns green", { text = "..." })
         end
     end)
 
@@ -145,8 +145,8 @@ function Event.onEvent()
 
         if not clicked then
             await(TextModule.showTextSequence(player, {
-                { text = "You didn't click the button", delay = 2.5 },
-                { text = "You will be eliminated", delay = 2.5 },
+                { text = "You didn't click the button", delay = 2.5, face = "angry" },
+                { text = "You will be eliminated", delay = 2.5, face = "dead" },
             }))
             GameState.kill(player)
             return
@@ -170,18 +170,18 @@ function Event.onEvent()
 
         if player == firstClicked then
             await(TextModule.showTextSequence(player, {
-                { text = "You were fast enough", delay = 3 },
-                { text = "Good job", delay = 2.5 },
+                { text = "You were fast enough", delay = 3, face = "happy" },
+                { text = "Good job", delay = 2.5, face = "shy" },
             }))
         elseif player == lost then
             await(TextModule.showTextSequence(player, {
-                { text = "The other player clicked faster", delay = 3 },
-                { text = "You're eliminated", delay = 2 },
+                { text = "The other player clicked faster", delay = 3, face = "laughing" },
+                { text = "You're eliminated", delay = 2, face = "dead" },
             }))
             GameState.kill(player)
         elseif firstClicked ~= nil then
             await(TextModule.showTextSequence(player, {
-                { text = firstClicked.Name .. " won this duel", delay = 4 },
+                { text = firstClicked.Name .. " won this duel", delay = 4, face = "happy" },
             }))
         end
     end):await()

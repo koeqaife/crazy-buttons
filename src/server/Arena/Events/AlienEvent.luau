@@ -32,8 +32,8 @@ function Event.onEvent()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
-            { text = "I have a question for you", delay = 4 },
-            { text = "Do you like aliens?", delay = 4 },
+            { text = "I have a question for you", delay = 4, face = "normal" },
+            { text = "Do you like aliens?", delay = 4, face = "alien" },
         }))
 
         ButtonsModule.setButtons(player, {
@@ -46,14 +46,14 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
         if clicked ~= 1 then
             await(TextModule.showTextSequence(player, {
-                { text = "Oh no...", delay = 2 },
-                { text = "That's not nice.....", delay = 3 }
+                { text = "Oh no...", delay = 2, face = "no_mouth" },
+                { text = "That's not nice.....", delay = 3, face = "unamused" }
             }))
             GameState.kill(player)
         else
             await(TextModule.showTextSequence(player, {
-                { text = ":D", delay = 2 },
-                { text = "That's cool", delay = 3 }
+                { text = ":D", delay = 2, face = "happy" },
+                { text = "That's cool", delay = 3, face = "shy" }
             }))
         end
 

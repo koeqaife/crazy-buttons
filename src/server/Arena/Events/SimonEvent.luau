@@ -88,13 +88,13 @@ function Event.onEvent()
     local deathsThisEvent = 0
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're playing Simon says")
+        TextModule.setText(player, "They're playing Simon says", "nerd")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Alright, I'm Simon now", delay = 3 },
-            { text = "No \"Simon says\"? Then do the opposite", delay = 4 },
+            { text = "Alright, I'm Simon now", delay = 3, face = "shy" },
+            { text = "No \"Simon says\"? Then do the opposite", delay = 4, face = "nerd" },
         }))
     end):catch(error):await()
 
@@ -132,7 +132,7 @@ function Event.onEvent()
             lastChosenCopy[player] = idx
         end
         GameState.runFuncPerAlive(function(player)
-            TextModule.setText(player, randomText.text)
+            TextModule.setText(player, randomText.text, "normal")
         end)
 
         local clickedNow: {[Player]: boolean} = {}

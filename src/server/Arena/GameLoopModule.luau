@@ -116,7 +116,7 @@ local function runEvent(event: Event?)
 
         GameState.cancelAll()
         GameState.runFuncPerAlive(function(player)
-            TextModule.setText(player, "An error occurred...")
+            TextModule.setText(player, "An error occurred...", "dead")
         end)
         task.wait(5)
     end
@@ -138,7 +138,11 @@ function GameLoopModule.start()
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
             end
 
-            task.wait()
+            GameState.runFuncPerAlive(function(player)
+                TextModule.setText(player, "", "normal")
+            end)
+
+            task.wait(3)
         end
     end)
 end

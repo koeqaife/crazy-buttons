@@ -7,11 +7,22 @@ local TextModule = {}
 local UpdateTextEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 UpdateTextEvent.Name = "UpdateTextEvent"
 
-local function fire(player: Player, type: "set" | "append", text: string)
-    UpdateTextEvent:FireClient(player, type, text)
+type FaceString = "normal"
+    | "shy" | "scared" | "dead" | "no_mouth"
+    | "laughing" | "angry" | "unamused"
+    | "nerd" | "happy" | "looking" | "alien"
+
+    | "att_def_tru_icon" | "click_button_icon" | "color_event_icon"
+    | "combo_event_icon" | "even_odd_event_icon"
+
+type FaceObject = { text: string, face: FaceString? }
+type Face = FaceString | FaceObject
+
+local function fire(player: Player, type: "set" | "append", text: string, face: Face?)
+     UpdateTextEvent:FireClient(player, type, text, face)
 end
 
-function TextModule.showTextSequence(player: Player, sequence: {{text: string, delay: number?}})
+function TextModule.showTextSequence(player: Player, sequence: {{text: string, delay: number?, face: Face?}})
     return Promise.new(function(resolve, reject, onCancel)
         local cancelled = false
 
@@ -25,7 +36,7 @@ function TextModule.showTextSequence(player: Player, sequence: {{text: string, d
                 return
             end
 
-            TextModule.setText(player, step.text)
+            TextModule.setText(player, step.text, step.face)
             if step.delay then
                 Promise.delay(step.delay):await()
             end
@@ -34,12 +45,12 @@ function TextModule.showTextSequence(player: Player, sequence: {{text: string, d
     end)
 end
 
-function TextModule.setText(player: Player, text: string)
-    fire(player, "set", text)
+function TextModule.setText(player: Player, text: string, face: Face?)
+    fire(player, "set", text, face)
 end
 
-function TextModule.appendText(player: Player, text: string)
-    fire(player, "append", text)
+function TextModule.appendText(player: Player, text: string, face: Face?)
+    fire(player, "append", text, face)
 end
 
 return TextModule

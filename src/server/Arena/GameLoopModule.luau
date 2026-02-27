@@ -31,6 +31,7 @@ local SplitOrStealEvent = require(Arena.Events.SplitOrStealEvent)
 local AttackDefendTrustEvent = require(Arena.Events.AttackDefendTrustEvent)
 local YouSurvivedEvent = require(Arena.Events.YouSurvivedEvent)
 local DuelEvent = require(Arena.Events.DuelEvent)
+local LinkedEvent = require(Arena.Events.LinkedEvent)
 
 local events: {Event} = {
     ColorEvent,
@@ -49,7 +50,8 @@ local events: {Event} = {
     SplitOrStealEvent,
     AttackDefendTrustEvent,
     YouSurvivedEvent,
-    DuelEvent
+    DuelEvent,
+    LinkedEvent
 }
 local eventCounts: {[Event]: number} = {}
 

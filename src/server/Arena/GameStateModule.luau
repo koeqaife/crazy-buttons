@@ -12,6 +12,9 @@ SyncDeadEvent.Name = "SyncDeadEvent"
 
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
+local linkedPlayers: {[Player]: Player} = {}
+
+local links: {[string]: {Beam: Beam, Attachment1: Attachment, Attachment2: Attachment}} = {}
 
 local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
 
@@ -19,10 +22,58 @@ local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
 
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
+GameState.linkedPlayers = linkedPlayers
 GameState.round = 0
 GameState.OnPlayerDied = OnPlayerDied
 
 local LOBBY_PLACE_ID = 115379867051786
+
+local function createLink(player1: Player, player2: Player)
+    if not player1.Character or not player2.Character then return end
+    local hrp1 = player1.Character:FindFirstChild("HumanoidRootPart")
+    local hrp2 = player2.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp1 or not hrp2 then return end
+
+    local attachment1 = Instance.new("Attachment", hrp1)
+    local attachment2 = Instance.new("Attachment", hrp2)
+
+    local beam = Instance.new("Beam")
+    beam.Attachment0 = attachment1
+    beam.Attachment1 = attachment2
+    beam.FaceCamera = true
+    beam.Color = ColorSequence.new(Color3.fromRGB(56, 138, 245))
+    beam.Width0 = 0.2
+    beam.Width1 = 0.2
+    beam.LightEmission = 1
+    beam.LightInfluence = 1
+    beam.Parent = hrp1
+
+    -- Transparency: beginning transparent, middle not, end transparent
+    beam.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1),
+        NumberSequenceKeypoint.new(0.249, 1),
+        NumberSequenceKeypoint.new(0.25, 0),
+        NumberSequenceKeypoint.new(0.75, 0),
+        NumberSequenceKeypoint.new(0.751, 1),
+        NumberSequenceKeypoint.new(1, 1)
+    })
+
+    local object = {Beam = beam, Attachment1 = attachment1, Attachment2 = attachment2}
+    links[player1.Name .. "_" .. player2.Name] = object
+    links[player2.Name .. "_" .. player1.Name] = object
+end
+
+local function removeLink(player1: Player, player2: Player)
+    local data = links[player1.Name .. "_" .. player2.Name]
+    if data then
+        data.Beam:Destroy()
+        data.Attachment1:Destroy()
+        data.Attachment2:Destroy()
+
+        links[player1.Name .. "_" .. player2.Name] = nil
+        links[player2.Name .. "_" .. player1.Name] = nil
+    end
+end
 
 local function ensureRunningPromises(player: Player)
     if runningPromises[player] == nil then
@@ -65,6 +116,16 @@ function GameState.kill(player: Player, reason: string?)
 
     Promise.defer(function(resolve)
         task.wait(1)
+
+        -- Kill other linked player
+        local linked = linkedPlayers[player]
+        if linked then
+            linkedPlayers[linked] = nil
+            linkedPlayers[player] = nil
+            GameState.kill(linked)
+            removeLink(player, linked)
+        end
+
         GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
             ButtonsModule.setButtons(player, {
                 { idx = 5, text = "Return to lobby" }
@@ -139,6 +200,20 @@ function GameState.revive(player: Player, reason: string?)
     ButtonsModule.setButtons(player, {})
 
     cancelPlayerPromises(player)
+end
+
+function GameState.linkTogether(player1: Player, player2: Player)
+    linkedPlayers[player1] = player2
+    linkedPlayers[player2] = player1
+
+    createLink(player1, player2)
+end
+
+function GameState.clearLinkedPlayers()
+    for player1, player2 in pairs(linkedPlayers) do
+        removeLink(player1, player2)
+    end
+    table.clear(linkedPlayers)
 end
 
 type NewPromiseFunc = (
@@ -341,6 +416,13 @@ function GameState.connect()
                 table.remove(deadPlayers, i)
                 break
             end
+        end
+
+        local linked = linkedPlayers[player]
+        if linked then
+            linkedPlayers[linked] = nil
+            linkedPlayers[player] = nil
+            removeLink(player, linked)
         end
     end)
 end

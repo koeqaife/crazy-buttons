@@ -61,7 +61,8 @@ local faces: {[string]: string} = {
     click_button_icon = "rbxassetid://130876390116070",
     att_def_tru_icon = "rbxassetid://105806735001450",
     color_event_icon = "rbxassetid://102053437743340",
-    combo_event_icon = "rbxassetid://97579105533591"
+    combo_event_icon = "rbxassetid://97579105533591",
+    even_odd_event_icon = "rbxassetid://103558857828491"
 }
 
 local currentGeneration = 0

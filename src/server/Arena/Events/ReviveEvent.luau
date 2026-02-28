@@ -48,13 +48,13 @@ local function onEventVariant()
     GameState.runNewPromisePerAll(function(player, protect, await)
         if player == randomPlayer then
             await(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 5, face = "shy" },
+                { text = "Someone random will be revived now", delay = 5, face = "shy" },
                 { text = "You were revived!", delay = 5, face = "happy" },
             }))
             GameState.revive(player)
         else
             await(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 5, face = "shy" },
+                { text = "Someone random will be revived now", delay = 5, face = "shy" },
                 { text = "Player " .. randomPlayer.Name .. " was revived", delay = 5, face = "happy" },
             }))
         end

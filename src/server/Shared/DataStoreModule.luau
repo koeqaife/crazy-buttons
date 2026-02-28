@@ -14,13 +14,15 @@ local DataStoreModule = {}
 type PlayerData = {
     survives: number,
     streak: number,
-    streakLastUpdated: number
+    streakLastUpdated: number,
+    pendingRevives: number
 }
 
 local defaultData: PlayerData = {
     survives = 0,
     streak = 0,
-    streakLastUpdated = 0
+    streakLastUpdated = 0,
+    pendingRevives = 0
 }
 
 local dataPerPlayer: {[Player]: PlayerData} = {}
@@ -104,6 +106,36 @@ function DataStoreModule.continueStreak(player: Player)
     end)
 end
 
+function DataStoreModule.addPendingRevives(player: Player, amount: number)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            if finalData.pendingRevives == nil then
+                finalData.pendingRevives = 0
+            end
+
+            finalData.pendingRevives += amount
+
+            if finalData.pendingRevives < 0 then
+                finalData.pendingRevives = 0
+            end
+
+            dataPerPlayer[player].pendingRevives = finalData.pendingRevives
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to add pending revives for", player.Name)
+    end)
+end
+
 function DataStoreModule.getSurvives(player: Player): number?
     if not dataPerPlayer[player] then
         return nil
@@ -116,6 +148,13 @@ function DataStoreModule.getStreak(player: Player): number?
         return nil
     end
     return dataPerPlayer[player].streak
+end
+
+function DataStoreModule.getPendingRevives(player: Player): number
+    if not dataPerPlayer[player] then
+        return 0
+    end
+    return dataPerPlayer[player].pendingRevives or 0
 end
 
 function DataStoreModule.init()

@@ -43,7 +43,7 @@ function Event.onEvent()
     DataStoreModule.increaseSurvives(survivor):await()
     GameState.rewardBadge(survivor, BADGE_ID):catch(warn):await()
 
-    GameState.kill(survivor)
+    GameState.kill(survivor, "end_of_the_game")
 
     return
 end

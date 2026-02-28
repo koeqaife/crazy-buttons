@@ -1,7 +1,9 @@
 local BadgeService = game:GetService("BadgeService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local TeleportService = game:GetService("TeleportService")
+local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local ButtonsModule = require(script.Parent.ButtonsModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
@@ -14,17 +16,22 @@ local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
 local linkedPlayers: {[Player]: Player} = {}
 
+local playerRevivedTimes: {[Player]: number} = {}
+
 local links: {[string]: {Beam: Beam, Attachment1: Attachment, Attachment2: Attachment}} = {}
 
 local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
 
 local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
+local ForceRevive: BindableEvent = Instance.new("BindableEvent")
 
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.linkedPlayers = linkedPlayers
+GameState.playerRevivedTimes = playerRevivedTimes
 GameState.round = 0
 GameState.OnPlayerDied = OnPlayerDied
+GameState.ForceRevive = ForceRevive
 
 local LOBBY_PLACE_ID = 115379867051786
 
@@ -96,6 +103,23 @@ end
 
 GameState.cancelPlayerPromises = cancelPlayerPromises
 
+function GameState.forceReviveIsAllowed(player: Player?)
+    if player then
+        return (
+            table.find(deadPlayers, player)
+            and #alivePlayers >= 3
+            and playerRevivedTimes[player] < 1
+            and #playerRevivedTimes <= 3
+        )
+    else
+        return (
+            #alivePlayers >= 3
+            and #playerRevivedTimes <= 3
+            and #deadPlayers > 0
+        )
+    end
+end
+
 function GameState.kill(player: Player, reason: string?)
     if not player or not player.Parent then
         return
@@ -127,18 +151,36 @@ function GameState.kill(player: Player, reason: string?)
         end
 
         GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
-            ButtonsModule.setButtons(player, {
-                { idx = 5, text = "Return to lobby" }
-            })
+            if
+                reason ~= "end_of_the_game"
+                and GameState.forceReviveIsAllowed(player)
+            then
+                local forceReviveText = "Force Random Revive"
+                if DataStoreModule.getPendingRevives(player) > 0 then
+                    forceReviveText = "Force Random Revive (Bought)"
+                end
 
-            local promise = ButtonsModule.waitForIdxClick(player, -1, 5)
+                ButtonsModule.setButtons(player, {
+                    { idx = 3, text = forceReviveText },
+                    { idx = 5, text = "Return to lobby" }
+                })
+            else
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Return to lobby" }
+                })
+            end
+
+            local promise = ButtonsModule.waitForClick(player, -1)
             onCancel(function()
                 promise:cancel()
             end)
 
-            local _, clicked = promise:catch(error):await()
-            if clicked then
+            local _, clickedIdx = promise:catch(error):await()
+            if clickedIdx == 5 then
                 TeleportService:Teleport(LOBBY_PLACE_ID, player)
+                resolve2()
+            elseif clickedIdx == 3 then
+                ForceRevive:Fire(player)
                 resolve2()
             end
         end)):catch(warn)
@@ -187,6 +229,11 @@ function GameState.revive(player: Player, reason: string?)
     if not player or not player.Parent then
         return
     end
+
+    if playerRevivedTimes[player] == nil then
+        playerRevivedTimes[player] = 0
+    end
+    playerRevivedTimes[player] += 1
 
     for i, p in ipairs(deadPlayers) do
         if p == player then

@@ -88,7 +88,13 @@ function DataStoreModule.continueStreak(player: Player)
             end
 
             local currentTime = os.time()
-            if currentTime - (finalData.streakLastUpdated or 0) <= 48 * 60 * 60 then
+            local timePassed = currentTime - (finalData.streakLastUpdated or 0)
+            if timePassed <= 24 * 60 * 60 then
+                -- do nothing, keep the streak
+                dataPerPlayer[player].streak = finalData.streak
+                StreakUpdated:Fire(finalData.streak)
+                return finalData
+            elseif timePassed <= 48 * 60 * 60 then
                 finalData.streak += 1
             else
                 finalData.streak = 1

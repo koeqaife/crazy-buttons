@@ -9,10 +9,9 @@ local COUNTDOWN_SECONDS = 30
 local TELEPORT_PLACE_ID = 137127365503309
 
 local playerBoardText: TextLabel = workspace
-    :WaitForChild("PlayerCountBoard")
-    :WaitForChild("Board")
+    :WaitForChild("TerminalScreen")
     :WaitForChild("SurfaceGui")
-    :WaitForChild("playerBoardText")
+    :WaitForChild("mainText")
 
 local boardText = {
     players="",

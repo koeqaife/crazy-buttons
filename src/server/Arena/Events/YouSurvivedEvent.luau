@@ -13,7 +13,11 @@ local TextModule = require(Arena.TextModule)
 
 type EventType = EventTypeModule.Event
 
-local BADGE_ID = 4478862295219855
+local badges = {
+    [1] = 4478862295219855,
+    [10] = 2597949705630302,
+    [50] = 3448948393596106
+}
 
 local Event = {} :: EventType
 
@@ -41,7 +45,13 @@ function Event.onEvent()
     }):catch(warn):await()
 
     DataStoreModule.increaseSurvives(survivor):await()
-    GameState.rewardBadge(survivor, BADGE_ID):catch(warn):await()
+
+    local survives = DataStoreModule.getSurvives(survivor)
+    for surviveCount, badgeId in pairs(badges) do
+        if survives >= surviveCount then
+            GameState.rewardBadge(survivor, badgeId):catch(warn):await()
+        end
+    end
 
     GameState.kill(survivor, "end_of_the_game")
 

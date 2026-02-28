@@ -18,6 +18,9 @@ local linkedPlayers: {[Player]: Player} = {}
 
 local playerRevivedTimes: {[Player]: number} = {}
 
+-- track how many revives have occurred during the current run
+local revivesThisGame = 0
+
 local links: {[string]: {Beam: Beam, Attachment1: Attachment, Attachment2: Attachment}} = {}
 
 local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
@@ -104,19 +107,15 @@ end
 GameState.cancelPlayerPromises = cancelPlayerPromises
 
 function GameState.forceReviveIsAllowed(player: Player?)
+    local base = revivesThisGame < 1 and #alivePlayers >= 3 and #deadPlayers > 0
     if player then
         return (
-            table.find(deadPlayers, player)
-            and #alivePlayers >= 3
+            base
+            and table.find(deadPlayers, player)
             and playerRevivedTimes[player] < 1
-            and #playerRevivedTimes <= 3
         )
     else
-        return (
-            #alivePlayers >= 3
-            and #playerRevivedTimes <= 3
-            and #deadPlayers > 0
-        )
+        return base
     end
 end
 
@@ -234,6 +233,10 @@ function GameState.revive(player: Player, reason: string?)
         playerRevivedTimes[player] = 0
     end
     playerRevivedTimes[player] += 1
+
+    -- count global revive usage
+    revivesThisGame += 1
+    GameState.revivesThisGame = revivesThisGame
 
     for i, p in ipairs(deadPlayers) do
         if p == player then

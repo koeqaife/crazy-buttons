@@ -268,11 +268,21 @@ function LobbyModule.init()
         survives.Value = "—"
         survives.Parent = leaderstats
 
+        local streak = Instance.new("StringValue")
+        streak.Name = "Day Streak"
+        streak.Value = "—"
+        streak.Parent = leaderstats
+
         if DataStoreModule.getSurvives(player) == nil then
             DataStoreModule.SurvivesUpdatedEvent.Event:Wait()
         end
 
+        if DataStoreModule.getStreak(player) == nil then
+            DataStoreModule.StreakUpdatedEvent.Event:Wait()
+        end
+
         survives.Value = tostring(DataStoreModule.getSurvives(player) or "—")
+        streak.Value = tostring(DataStoreModule.getStreak(player) or "—")
     end)
 
     -- On touched

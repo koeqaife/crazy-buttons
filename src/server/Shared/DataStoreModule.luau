@@ -7,21 +7,27 @@ local Promise = require(ReplicatedStorage.Shared.Promise)
 local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
 
 local SurvivesUpdated = Instance.new("BindableEvent")
+local StreakUpdated = Instance.new("BindableEvent")
 
 local DataStoreModule = {}
 
 type PlayerData = {
-    survives: number
+    survives: number,
+    streak: number,
+    streakLastUpdated: number
 }
 
 local defaultData: PlayerData = {
-    survives = 0
+    survives = 0,
+    streak = 0,
+    streakLastUpdated = 0
 }
 
 local dataPerPlayer: {[Player]: PlayerData} = {}
 
 DataStoreModule.dataPerPlayer = dataPerPlayer
 DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
+DataStoreModule.StreakUpdatedEvent = StreakUpdated
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
@@ -64,11 +70,52 @@ function DataStoreModule.increaseSurvives(player: Player)
     end)
 end
 
+function DataStoreModule.continueStreak(player: Player)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            if finalData.streak == nil then
+                finalData.streak = 0
+            end
+
+            local currentTime = os.time()
+            if currentTime - (finalData.streakLastUpdated or 0) <= 48 * 60 * 60 then
+                finalData.streak += 1
+            else
+                finalData.streak = 1
+            end
+
+            finalData.streakLastUpdated = currentTime
+            dataPerPlayer[player].streak = finalData.streak
+            print("Changed streak counter for", player.Name, "to", finalData.streak)
+            StreakUpdated:Fire(finalData.streak)
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to continue streak for", player.Name)
+    end)
+end
+
 function DataStoreModule.getSurvives(player: Player): number?
     if not dataPerPlayer[player] then
         return nil
     end
     return dataPerPlayer[player].survives
+end
+
+function DataStoreModule.getStreak(player: Player): number?
+    if not dataPerPlayer[player] then
+        return nil
+    end
+    return dataPerPlayer[player].streak
 end
 
 function DataStoreModule.init()
@@ -82,6 +129,7 @@ function DataStoreModule.init()
         if success then
             local finalData = setData(player, data)
             SurvivesUpdated:Fire(finalData.survives)
+            StreakUpdated:Fire(finalData.streak)
         else
             warn("Failed to load data for", player.Name, data)
         end

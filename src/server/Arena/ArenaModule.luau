@@ -44,6 +44,7 @@ function ArenaModule.init()
     mainText.Text = "Waiting for players..."
 
     PlayerLoaded.OnServerEvent:Connect(function(player)
+        DataStoreModule.continueStreak(player)
         loadedPlayers[player] = true
     end)
 

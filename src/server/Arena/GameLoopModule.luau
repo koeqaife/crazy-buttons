@@ -181,7 +181,7 @@ function GameLoopModule.start()
 
             local nextEvent: Event? = nil
             if forcedNextEvent then
-                if forcedNextEvent.event == ReviveEvent and (#GameState.alivePlayers < 3 or #GameState.deadPlayers == 0) then
+                if forcedNextEvent.event == ReviveEvent and not GameState.forceReviveIsAllowed() then
                     TextModule.setText(
                         forcedNextEvent.by,
                         "Your purchase has been processed, but it can't be used right now. Next time it's free",

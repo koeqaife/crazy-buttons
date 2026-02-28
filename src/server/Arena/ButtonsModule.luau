@@ -24,6 +24,10 @@ local function waitForButton(player: Player, timeout: number, filter: ((Player, 
     return Promise.race({
         Promise.new(function(resolve, _, onCancel)
             conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
+                if not ButtonsModule.doesPlayerHaveButton(playerWhoClicked, idx) then
+                    return
+                end
+
                 if playerWhoClicked == player and (not filter or filter(playerWhoClicked, idx)) then
                     resolve(idx :: number?)
                     conn:Disconnect()

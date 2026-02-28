@@ -35,6 +35,8 @@ local YouSurvivedEvent = require(Arena.Events.YouSurvivedEvent)
 local DuelEvent = require(Arena.Events.DuelEvent)
 local LinkedEvent = require(Arena.Events.LinkedEvent)
 
+local EXPERIMENT_BADGE_ID = 4390814557028274
+
 local events: {Event} = {
     ColorEvent,
     VoteEvent,
@@ -168,6 +170,9 @@ end
 function GameLoopModule.start()
     for _, player in ipairs(Players:GetPlayers()) do
         table.insert(GameState.alivePlayers, player)
+
+        -- TODO: Remove after beta/alpha test ended
+        GameState.rewardBadge(player, EXPERIMENT_BADGE_ID):catch(warn):await()
     end
 
     GameState.ForceRevive.Event:Connect(onForceReviveButton)

@@ -216,6 +216,17 @@ function GameLoopModule.start()
 
             task.wait(4)
         end
+
+        if forcedNextEvent then
+            TextModule.setText(
+                forcedNextEvent.by,
+                "Your purchase has been processed, but the game ended before it could be used. Next time it's free",
+                "nerd"
+            )
+            if forcedNextEvent.event == ReviveEvent then
+                DataStoreModule.addPendingRevives(forcedNextEvent.by, 1):await()
+            end
+        end
     end)
 end
 

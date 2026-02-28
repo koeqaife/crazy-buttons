@@ -120,6 +120,12 @@ local function setText(
     speed: number,
     generation: number
 ): ()
+    if #new == 0 then
+        mainText.Text = ""
+        generationIsRunning = false
+        return
+    end
+
     local result = ""
     local maxLength = math.max(#current, #new)
 

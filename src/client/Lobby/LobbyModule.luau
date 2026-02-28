@@ -9,12 +9,15 @@ local InQueueLabelEvent: RemoteEvent = ReplicatedStorage:WaitForChild("InQueueLa
 local Players = game:GetService("Players")
 local spr = require(ReplicatedStorage.Shared.spr)
 
+local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
 local inQueueLabel: TextLabel = Players.LocalPlayer.PlayerGui
     :WaitForChild("ScreenGui")
     :WaitForChild("inQueueLabel")
 
 
 function LobbyModule.init()
+    CustomPromptModule.onLoad()
+
     inQueueLabel.Visible = false
     inQueueLabel.BackgroundTransparency = 1
     inQueueLabel.TextTransparency = 1

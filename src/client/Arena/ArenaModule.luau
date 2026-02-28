@@ -9,9 +9,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local PlayerLoaded = ReplicatedStorage:WaitForChild("PlayerLoaded")
 
+local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TextModule = require(Arena.TextModule)
-local PromptModule = require(Arena.CustomPromptModule)
 local GameStateModule = require(Arena.GameStateModule)
 local KillToolModule = require(Arena.KillToolModule)
 local AmbienceModule = require(Arena.AmbienceModule)
@@ -22,7 +22,7 @@ function ArenaModule.init()
     GameStateModule.connect()
     KillToolModule.connect()
     AmbienceModule.init()
-    PromptModule.onLoad()
+    CustomPromptModule.onLoad()
 
     game:GetService("ContentProvider"):PreloadAsync({player.Character})
 

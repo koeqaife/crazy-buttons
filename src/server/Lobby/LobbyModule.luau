@@ -5,7 +5,7 @@ local LobbyModule = {}
 
 local MAX_PLAYERS = 20
 local MIN_PLAYERS = 5
-local COUNTDOWN_SECONDS = 60
+local COUNTDOWN_SECONDS = 75
 local TELEPORT_PLACE_ID = 137127365503309
 
 local playerBoardText: TextLabel = workspace
@@ -32,7 +32,7 @@ local InQueueLabel = Instance.new("RemoteEvent", ReplicatedStorage)
 InQueueLabel.Name = "InQueueLabel"
 
 local timerActive = false
-local timerEndTime = 0
+local timerTimeLeft = 0
 
 local function updateBoardText()
     if #boardText.countdown > 0 then
@@ -43,7 +43,7 @@ local function updateBoardText()
 end
 
 local function updatePadCount(count: number, max: number)
-    if count > MIN_PLAYERS then
+    if count >= MIN_PLAYERS then
         boardText.players = "Players " .. count .. "/" .. max
     else
         boardText.players = "Waiting for " .. (MIN_PLAYERS - count) .. " more player(s)..."
@@ -155,7 +155,7 @@ local function stopCountdown(reason: string)
         return
     end
     timerActive = false
-    timerEndTime = 0
+    timerTimeLeft = 0
     updatePadCountdown("cancel", reason)
 end
 
@@ -165,24 +165,23 @@ local function startCountdown()
     end
 
     timerActive = true
-    timerEndTime = tick() + COUNTDOWN_SECONDS
+    timerTimeLeft = COUNTDOWN_SECONDS
 
     updatePadCountdown("started", COUNTDOWN_SECONDS)
 
     task.spawn(function()
         while timerActive do
-            local remaining = math.max(0, math.ceil(timerEndTime - tick()))
-
             if countActive() < MIN_PLAYERS then
                 stopCountdown("not_enough_players")
                 return
             end
 
-            updatePadCountdown("update", remaining)
-
-            if remaining <= 0 then
+            timerTimeLeft -= 1
+            if timerTimeLeft <= 0 then
                 break
             end
+
+            updatePadCountdown("update", timerTimeLeft)
 
             task.wait(1)
         end
@@ -220,7 +219,17 @@ local function onPlayerEnter(player: Player)
         end
     end
 
-    if countActive() < MAX_PLAYERS then
+    local activeCount = countActive()
+
+    if activeCount >= MAX_PLAYERS and timerTimeLeft > 10 then
+        timerTimeLeft = 10
+    elseif activeCount >= 10 and timerTimeLeft > 45 then
+        timerTimeLeft = 45
+    elseif activeCount >= 5 and timerTimeLeft > 60 then
+        timerTimeLeft = 60
+    end
+
+    if activeCount < MAX_PLAYERS then
         active[player] = true
         addHighlight(player)
         InQueueLabel:FireClient(player, true)
@@ -238,6 +247,14 @@ local function onPlayerExit(player: Player)
         active[player] = nil
         removeHighlight(player)
         InQueueLabel:FireClient(player, false)
+
+        if countActive() < MIN_PLAYERS then
+            stopCountdown("not_enough_players")
+        end
+
+        if countActive() < 10 and timerTimeLeft < 10 then
+            timerTimeLeft = 30
+        end
 
         local nextPlayer = table.remove(queue, 1)
         if nextPlayer then

@@ -4,7 +4,7 @@
 local LobbyModule = {}
 
 local MAX_PLAYERS = 20
-local MIN_PLAYERS = 10
+local MIN_PLAYERS = 7
 local COUNTDOWN_SECONDS = 30
 local TELEPORT_PLACE_ID = 137127365503309
 
@@ -43,7 +43,11 @@ local function updateBoardText()
 end
 
 local function updatePadCount(count: number, max: number)
-    boardText.players = "Players " .. count .. "/" .. max
+    if count > MIN_PLAYERS then
+        boardText.players = "Players " .. count .. "/" .. max
+    else
+        boardText.players = "Waiting for " .. (MIN_PLAYERS - count) .. " more player(s)..."
+    end
     updateBoardText()
 end
 
@@ -146,7 +150,7 @@ local function startGame()
     updatePadCount(countActive(), MAX_PLAYERS)
 end
 
-local function stopCountdown(reason)
+local function stopCountdown(reason: string)
     if not timerActive then
         return
     end
@@ -307,6 +311,7 @@ function LobbyModule.init()
         onPlayerExit(player)
     end)
 
+    updatePadCount(0, MAX_PLAYERS)
     TeleportService:SetTeleportSetting("ShouldReserveServer", true)
 end
 

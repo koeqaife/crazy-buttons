@@ -222,7 +222,7 @@ function GameLoopModule.start()
                 )
             end)
 
-            task.wait(4)
+            task.wait(10)
         end
 
         if forcedNextEvent then

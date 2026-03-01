@@ -65,7 +65,7 @@ local function showIcon(player: Player, visible: boolean, icon: string?)
         if gui == nil then
             local newGui = Instance.new("BillboardGui")
             newGui.Name = "KillToolGui"
-            newGui.Adornee = character
+            newGui.Adornee = rootPart
             newGui.Parent = character
             newGui.Size = UDim2.new(2, 0, 2, 0)
             newGui.SizeOffset = Vector2.new(0, 0)
@@ -131,13 +131,18 @@ local function updateIcon(player: Player?)
 end
 
 function KillToolModule.giveTool(player: Player)
-    table.insert(playersWithTool, player)
+    if not table.find(playersWithTool, player) then
+        table.insert(playersWithTool, player)
+    end
     ActivateKillTool:FireClient(player, true)
 end
 
 function KillToolModule.removeTool(player: Player)
     task.wait()
-    table.remove(playersWithTool, table.find(playersWithTool, player))
+    local idx = table.find(playersWithTool, player)
+    if idx then
+        table.remove(playersWithTool, idx)
+    end
     ActivateKillTool:FireClient(player, false)
 
     local meta = getMeta(player)

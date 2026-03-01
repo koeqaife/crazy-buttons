@@ -45,7 +45,11 @@ local debounce = false
 local active = false
 local currentTarget = nil
 
+local ignorePlayers: {Player} = {}
+
 local KillToolModule = {}
+
+KillToolModule.ignorePlayers = ignorePlayers
 
 local function getCharacterFromPart(part): Model?
     if not part then return end
@@ -56,9 +60,26 @@ local function getCharacterFromPart(part): Model?
     return
 end
 
+local function getIgnoreDescendantsFromPlayers(players: {Player})
+    local descendants = {}
+    for _, player in ipairs(players) do
+        if player.Character then
+            for _, descendant in ipairs(player.Character:GetDescendants()) do
+                table.insert(descendants, descendant)
+            end
+        end
+    end
+    return descendants
+end
+
 local function checkTargetFromScreenPos(screenPos: Vector2)
     local ray = Camera:ScreenPointToRay(screenPos.X, screenPos.Y)
-    local result = workspace:Raycast(ray.Origin, ray.Direction * 60)
+    local params = RaycastParams.new()
+
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.FilterDescendantsInstances = getIgnoreDescendantsFromPlayers(ignorePlayers)
+
+    local result = workspace:Raycast(ray.Origin, ray.Direction * 60, params)
     if result and result.Instance then
         local character = getCharacterFromPart(result.Instance)
         return character

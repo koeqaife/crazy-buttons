@@ -65,7 +65,7 @@ local function showIcon(player: Player, visible: boolean, icon: string?)
         if gui == nil then
             local newGui = Instance.new("BillboardGui")
             newGui.Name = "KillToolGui"
-            newGui.Adornee = rootPart
+            newGui.Adornee = character
             newGui.Parent = character
             newGui.Size = UDim2.new(2, 0, 2, 0)
             newGui.SizeOffset = Vector2.new(0, 0)
@@ -99,6 +99,7 @@ local function selectPlayer(player: Player?, select: boolean)
     if not player then
         return
     end
+
     if selectedPlayers[player] == nil then
         selectedPlayers[player] = 0
     end

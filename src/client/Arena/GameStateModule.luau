@@ -1,6 +1,7 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local KillToolModule = require(script.Parent.KillToolModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Spring = require(ReplicatedStorage.Shared.spr)
 local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent")
@@ -54,6 +55,8 @@ local function onSyncEvent(
     alive: {Player},
     reason: string?  -- nil | "byKillTool"
 )
+    KillToolModule.ignorePlayers = dead
+
     if not player then
         return
     end

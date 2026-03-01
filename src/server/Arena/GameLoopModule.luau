@@ -216,7 +216,10 @@ function GameLoopModule.start()
             end
 
             GameState.runFuncPerAlive(function(player)
-                TextModule.setText(player, "", "normal")
+                TextModule.setText(
+                    player, #GameState.alivePlayers .. " players left...",
+                    "normal"
+                )
             end)
 
             task.wait(4)

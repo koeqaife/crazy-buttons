@@ -188,7 +188,7 @@ end
 function ButtonsModule.updateButtons(indices: Indices)
     for _, obj in ipairs(indices) do
         local button = spawnedButtonsMap[obj.idx]
-        local original = spawnedButtonsIndicesMap[obj.idx]
+        local original = spawnedButtonsIndicesMap[obj.idx] or obj
         local buttonData = BUTTONS[((obj.showAs or original.showAs or obj.idx) - 1) % #BUTTONS + 1]
 
         if buttonData and button then

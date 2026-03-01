@@ -55,7 +55,13 @@ local function onSyncEvent(
     alive: {Player},
     reason: string?  -- nil | "byKillTool"
 )
-    KillToolModule.ignorePlayers = dead
+    local ktIgnore = KillToolModule.ignorePlayers
+    for i = #ktIgnore, 1, -1 do
+        table.remove(ktIgnore, i)
+    end
+    for _, p in ipairs(dead) do
+        table.insert(ktIgnore, p)
+    end
 
     if not player then
         return

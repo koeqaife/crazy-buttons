@@ -51,8 +51,8 @@ function Event.onEvent()
         TextModule.setText(player, "Remember to talk with others", "shy")
     end)
 
-    TimerModule.setTime(25)
-    local _, chosen = ButtonsModule.initiateButtonChoice(25, nil, nil, nil, true):catch(error):await()
+    TimerModule.setTime(45)
+    local _, chosen = ButtonsModule.initiateButtonChoice(45, nil, nil, nil, true):catch(error):await()
 
     local count = 0
     local clickedPlayers: {Player} = {}

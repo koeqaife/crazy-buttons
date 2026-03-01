@@ -30,7 +30,7 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "One very lucky player will get a gift now", delay = 4, face = "happy" },
+            { text = "One very lucky player will get a gift now", delay = 5, face = "happy" },
             { text = "I think it's gonna be.......", delay = 4, face = "scared" },
         }))
     end):catch(error):await()
@@ -46,16 +46,16 @@ function Event.onEvent()
             KillToolModule.giveTool(player)
             await(TextModule.showTextSequence(player, {
                 { text = "You!", delay = 2.5, face = "happy" },
-                { text = "Click on the button that appeared", delay = 4, face = "shy" },
-                { text = "And then click on somebody cool!!", delay = 4, face = "no_mouth" },
-                { text = "Very pretty confetti is gonna spawn", delay = 4, face = "laughing" },
+                { text = "Click on the button that appeared", delay = 5, face = "shy" },
+                { text = "And then click on somebody cool!!", delay = 5, face = "no_mouth" },
+                { text = "Very pretty confetti is gonna spawn", delay = 5, face = "laughing" },
             }))
         else
             await(TextModule.showTextSequence(player, {
                 { text = randomPlayer.Name, delay = 2.5, face = "normal" },
-                { text = "They have a cool gift now", delay = 4, face = "happy" },
-                { text = "That's cool, right?", delay = 4, face = "shy" },
-                { text = "Good luck.", delay = 4, face = "scared" },
+                { text = "They have a cool gift now", delay = 5, face = "happy" },
+                { text = "That's cool, right?", delay = 5, face = "shy" },
+                { text = "Good luck.", delay = 5, face = "scared" },
             }))
         end
     end):catch(error):await()

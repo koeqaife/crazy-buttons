@@ -174,7 +174,7 @@ function Event.onEvent()
         end
     end)
 
-    local _, chosen = ButtonsModule.initiateButtonChoice(30):catch(error):await()
+    local _, chosen = ButtonsModule.initiateButtonChoice(45):catch(error):await()
 
     local answered = answers[chosen[randomPlayer] or 0] or -1
     local isRight = answered == randomQuiz.answer

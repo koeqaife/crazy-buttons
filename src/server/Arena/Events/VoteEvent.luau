@@ -68,13 +68,13 @@ function Event.onEvent()
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be eliminated now", delay = 3, face = "normal" },
-                { text = "Other players will decide your fate...", delay = 4, face = "scared" },
+                { text = "Someone will be eliminated now", delay = 5, face = "normal" },
+                { text = "Other players will decide your fate...", delay = 3, face = "scared" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be eliminated now", delay = 3, face = "normal" },
-                { text = "Choose wisely who should be eliminated", delay = 4, face = "happy" },
+                { text = "Someone will be eliminated now", delay = 5, face = "normal" },
+                { text = "Choose wisely who should be eliminated", delay = 3, face = "happy" },
             }))
         end
     end):catch(error):await()
@@ -142,7 +142,7 @@ function Event.onEvent()
             TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was eliminated", "dead")
         end
     end)
-    task.wait(5)
+    task.wait(8)
 
     return
 end

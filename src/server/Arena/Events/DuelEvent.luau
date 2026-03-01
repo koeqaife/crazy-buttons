@@ -49,13 +49,13 @@ function Event.onEvent()
         if player == p1 or player == p2 then
             local otherPlayer = if player == p1 then p2 else p1
             return protect(TextModule.showTextSequence(player, {
-                { text = "You and " .. otherPlayer.Name .. " will play a duel now", delay = 4, face = "click_button_icon" },
-                { text = "The first one to click survives", delay = 4, face = "normal" },
+                { text = "You and " .. otherPlayer.Name .. " will play a duel now", delay = 6, face = "click_button_icon" },
+                { text = "The first one to click survives", delay = 6, face = "normal" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = p1.Name .. " and " .. p2.Name .. " will play a duel now", delay = 4, face = "click_button_icon" },
-                { text = "The first one to click survives", delay = 4, face = "normal" },
+                { text = p1.Name .. " and " .. p2.Name .. " will play a duel now", delay = 6, face = "click_button_icon" },
+                { text = "The first one to click survives", delay = 6, face = "normal" },
             }))
         end
     end):await()

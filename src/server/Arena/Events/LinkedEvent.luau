@@ -31,10 +31,10 @@ function Event.onEvent()
 
     GameState.runPromisePerAll(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Two people are gonna be linked together now", delay = 4, face = "scared" },
-            { text = "If one of them dies, the other one dies too", delay = 4, face = "dead" },
-            { text = "Let me think who is going to be linked", delay = 4, face = "shy" },
-            { text = "The first player is...", delay = 4, face = "normal" },
+            { text = "Two people are gonna be linked together now", delay = 5, face = "scared" },
+            { text = "If one of them dies, the other one dies too", delay = 5, face = "dead" },
+            { text = "Let me think who is going to be linked", delay = 5, face = "shy" },
+            { text = "The first player is...", delay = 5, face = "normal" },
         }))
     end):await()
 
@@ -49,7 +49,7 @@ function Event.onEvent()
     GameState.runFuncPerAll(function(player)
         TextModule.setText(player, "The second player is...", "normal")
     end)
-    task.wait(4)
+    task.wait(5)
 
     GameState.runFuncPerAll(function(player)
         return TextModule.setText(player, p2.Name)

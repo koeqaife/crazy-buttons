@@ -41,10 +41,10 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to click or not the button", delay = 4, face = "click_button_icon" },
-            { text = "But you will not have much time", delay = 4, face = "no_mouth" },
-            { text = "Only two seconds", delay = 3, face = "scared" },
-            { text = "Be ready", delay = 3, face = "shy" },
+            { text = "Now you will have to click or not the button", delay = 5, face = "click_button_icon" },
+            { text = "But you will not have much time", delay = 5, face = "no_mouth" },
+            { text = "Only two seconds", delay = 5, face = "scared" },
+            { text = "Be ready", delay = 4, face = "shy" },
             { text = "3...", delay = 1.5, face = { text = "3" }},
             { text = "2...", delay = 1.5, face = { text = "2" }},
             { text = "1...", delay = 1.5, face = { text = "1" }},

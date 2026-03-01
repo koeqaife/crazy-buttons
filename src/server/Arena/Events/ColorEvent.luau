@@ -48,6 +48,10 @@ function Event.onEvent()
 
         TimerModule.setTime(15)
         GameState.runFuncPerAlive(function(player)
+            if not chosenColors[player] then
+                TextModule.setText(player, "You didn't choose the color... You survive", "laughing")
+                return
+            end
             TextModule.setText(player, "So, which one did you choose?", "nerd")
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "Red" },
@@ -61,6 +65,11 @@ function Event.onEvent()
         local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
 
         GameState.runNewPromisePerAlive(function(player, protect, await)
+            if not chosenColors[player] then
+                TextModule.setText(player, "So lucky", "laughing")
+                return
+            end
+
             local color = chosen[player] or 0
             if color ~= chosenColors[player] then
                 TextModule.setText(player, "That was not the color you chose", "dead")
@@ -88,7 +97,7 @@ function Event.onEvent()
         }))
     end):catch(error):await()
 
-    TimerModule.setTime(15)
+    TimerModule.setTime(25)
     GameState.runFuncPerAlive(function(player)
         TextModule.setText(player, "Choose color you like the most now", "nerd")
         local buttons = {
@@ -104,7 +113,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, buttons)
     end)
 
-    local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
+    local _, chosen = ButtonsModule.initiateButtonChoice(25):catch(error):await()
 
     local toSave: {[Player]: number} = {}
 

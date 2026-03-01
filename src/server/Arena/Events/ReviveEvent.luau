@@ -48,14 +48,14 @@ local function onEventVariant()
     GameState.runNewPromisePerAll(function(player, protect, await)
         if player == randomPlayer then
             await(TextModule.showTextSequence(player, {
-                { text = "Someone random will be revived now", delay = 5, face = "shy" },
-                { text = "You were revived!", delay = 5, face = "happy" },
+                { text = "Someone random will be revived now", delay = 6, face = "shy" },
+                { text = "You were revived!", delay = 6, face = "happy" },
             }))
             GameState.revive(player)
         else
             await(TextModule.showTextSequence(player, {
-                { text = "Someone random will be revived now", delay = 5, face = "shy" },
-                { text = "Player " .. randomPlayer.Name .. " was revived", delay = 5, face = "happy" },
+                { text = "Someone random will be revived now", delay = 6, face = "shy" },
+                { text = "Player " .. randomPlayer.Name .. " was revived", delay = 6, face = "happy" },
             }))
         end
     end):catch(error):await()
@@ -83,18 +83,18 @@ function Event.onEvent()
     GameState.runPromisePerAll(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 3, face = "shy" },
-                { text = "Other players will decide if that's you...", delay = 4, face = "shy" },
+                { text = "Someone will be revived now", delay = 5, face = "shy" },
+                { text = "Other players will decide if that's you...", delay = 5, face = "shy" },
             }))
         elseif table.find(GameState.deadPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 3, face = "shy" },
-                { text = "But not you, sadly...", delay = 4, face = "no_mouth" },
+                { text = "Someone will be revived now", delay = 5, face = "shy" },
+                { text = "But not you, sadly...", delay = 5, face = "no_mouth" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 3, face = "shy" },
-                { text = "Choose wisely who should be revived", delay = 4, face = "nerd" },
+                { text = "Someone will be revived now", delay = 5, face = "shy" },
+                { text = "Choose wisely who should be revived", delay = 5, face = "nerd" },
             }))
         end
     end):await()

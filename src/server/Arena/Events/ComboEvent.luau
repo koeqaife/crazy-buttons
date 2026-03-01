@@ -83,9 +83,9 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to repeat after me", delay = 4, face = "combo_event_icon" },
-            { text = "Players with the highest amount of mistakes will be eliminated", delay = 5, face = "dead" },
-            { text = "And now we start", delay = 3, face = "shy" },
+            { text = "Now you will have to repeat after me", delay = 6, face = "combo_event_icon" },
+            { text = "Players with the highest amount of mistakes will be eliminated", delay = 7, face = "dead" },
+            { text = "And now we start", delay = 5, face = "shy" },
         }))
     end):catch(error):await()
 

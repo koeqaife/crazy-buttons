@@ -36,10 +36,10 @@ type Face = { text: string, face: string? } | string
 
 local delayBonusCharacter = {
     [" "] = 0.03,
-    ["."] = 0.35,
+    ["."] = 0.4,
     [","] = 0.25,
-    ["!"] = 0.35,
-    ["?"] = 0.35,
+    ["!"] = 0.4,
+    ["?"] = 0.4,
 }
 
 local faces: {[string]: string} = {
@@ -190,12 +190,12 @@ function TextModule.connect(): ()
             end
 
             if action == "set" then
-                setText("", text, 0.03, myGeneration)
+                setText("", text, 0.04, myGeneration)
             elseif action == "append" then
                 setText(
                     mainText.Text,
                     mainText.Text .. text,
-                    0.03,
+                    0.04,
                     myGeneration
                 )
             end

@@ -93,8 +93,8 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Alright, I'm Simon now", delay = 3, face = "shy" },
-            { text = "No \"Simon says\"? Then do the opposite", delay = 4, face = "nerd" },
+            { text = "Alright, I'm Simon now", delay = 5, face = "shy" },
+            { text = "No \"Simon says\"? Then do the opposite", delay = 5, face = "nerd" },
         }))
     end):catch(error):await()
 
@@ -138,7 +138,7 @@ function Event.onEvent()
         local clickedNow: {[Player]: boolean} = {}
 
         local _, chosen = ButtonsModule.initiateButtonChoice(
-            5,
+            8,
             function(playerWhoClicked)
                 return not clickedNow[playerWhoClicked]
             end,

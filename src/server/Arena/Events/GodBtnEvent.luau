@@ -36,9 +36,9 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Are you ready for searching?", delay = 4, face = "happy" },
-            { text = "Because now there are gonna be 100 buttons", delay = 4, face = "scared" },
-            { text = "First to find it will be awarded", delay = 3.5, face = "shy" },
+            { text = "Are you ready for searching?", delay = 5, face = "happy" },
+            { text = "Because now there are gonna be 100 buttons", delay = 5, face = "scared" },
+            { text = "First to find it will be awarded", delay = 5, face = "shy" },
         }))
     end):catch(error):await()
 

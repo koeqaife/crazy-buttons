@@ -28,19 +28,19 @@ function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They will need to sacrifice for " .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name, "scared")
+        TextModule.setText(player, "They will need to sacrifice for 3" .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name, "scared")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You have been chosen...", delay = 3, face = "scared" },
-                { text = "Someone has to sacrifice themselves to save you", delay = 4, face = "scared" }
+                { text = "You have been chosen...", delay = 5, face = "scared" },
+                { text = "Someone has to sacrifice themselves to save you", delay = 6, face = "scared" }
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = randomPlayers[1].Name .. " and " .. randomPlayers[2].Name .. " are chosen.", delay = 3, face = "laughing" },
-                { text = "Will you sacrifice yourself to save them?", delay = 4, face = "shy" }
+                { text = randomPlayers[1].Name .. " and " .. randomPlayers[2].Name .. " are chosen.", delay = 6, face = "laughing" },
+                { text = "Will you sacrifice yourself to save them?", delay = 6, face = "shy" }
             }))
         end
     end):catch(error):await()
@@ -49,7 +49,7 @@ function Event.onEvent()
 
     GameState.addHighlightTo(randomPlayers)
 
-    TimerModule.setTime(30)
+    TimerModule.setTime(60)
     GameState.runNewPromisePerAlive(function(player, protect, await)
         if table.find(randomPlayers, player) then
             return
@@ -59,7 +59,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {
             { idx = 1, text = "Sacrifice yourself" }
         })
-        local clicked = await(ButtonsModule.waitForIdxClick(player, 30, 1))
+        local clicked = await(ButtonsModule.waitForIdxClick(player, 60, 1))
 
         ButtonsModule.setButtons(player, {})
 

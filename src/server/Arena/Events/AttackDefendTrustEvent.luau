@@ -69,16 +69,16 @@ function Event.onEvent()
 
             return protect(TextModule.showTextSequence(player, {
                 { text = "You and " .. otherPlayer.Name .. " have been chosen to play Attack, Defend, Trust", delay = 5, face = "att_def_tru_icon" },
-                { text = "Rules are simple", delay = 3, face = "happy" },
-                { text = "Attack beats Trust, Defend beats Attack, Trust beats Defend", delay = 5, face = "nerd" },
-                { text = "The loser will be eliminated", delay = 4, face = "dead" },
+                { text = "Rules are simple", delay = 4, face = "happy" },
+                { text = "Attack beats Trust, Defend beats Attack, Trust beats Defend", delay = 7, face = "nerd" },
+                { text = "The loser will be eliminated", delay = 5, face = "dead" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
                 { text = p1.Name .. " and " .. p2.Name .. " have been chosen to play Attack, Defend, Trust", delay = 5, face = "att_def_tru_icon" },
-                { text = "Rules are simple", delay = 3, face = "happy" },
-                { text = "Attack beats Trust, Defend beats Attack, Trust beats Defend", delay = 5, face = "nerd" },
-                { text = "The loser will be eliminated", delay = 4, face = "dead" },
+                { text = "Rules are simple", delay = 4, face = "happy" },
+                { text = "Attack beats Trust, Defend beats Attack, Trust beats Defend", delay = 7, face = "nerd" },
+                { text = "The loser will be eliminated", delay = 5, face = "dead" },
             }))
         end
     end):await()

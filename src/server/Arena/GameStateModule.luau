@@ -112,7 +112,7 @@ function GameState.forceReviveIsAllowed(player: Player?)
         return (
             base
             and table.find(deadPlayers, player)
-            and playerRevivedTimes[player] < 1
+            and (playerRevivedTimes[player] or 0) < 1
         )
     else
         return base

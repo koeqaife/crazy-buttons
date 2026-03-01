@@ -118,7 +118,9 @@ function Event.onEvent()
     for _, idx in pairs(result) do
         if idx then
             local votedPlayer = playersForVote[idx]
-            votes[votedPlayer] = (votes[votedPlayer] or 0) + 1
+            if votedPlayer then
+                votes[votedPlayer] = (votes[votedPlayer] or 0) + 1
+            end
         end
     end
 

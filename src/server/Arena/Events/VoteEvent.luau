@@ -81,23 +81,33 @@ function Event.onEvent()
 
     TimerModule.setTime(30)
 
-    local votingPromise = ButtonsModule.initiateButtonChoice(30, nil, function(player, idx)
-        GameState.removeHighlightFromOne(player)
-        if idx ~= nil then
-            GameState.addHighlightToOne(player, highlightColors[idx])
-        end
-    end, nil, true)
-
-    local buttons: IndicesType.Indices = {}
-    for i, playerForVote in ipairs(playersForVote) do
-        table.insert(buttons, { idx = i, text = playerForVote.Name })
-
-        local color = highlightColors[i]
-        GameState.addHighlightToOne(playerForVote, color, color)
-    end
+    local votingPromise = ButtonsModule.initiateButtonChoice(
+        30,
+        function(player, idx)
+            return table.find(GameState.alivePlayers, player) ~= nil and table.find(playersForVote, player) == nil
+        end,
+        function(player, idx)
+            GameState.removeHighlightFromOne(player)
+            if idx ~= nil then
+                GameState.addHighlightToOne(player, highlightColors[idx])
+            end
+        end, nil, true
+    )
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
-        if table.find(playersForVote, player) then
+        local playerOnVote = table.find(playersForVote, player) ~= nil
+
+        local buttons: IndicesType.Indices = {}
+        for i, playerForVote in ipairs(playersForVote) do
+            table.insert(buttons, { idx = i, text = playerForVote.Name, inputDisabled = playerOnVote })
+
+            local color = highlightColors[i]
+            GameState.addHighlightToOne(playerForVote, color, color)
+        end
+
+        ButtonsModule.setButtons(player, buttons)
+
+        if playerOnVote then
             await(TextModule.showTextSequence(player, {
                 { text = "It may be a bit boring while they're voting?", delay = 4, face = "normal" },
                 { text = "Many people are crazy", delay = 4, face = "shy" },
@@ -107,8 +117,6 @@ function Event.onEvent()
                 { text = "You didn't make them mad, right?", delay = 4, face = "shy" },
                 { text = "Let's see who was eliminated", delay = 4, face = "scared" },
             }))
-        else
-            ButtonsModule.setButtons(player, buttons)
         end
     end)
 

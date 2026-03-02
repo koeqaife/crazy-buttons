@@ -71,6 +71,11 @@ function ArenaModule.init()
         TimerModule.setTime(5)
         task.wait(5)
         mainText.Text = "..."
+        for _, player in ipairs(Players:GetPlayers()) do
+            local gui = player:WaitForChild("PlayerGui"):WaitForChild("MainGui")
+            local loadingLabel = gui:WaitForChild("loadingLabel") :: TextLabel
+            loadingLabel.Visible = false
+        end
 
         TimerModule.setTime(30)
 

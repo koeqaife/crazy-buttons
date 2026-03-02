@@ -61,7 +61,7 @@ function Event.onEvent()
     GameState.addHighlightToOne(p1, firstIdxColor, firstIdxColor)
     GameState.addHighlightToOne(p2, secondIdxColor, secondIdxColor)
 
-    GameState.runFuncPerAll(function(player)
+    GameState.runFuncPerAlive(function(player)
         local disableInput = player == p1 or player == p2 or table.find(GameState.alivePlayers, player) == nil
         ButtonsModule.setButtons(player, {
             { idx = 1, text = p1.DisplayName, inputDisabled = disableInput },

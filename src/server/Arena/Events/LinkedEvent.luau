@@ -40,7 +40,7 @@ function Event.onEvent()
 
     -- First player
     GameState.runFuncPerAll(function(player)
-        return TextModule.setText(player, p1.Name)
+        return TextModule.setText(player, p1.DisplayName)
     end)
     GameState.addHighlightToOne(p1, COLOR, COLOR)
     task.wait(5)
@@ -52,7 +52,7 @@ function Event.onEvent()
     task.wait(5)
 
     GameState.runFuncPerAll(function(player)
-        return TextModule.setText(player, p2.Name)
+        return TextModule.setText(player, p2.DisplayName)
     end)
     GameState.addHighlightToOne(p2, COLOR, COLOR)
     task.wait(5)

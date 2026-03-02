@@ -38,7 +38,7 @@ function Event.onEvent()
     local randomPlayer = GameState.pickOnePlayer()
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, randomPlayer.Name .. " got a gift", "laughing")
+        TextModule.setText(player, randomPlayer.DisplayName .. " got a gift", "laughing")
     end)
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
@@ -52,7 +52,7 @@ function Event.onEvent()
             }))
         else
             await(TextModule.showTextSequence(player, {
-                { text = randomPlayer.Name, delay = 2.5, face = "normal" },
+                { text = randomPlayer.DisplayName, delay = 2.5, face = "normal" },
                 { text = "They have a cool gift now", delay = 5, face = "happy" },
                 { text = "That's cool, right?", delay = 5, face = "shy" },
                 { text = "Good luck.", delay = 5, face = "scared" },

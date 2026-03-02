@@ -39,7 +39,7 @@ function Event.onEvent()
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
                 { text = "You have been chosen for the Split or Steal", delay = 5, face = "shy" },
-                { text = "You will be paired with " .. (if randomPlayers[1] == player then randomPlayers[2] else randomPlayers[1]).Name, delay = 5, face = "scared" },
+                { text = "You will be paired with " .. (if randomPlayers[1] == player then randomPlayers[2] else randomPlayers[1]).DisplayName, delay = 5, face = "scared" },
                 { text = "If both split, nothing happens", delay = 5, face = "happy" },
                 { text = "If one steals, the other dies", delay = 5, face = "scared" },
                 { text = "If both steal, you both die", delay = 5, face = "laughing" },
@@ -47,7 +47,7 @@ function Event.onEvent()
         else
             return protect(TextModule.showTextSequence(player, {
                 { text = "Two players have been chosen for the Split or Steal", delay = 5, face = "shy" },
-                { text = "They are " .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name, delay = 5, face = "happy" },
+                { text = "They are " .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName, delay = 5, face = "happy" },
                 { text = "If both split, nothing happens", delay = 5, face = "happy" },
                 { text = "If one steals, the other dies", delay = 5, face = "scared" },
                 { text = "If both steal, they both die", delay = 5, face = "laughing" },
@@ -65,7 +65,7 @@ function Event.onEvent()
             ButtonsModule.setButtons(player, {
                 { idx = SPLIT_BTN, text = "Split" },
                 { idx = STEAL_BTN, text = "Steal" }
-            })
+            }, nil, false)
             TextModule.setText(player, "Choose wisely", "nerd")
         else
             TextModule.setText(player, "Waiting for the players to choose", "normal")

@@ -55,7 +55,7 @@ local function onEventVariant()
         else
             await(TextModule.showTextSequence(player, {
                 { text = "Someone random will be revived now", delay = 6, face = "shy" },
-                { text = "Player " .. randomPlayer.Name .. " was revived", delay = 6, face = "happy" },
+                { text = "Player " .. randomPlayer.DisplayName .. " was revived", delay = 6, face = "happy" },
             }))
         end
     end):catch(error):await()
@@ -105,7 +105,7 @@ function Event.onEvent()
         if not table.find(playersForVote, player) then
             local buttons: IndicesType.Indices = {}
             for i, playerForVote in ipairs(playersForVote) do
-                table.insert(buttons, { idx = i, text = playerForVote.Name })
+                table.insert(buttons, { idx = i, text = playerForVote.DisplayName })
             end
             ButtonsModule.setButtons(player, buttons)
         end
@@ -136,7 +136,7 @@ function Event.onEvent()
             TextModule.setText(player, "You were revived!", "happy")
             GameState.revive(player)
         else
-            TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was revived", "happy")
+            TextModule.setText(player, "Player " .. mostVotedPlayer.DisplayName .. " was revived", "happy")
         end
     end):await()
     task.wait(5)

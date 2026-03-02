@@ -130,7 +130,7 @@ function Event.onEvent()
     Helpers.shuffleTable(answers)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, randomPlayer.Name .. " will do math quiz now", "nerd")
+        TextModule.setText(player, randomPlayer.DisplayName .. " will do math quiz now", "nerd")
     end)
 
     GameState.addHighlightTo({randomPlayer})
@@ -142,7 +142,7 @@ function Event.onEvent()
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Do you think " .. randomPlayer.Name .. "is good in math?", delay = 4, face = "nerd" },
+                { text = "Do you think " .. randomPlayer.DisplayName .. "is good in math?", delay = 4, face = "nerd" },
                 { text = "You will have to find out", delay = 4, face = "shy" },
             }))
         end
@@ -162,7 +162,7 @@ function Event.onEvent()
         else
             TextModule.setText(
                 player,
-                "Is " .. randomPlayer.Name ..
+                "Is " .. randomPlayer.DisplayName ..
                 " smart enough to calculate: \n" ..
                 randomQuiz.exp .. "\n?",
                 "nerd"

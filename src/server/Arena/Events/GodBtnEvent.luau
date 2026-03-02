@@ -99,7 +99,7 @@ function Event.onEvent()
                 KillToolModule.giveTool(player)
                 GameState.rewardBadge(player, BADGE_ID)
             else
-                TextModule.setText(player, awardedPlayer.Name .. " found the button", "scared")
+                TextModule.setText(player, awardedPlayer.DisplayName .. " found the button", "scared")
             end
         else
             TextModule.setText(player, "No one found the button...", "laughing")

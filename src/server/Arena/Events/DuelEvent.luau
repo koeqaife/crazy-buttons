@@ -42,19 +42,19 @@ function Event.onEvent()
     local p2 = randomPlayers[2]
 
     GameState.runFuncPerDead(function(player)
-        return TextModule.setText(player, p1.Name .. " and " .. p2.Name .. " will play a duel now", "click_button_icon")
+        return TextModule.setText(player, p1.DisplayName .. " and " .. p2.DisplayName .. " will play a duel now", "click_button_icon")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         if player == p1 or player == p2 then
             local otherPlayer = if player == p1 then p2 else p1
             return protect(TextModule.showTextSequence(player, {
-                { text = "You and " .. otherPlayer.Name .. " will play a duel now", delay = 6, face = "click_button_icon" },
+                { text = "You and " .. otherPlayer.DisplayName .. " will play a duel now", delay = 6, face = "click_button_icon" },
                 { text = "The first one to click survives", delay = 6, face = "normal" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = p1.Name .. " and " .. p2.Name .. " will play a duel now", delay = 6, face = "click_button_icon" },
+                { text = p1.DisplayName .. " and " .. p2.DisplayName .. " will play a duel now", delay = 6, face = "click_button_icon" },
                 { text = "The first one to click survives", delay = 6, face = "normal" },
             }))
         end

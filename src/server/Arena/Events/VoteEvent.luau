@@ -99,7 +99,7 @@ function Event.onEvent()
 
         local buttons: IndicesType.Indices = {}
         for i, playerForVote in ipairs(playersForVote) do
-            table.insert(buttons, { idx = i, text = playerForVote.Name, inputDisabled = playerOnVote })
+            table.insert(buttons, { idx = i, text = playerForVote.DisplayName, inputDisabled = playerOnVote })
 
             local color = highlightColors[i]
             GameState.addHighlightToOne(playerForVote, color, color)
@@ -147,7 +147,7 @@ function Event.onEvent()
             TextModule.setText(player, "You were eliminated... I'm sorry", "dead")
             GameState.kill(player)
         else
-            TextModule.setText(player, "Player " .. mostVotedPlayer.Name .. " was eliminated", "dead")
+            TextModule.setText(player, "Player " .. mostVotedPlayer.DisplayName .. " was eliminated", "dead")
         end
     end)
     task.wait(8)

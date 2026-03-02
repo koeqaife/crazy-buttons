@@ -28,7 +28,7 @@ function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They will need to sacrifice for 3" .. randomPlayers[1].Name .. " and " .. randomPlayers[2].Name, "scared")
+        TextModule.setText(player, "They will need to sacrifice for 3" .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName, "scared")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
@@ -39,7 +39,7 @@ function Event.onEvent()
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = randomPlayers[1].Name .. " and " .. randomPlayers[2].Name .. " are chosen.", delay = 6, face = "laughing" },
+                { text = randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName .. " are chosen.", delay = 6, face = "laughing" },
                 { text = "Will you sacrifice yourself to save them?", delay = 6, face = "shy" }
             }))
         end

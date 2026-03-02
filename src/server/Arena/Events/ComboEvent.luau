@@ -27,7 +27,7 @@ local ROUND_COMBO_LENGTH = {
 
 local Event = {} :: EventType
 
-Event.chance = 0.05
+Event.chance = 0.1
 Event.minPlayers = 5
 Event.maxPerGame = 2
 Event.minRound = 2

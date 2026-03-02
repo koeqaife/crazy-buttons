@@ -60,6 +60,7 @@ local events: {Event} = {
 
 local eventCounts: {[Event]: number} = {}
 local forcedNextEvent: { event: Event, by: Player }? = nil
+local lastEvent: Event? = nil
 
 local function chooseRandomEvent(): Event?
     local validEvents: {Event} = {}
@@ -75,6 +76,7 @@ local function chooseRandomEvent(): Event?
             and (not event.maxRound or round <= event.maxRound)
             and (not event.maxPerGame or count < event.maxPerGame)
             and event.check()
+            and event ~= lastEvent
         then
             table.insert(validEvents, event)
         end
@@ -214,6 +216,8 @@ function GameLoopModule.start()
                 runEvent(nextEvent)
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
             end
+
+            lastEvent = nextEvent
 
             GameState.runFuncPerAlive(function(player)
                 TextModule.setText(

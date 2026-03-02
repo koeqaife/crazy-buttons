@@ -55,15 +55,10 @@ function Event.onEvent()
         end
     end):catch(error):await()
 
-    GameState.runPromisePerAlive(function(player, protect)
-        return protect(TextModule.showTextSequence(player, {
-            { text = "Before we start you should remember a few rules", delay = 5, face = "nerd" },
-            { text = "What you see might kill you", delay = 5, face = { text = "1" } },
-            { text = "What you hear might lie to you", delay = 5, face = { text = "2" } },
-            { text = "What you do might betray you", delay = 5, face = { text = "3" } },
-            { text = "Let's begin", delay = 5, face = "shy" },
-        }))
-    end):catch(error):await()
+    GameState.runFuncPerAlive(function(player)
+        TextModule.setText(player, "Let's begin!", "happy")
+    end)
+    task.wait(3)
 
     return
 end

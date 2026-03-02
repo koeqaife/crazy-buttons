@@ -28,7 +28,7 @@ end
 function Event.onEvent()
     GameState.runPromisePerDead(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "They will choose whether to press the button or not", delay = 5, face = "click_button_icon" },
+            { text = "They will choose whether to press the button or not", delay = 5, face = "even_odd_event_icon" },
             { text = "Once everyone has decided, I'll count the presses", delay = 5, face = "nerd" },
             { text = "If the total is odd, all who pressed are eliminated", delay = 5, face = "even_odd_event_icon" },
             { text = "If it's even, those who didn't press are eliminated", delay = 5, face = "even_odd_event_icon" },
@@ -37,7 +37,7 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "You will choose whether to press the button or not", delay = 5, face = "click_button_icon" },
+            { text = "You will choose whether to press the button or not", delay = 5, face = "even_odd_event_icon" },
             { text = "Once everyone has decided, I'll count the presses", delay = 5, face = "nerd" },
             { text = "If the total is odd, all who pressed are eliminated", delay = 5, face = "even_odd_event_icon" },
             { text = "If it's even, those who didn't press are eliminated", delay = 5, face = "even_odd_event_icon" },

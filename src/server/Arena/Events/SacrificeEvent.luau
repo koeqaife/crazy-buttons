@@ -49,7 +49,7 @@ function Event.onEvent()
 
     GameState.addHighlightTo(randomPlayers)
 
-    TimerModule.setTime(60)
+    TimerModule.setTime(30)
     GameState.runNewPromisePerAlive(function(player, protect, await)
         if table.find(randomPlayers, player) then
             return
@@ -59,7 +59,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {
             { idx = 1, text = "Sacrifice yourself" }
         })
-        local clicked = await(ButtonsModule.waitForIdxClick(player, 60, 1))
+        local clicked = await(ButtonsModule.waitForIdxClick(player, 30, 1))
 
         ButtonsModule.setButtons(player, {})
 

@@ -74,7 +74,7 @@ function Event.onEvent()
 
                     local clicked = await(clickPromise)
 
-                    if clicked == godButton and awardedPlayer == nil or awardedPlayer == player then
+                    if clicked == godButton and (awardedPlayer == nil or awardedPlayer == player) then
                         awardedPlayer = player
                         GameState.addHighlightTo({player})
                         resolve()

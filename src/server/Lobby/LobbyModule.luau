@@ -31,6 +31,9 @@ local queue: {Player} = {}
 local InQueueLabel = Instance.new("RemoteEvent", ReplicatedStorage)
 InQueueLabel.Name = "InQueueLabel"
 
+local FirstTimeJoined = Instance.new("RemoteEvent", ReplicatedStorage)
+FirstTimeJoined.Name = "FirstTimeJoined"
+
 local timerActive = false
 local timerTimeLeft = 0
 local globalTimerTimeLeft = 0
@@ -339,6 +342,18 @@ function LobbyModule.init()
     end)
 
     updatePadCount(0, MAX_PLAYERS)
+
+    DataStoreModule.NeverJoinedBeforeUpdated.Event:Connect(function(player, value)
+        if not value then
+            return
+        end
+        FirstTimeJoined:FireClient(player)
+        return
+    end)
+
+    FirstTimeJoined.OnServerEvent:Connect(function(player)
+        DataStoreModule.setNeverJoinedBefore(player, false):await()
+    end)
 end
 
 return LobbyModule

@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local InQueueLabelEvent: RemoteEvent = ReplicatedStorage:WaitForChild("InQueueLabel")
 
 local Players = game:GetService("Players")
+local FirstTimeModule = require(script.Parent.FirstTimeModule)
 local spr = require(ReplicatedStorage.Shared.spr)
 
 local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
@@ -17,6 +18,7 @@ local inQueueLabel: TextLabel = Players.LocalPlayer.PlayerGui
 
 function LobbyModule.init()
     CustomPromptModule.onLoad()
+    FirstTimeModule.init()
 
     inQueueLabel.Visible = false
     inQueueLabel.BackgroundTransparency = 1

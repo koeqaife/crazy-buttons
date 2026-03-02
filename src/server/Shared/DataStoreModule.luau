@@ -8,6 +8,7 @@ local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
 
 local SurvivesUpdated = Instance.new("BindableEvent")
 local StreakUpdated = Instance.new("BindableEvent")
+local NeverJoinedBeforeUpdated = Instance.new("BindableEvent")
 
 local DataStoreModule = {}
 
@@ -15,14 +16,16 @@ type PlayerData = {
     survives: number,
     streak: number,
     streakLastUpdated: number,
-    pendingRevives: number
+    pendingRevives: number,
+    neverJoinedBefore: boolean?
 }
 
 local defaultData: PlayerData = {
     survives = 0,
     streak = 0,
     streakLastUpdated = 0,
-    pendingRevives = 0
+    pendingRevives = 0,
+    neverJoinedBefore = true
 }
 
 local dataPerPlayer: {[Player]: PlayerData} = {}
@@ -30,6 +33,7 @@ local dataPerPlayer: {[Player]: PlayerData} = {}
 DataStoreModule.dataPerPlayer = dataPerPlayer
 DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
 DataStoreModule.StreakUpdatedEvent = StreakUpdated
+DataStoreModule.NeverJoinedBeforeUpdated = NeverJoinedBeforeUpdated
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
@@ -63,7 +67,7 @@ function DataStoreModule.increaseSurvives(player: Player)
             finalData.survives += 1
             dataPerPlayer[player].survives = finalData.survives
             print("Changed survives counter for", player.Name, "to", finalData.survives)
-            SurvivesUpdated:Fire(finalData.survives)
+            SurvivesUpdated:Fire(player, finalData.survives)
 
             return finalData
         end)
@@ -103,7 +107,7 @@ function DataStoreModule.continueStreak(player: Player)
             finalData.streakLastUpdated = currentTime
             dataPerPlayer[player].streak = finalData.streak
             print("Changed streak counter for", player.Name, "to", finalData.streak)
-            StreakUpdated:Fire(finalData.streak)
+            StreakUpdated:Fire(player, finalData.streak)
 
             return finalData
         end)
@@ -142,6 +146,29 @@ function DataStoreModule.addPendingRevives(player: Player, amount: number)
     end)
 end
 
+function DataStoreModule.setNeverJoinedBefore(player: Player, value: boolean)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            finalData.neverJoinedBefore = value
+
+            dataPerPlayer[player].neverJoinedBefore = value
+            NeverJoinedBeforeUpdated:Fire(player, value)
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to set neverJoinedBefore for", player.Name)
+    end)
+end
+
 function DataStoreModule.getSurvives(player: Player): number?
     if not dataPerPlayer[player] then
         return nil
@@ -163,6 +190,13 @@ function DataStoreModule.getPendingRevives(player: Player): number
     return dataPerPlayer[player].pendingRevives or 0
 end
 
+function DataStoreModule.getNeverJoinedBefore(player: Player): boolean
+    if not dataPerPlayer[player] then
+        return true
+    end
+    return dataPerPlayer[player].neverJoinedBefore or false
+end
+
 function DataStoreModule.init()
     game.Players.PlayerAdded:Connect(function(player: Player)
         local success, data: PlayerData? = Promise.retryWithDelay(function()
@@ -173,8 +207,9 @@ function DataStoreModule.init()
 
         if success then
             local finalData = setData(player, data)
-            SurvivesUpdated:Fire(finalData.survives)
-            StreakUpdated:Fire(finalData.streak)
+            SurvivesUpdated:Fire(player, finalData.survives)
+            StreakUpdated:Fire(player, finalData.streak)
+            NeverJoinedBeforeUpdated:Fire(player, finalData.neverJoinedBefore)
         else
             warn("Failed to load data for", player.Name, data)
         end

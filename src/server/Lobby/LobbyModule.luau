@@ -119,10 +119,13 @@ local function startGame()
     active = {}
     updatePadCount(0, MAX_PLAYERS)
 
+    local teleportOptions = Instance.new("TeleportOptions")
+    teleportOptions.ShouldReserveServer = true
     local ok, err = pcall(function()
         TeleportService:TeleportAsync(
             TELEPORT_PLACE_ID,
-            playersToTeleport
+            playersToTeleport,
+            teleportOptions
         )
     end)
 
@@ -329,7 +332,6 @@ function LobbyModule.init()
     end)
 
     updatePadCount(0, MAX_PLAYERS)
-    TeleportService:SetTeleportSetting("ShouldReserveServer", true)
 end
 
 return LobbyModule

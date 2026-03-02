@@ -46,6 +46,10 @@ function ArenaModule.init()
     PlayerLoaded.OnServerEvent:Connect(function(player)
         DataStoreModule.continueStreak(player)
         loadedPlayers[player] = true
+
+        local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
+        local loadingLabel = gui:WaitForChild("loadingLabel") :: TextLabel
+        loadingLabel.Visible = false
     end)
 
     Players.PlayerRemoving:Connect(function(player)
@@ -68,15 +72,9 @@ function ArenaModule.init()
             end
         end
 
-        mainText.Text = "..."
-        for _, player in ipairs(Players:GetPlayers()) do
-            local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
-            local loadingLabel = gui:WaitForChild("loadingLabel") :: TextLabel
-            loadingLabel.Visible = false
-        end
-
         TimerModule.setTime(5)
         task.wait(5)
+        mainText.Text = "..."
 
         TimerModule.setTime(30)
 

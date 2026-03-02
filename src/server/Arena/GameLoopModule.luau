@@ -34,6 +34,7 @@ local AttackDefendTrustEvent = require(Arena.Events.AttackDefendTrustEvent)
 local YouSurvivedEvent = require(Arena.Events.YouSurvivedEvent)
 local DuelEvent = require(Arena.Events.DuelEvent)
 local LinkedEvent = require(Arena.Events.LinkedEvent)
+local TwoKnowsEvent = require(Arena.Events.TwoKnowsEvent)
 
 local EXPERIMENT_BADGE_ID = 4390814557028274
 
@@ -55,7 +56,8 @@ local events: {Event} = {
     AttackDefendTrustEvent,
     YouSurvivedEvent,
     DuelEvent,
-    LinkedEvent
+    LinkedEvent,
+    TwoKnowsEvent
 }
 
 local eventCounts: {[Event]: number} = {}

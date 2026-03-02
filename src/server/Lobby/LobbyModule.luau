@@ -33,6 +33,7 @@ InQueueLabel.Name = "InQueueLabel"
 
 local timerActive = false
 local timerTimeLeft = 0
+local globalTimerTimeLeft = 0
 
 local function updateBoardText()
     if #boardText.countdown > 0 then
@@ -169,6 +170,7 @@ local function startCountdown()
 
     timerActive = true
     timerTimeLeft = COUNTDOWN_SECONDS
+    globalTimerTimeLeft = 150
 
     updatePadCountdown("started", COUNTDOWN_SECONDS)
 
@@ -180,7 +182,12 @@ local function startCountdown()
             end
 
             timerTimeLeft -= 1
+            globalTimerTimeLeft -= 1
             if timerTimeLeft <= 0 then
+                break
+            end
+            if globalTimerTimeLeft <= 0 then
+                stopCountdown("server_timeout")
                 break
             end
 

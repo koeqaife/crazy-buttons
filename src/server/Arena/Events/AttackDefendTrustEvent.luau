@@ -45,7 +45,7 @@ local beatsText = {
     }
 }
 
-Event.chance = 0.08
+Event.chance = 0.075
 Event.minPlayers = 2
 
 function Event.check()

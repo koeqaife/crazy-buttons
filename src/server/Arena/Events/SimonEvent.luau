@@ -54,7 +54,7 @@ local texts: {Text} = {
 }
 local COLOR_NAMES = { "Red", "Blue", "Pink", "Yellow" }
 
-Event.chance = 0.05
+Event.chance = 0.09
 Event.maxPerGame = 1
 Event.minRound = 3
 Event.minPlayers = 7

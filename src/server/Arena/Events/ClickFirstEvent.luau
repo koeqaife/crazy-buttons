@@ -30,7 +30,7 @@ local clickSound = ReplicatedStorage
     :WaitForChild("Sounds")
     :WaitForChild("LoudClickSound") :: Sound
 
-Event.chance = 0.10
+Event.chance = 0.08
 Event.minPlayers = 4
 Event.maxPerGame = 3
 

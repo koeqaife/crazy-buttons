@@ -17,8 +17,8 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
-Event.chance = 0.1
-Event.minPlayers = 7
+Event.chance = 0.06
+Event.minPlayers = 10
 Event.maxPerGame = 1
 
 function Event.check()

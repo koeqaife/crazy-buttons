@@ -177,6 +177,9 @@ function GameState.kill(player: Player, reason: string?)
             local _, clickedIdx = promise:catch(error):await()
             if clickedIdx == 5 then
                 TeleportService:Teleport(LOBBY_PLACE_ID, player)
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Teleporting...", inputDisabled = true }
+                })
                 resolve2()
             elseif clickedIdx == 3 then
                 ForceRevive:Fire(player)

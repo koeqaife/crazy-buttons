@@ -293,6 +293,7 @@ function DataStoreModule.init()
         if success then
             local finalData = setData(player, data)
 
+            DataStoreModule.setNewTopStreak(player):await()
             local ok, err = pcall(function()
                 survivesStore:SetAsync(player.UserId, finalData.survives)
                 streakStore:SetAsync(player.UserId, finalData.topStreak)

@@ -225,7 +225,7 @@ function GameLoopModule.start()
 
             lastEvent = nextEvent
 
-            GameState.runFuncPerAlive(function(player)
+            GameState.runFuncPerAll(function(player)
                 TextModule.setText(
                     player, #GameState.alivePlayers .. " players left...",
                     "normal"

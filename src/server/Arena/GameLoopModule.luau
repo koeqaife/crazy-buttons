@@ -188,6 +188,10 @@ function GameLoopModule.start()
         while #GameState.alivePlayers > 0 do
             GameState.round += 1
 
+            if #GameState.alivePlayers <= 4 then
+                GameState.clearLinkedPlayers()
+            end
+
             local nextEvent: Event? = nil
             if forcedNextEvent then
                 if forcedNextEvent.event == ReviveEvent and not GameState.forceReviveIsAllowed() then

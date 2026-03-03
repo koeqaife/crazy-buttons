@@ -24,6 +24,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local TeleportService = game:GetService("TeleportService")
 local LeaderboardModule = require(script.Parent.LeaderboardModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
+local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
 
 local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
 local active: {[Player]: boolean} = {}
@@ -291,6 +292,7 @@ end
 
 function LobbyModule.init()
     DataStoreModule.init()
+    MusicModule.init()
 
     game.Players.PlayerAdded:Connect(function(player: Player)
         local leaderstats = Instance.new("Folder")

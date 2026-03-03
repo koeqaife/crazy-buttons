@@ -43,7 +43,6 @@ function Leaderboard.initFor(key: string, forPart: Part)
     boards[key] = {}
 
     task.spawn(function()
-        clearFrames(key)
         while true do
             functions[key]():andThen(function(top: {{ name: string, value: number }}?)
                 if top == nil then
@@ -57,7 +56,7 @@ function Leaderboard.initFor(key: string, forPart: Part)
                 end
             end):catch(function(err)
                 warn("Failed to update leaderboard for " .. key .. ": " .. tostring(err))
-            end)
+            end):await()
             task.wait(30)
         end
     end)

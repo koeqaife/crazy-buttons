@@ -1,7 +1,9 @@
 --!optimize 2
 --!strict
 
+local ServerScriptService = game:GetService("ServerScriptService")
 local TweenService = game:GetService("TweenService")
+local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
 
 local WorkspaceSounds = workspace:WaitForChild("Sounds") :: Folder
 
@@ -46,6 +48,7 @@ local function fadeIn(sound: Sound, duration: number, target: number): Tween
 end
 
 function AmbienceModule.playEerieHorrorRising()
+    MusicModule.fadeOutGroup()
     if not table.find(runningSounds, EerieHorrorRising) then
         fadeIn(EerieHorrorRising, 20, 1)
         table.insert(runningSounds, EerieHorrorRising)
@@ -53,6 +56,7 @@ function AmbienceModule.playEerieHorrorRising()
 end
 
 function AmbienceModule.stopEerieHorrorRising()
+    MusicModule.fadeInGroup()
     if table.find(runningSounds, EerieHorrorRising) then
         EerieHorrorRising:Stop()
         table.remove(runningSounds, table.find(runningSounds, EerieHorrorRising))
@@ -65,6 +69,7 @@ function AmbienceModule.stopAll()
         sound:Stop()
     end
     table.clear(runningSounds)
+    MusicModule.fadeInGroup()
 end
 
 return AmbienceModule

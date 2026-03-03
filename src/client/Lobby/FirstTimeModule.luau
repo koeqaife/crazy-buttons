@@ -22,7 +22,6 @@ local function onFirstTimeJoin()
         "The game was only released so it might a bit buggy\n" ..
         "Also it's really hard to get new players together...\n" ..
         "So if you see empty lobby, just invite your friends!\n" ..
-        "And I'm pretty sure that with friends this game is even more funny\n\n" ..
         "I hope you like the game and share your feedback\n\n" ..
         "Enjoy!!"
     )

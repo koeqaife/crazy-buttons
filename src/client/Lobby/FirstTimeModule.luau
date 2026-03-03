@@ -17,9 +17,9 @@ local function onFirstTimeJoin()
     firstTimeFrame.Visible = true
 
     local text = (
-        "Hey Stranger!\n\n" ..
+        "Hey " .. player.Name .. "!\n\n" ..
         "This is Buttons Experiment\n" ..
-        "The game was only released so it might be empty or unbalanced\n" ..
+        "The game was only released so it might a bit buggy\n" ..
         "Also it's really hard to get new players together...\n" ..
         "So if you see empty lobby, just invite your friends!\n" ..
         "And I'm pretty sure that with friends this game is even more funny\n\n" ..

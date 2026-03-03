@@ -24,8 +24,8 @@ local AmbienceModule = {}
 local allowedTypes = {"neutral", "tense", "scary"}
 local allowedModes = {"central", "around"}
 
-local MIN_DELAY = 20
-local MAX_DELAY = 90
+local MIN_DELAY = 45
+local MAX_DELAY = 150
 
 local function getRandomDelay()
     return math.random(MIN_DELAY, MAX_DELAY)

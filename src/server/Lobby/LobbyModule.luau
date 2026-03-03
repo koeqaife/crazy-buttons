@@ -22,6 +22,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local TeleportService = game:GetService("TeleportService")
+local LeaderboardModule = require(script.Parent.LeaderboardModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 
 local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
@@ -354,6 +355,9 @@ function LobbyModule.init()
     FirstTimeJoined.OnServerEvent:Connect(function(player)
         DataStoreModule.setNeverJoinedBefore(player, false):await()
     end)
+
+    LeaderboardModule.initFor("streak", workspace:WaitForChild("StreakLeaderboard"))
+    LeaderboardModule.initFor("survives", workspace:WaitForChild("SurvivesLeaderboard"))
 end
 
 return LobbyModule

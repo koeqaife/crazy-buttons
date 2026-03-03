@@ -2,6 +2,7 @@
 --!optimize 2
 
 local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
@@ -10,11 +11,15 @@ local SurvivesUpdated = Instance.new("BindableEvent")
 local StreakUpdated = Instance.new("BindableEvent")
 local NeverJoinedBeforeUpdated = Instance.new("BindableEvent")
 
+local survivesStore = DataStoreService:GetOrderedDataStore("Survives")
+local streakStore = DataStoreService:GetOrderedDataStore("Streak")
+
 local DataStoreModule = {}
 
 type PlayerData = {
     survives: number,
     streak: number,
+    topStreak: number,
     streakLastUpdated: number,
     pendingRevives: number,
     neverJoinedBefore: boolean?
@@ -23,6 +28,7 @@ type PlayerData = {
 local defaultData: PlayerData = {
     survives = 0,
     streak = 0,
+    topStreak = 0,
     streakLastUpdated = 0,
     pendingRevives = 0,
     neverJoinedBefore = true
@@ -69,10 +75,51 @@ function DataStoreModule.increaseSurvives(player: Player)
             print("Changed survives counter for", player.Name, "to", finalData.survives)
             SurvivesUpdated:Fire(player, finalData.survives)
 
+            local ok, err = pcall(function()
+                survivesStore:SetAsync(player.UserId, finalData.survives)
+            end)
+
+            if not ok then
+                warn(err)
+            end
+
             return finalData
         end)
     end)():catch(function(err)
         warn("Failed to increase survives for", player.Name)
+    end)
+end
+
+function DataStoreModule.setNewTopStreak(player: Player)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            if finalData.streak and finalData.streak > (finalData.topStreak or 0) then
+                finalData.topStreak = finalData.streak
+            end
+
+            dataPerPlayer[player].topStreak = finalData.topStreak
+            print("Changed top streak counter for", player.Name, "to", finalData.topStreak)
+
+            local ok, err = pcall(function()
+                streakStore:SetAsync(player.UserId, finalData.topStreak)
+            end)
+
+            if not ok then
+                warn(err)
+            end
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to set new top streak for", player.Name)
     end)
 end
 
@@ -108,6 +155,8 @@ function DataStoreModule.continueStreak(player: Player)
             dataPerPlayer[player].streak = finalData.streak
             print("Changed streak counter for", player.Name, "to", finalData.streak)
             StreakUpdated:Fire(player, finalData.streak)
+
+            DataStoreModule.setNewTopStreak(player):await()
 
             return finalData
         end)
@@ -197,6 +246,42 @@ function DataStoreModule.getNeverJoinedBefore(player: Player): boolean
     return dataPerPlayer[player].neverJoinedBefore or false
 end
 
+local function getTop(from: OrderedDataStore)
+    return Promise.promisify(function(): {{ name: string, value: number }}?
+        local pages = from:GetSortedAsync(false, 100, 1)
+        local top = pages:GetCurrentPage()[1]
+        if top then
+            local result: {{ name: string, value: number }} = {}
+
+            for rank, entry in ipairs(pages:GetCurrentPage()) do
+                if tonumber(entry.key) < 0 then
+                    continue
+                end
+
+                local ok, name = pcall(function()
+                    return Players:GetNameFromUserIdAsync(entry.key)
+                end)
+                if ok and name then
+                    table.insert(result, { name = name, value = entry.value })
+                else
+                    warn("Failed to get name for userId", entry.key, name)
+                end
+            end
+
+            return result
+        end
+        return nil
+    end)()
+end
+
+function DataStoreModule.getTopStreak()
+    return getTop(streakStore)
+end
+
+function DataStoreModule.getTopSurvives()
+    return getTop(survivesStore)
+end
+
 function DataStoreModule.init()
     game.Players.PlayerAdded:Connect(function(player: Player)
         local success, data: PlayerData? = Promise.retryWithDelay(function()
@@ -207,6 +292,7 @@ function DataStoreModule.init()
 
         if success then
             local finalData = setData(player, data)
+
             SurvivesUpdated:Fire(player, finalData.survives)
             StreakUpdated:Fire(player, finalData.streak)
             NeverJoinedBeforeUpdated:Fire(player, finalData.neverJoinedBefore)

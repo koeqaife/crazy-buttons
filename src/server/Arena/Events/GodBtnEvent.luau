@@ -61,6 +61,7 @@ function Event.onEvent()
     local awardedPlayerPromise: Promise.TypedPromise<any> = Promise.new(function(resolve)
         resolveAwardedPlayerPromise = resolve
     end)
+    local awardedResolved = false
 
     Promise.race({
         awardedPlayerPromise,
@@ -74,11 +75,18 @@ function Event.onEvent()
 
                     local clicked = await(clickPromise)
 
-                    if clicked == godButton and (awardedPlayer == nil or awardedPlayer == player) then
-                        awardedPlayer = player
-                        GameState.addHighlightTo({player})
-                        resolve()
-                        resolveAwardedPlayerPromise()
+                    if clicked == godButton then
+                        if not awardedResolved then
+                            awardedResolved = true
+                            awardedPlayer = player
+                            GameState.addHighlightTo({player})
+                            if resolveAwardedPlayerPromise then
+                                resolveAwardedPlayerPromise()
+                            end
+                            resolve()
+                        elseif awardedPlayer == player then
+                            resolve()
+                        end
                         break
                     elseif clicked ~= nil then
                         GameState.runFuncPerAlive(function(player2)

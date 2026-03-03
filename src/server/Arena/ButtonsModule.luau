@@ -24,7 +24,20 @@ local function waitForButton(player: Player, timeout: number, filter: ((Player, 
     return Promise.race({
         Promise.new(function(resolve, _, onCancel)
             conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
-                if not ButtonsModule.doesPlayerHaveButton(playerWhoClicked, idx) then
+                local playerButtons = buttonsPerPlayer[playerWhoClicked]
+                if not playerButtons then
+                    return
+                end
+
+                local exists = false
+                for _, b in ipairs(playerButtons) do
+                    if b.idx == idx then
+                        exists = true
+                        break
+                    end
+                end
+
+                if not exists then
                     return
                 end
 

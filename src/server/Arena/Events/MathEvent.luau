@@ -148,7 +148,7 @@ function Event.onEvent()
         end
     end):catch(error):await()
 
-    TimerModule.setTime(30)
+    TimerModule.setTime(45)
     GameState.runFuncPerAlive(function(player)
         if player == randomPlayer then
             TextModule.setText(player, "Calculate this:\n" .. randomQuiz.exp, "nerd")

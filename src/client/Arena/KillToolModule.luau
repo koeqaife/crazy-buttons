@@ -135,8 +135,8 @@ function KillToolModule.connect()
     end)
 
 
-    -- When button clicked
-    KillToolButton.MouseButton1Click:Connect(function()
+    -- When button clicked/activated (works for mouse, touch, gamepad)
+    KillToolButton.Activated:Connect(function()
         toggleActive()
     end)
 
@@ -194,6 +194,7 @@ function KillToolModule.connect()
         if (input.UserInputType == Enum.UserInputType.Gamepad1
             and input.KeyCode == Enum.KeyCode.ButtonR2)
             or input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch
         then
             local target = checkTargetFromScreenPos(input.Position)
             if target then

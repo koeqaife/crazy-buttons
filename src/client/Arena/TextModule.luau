@@ -157,14 +157,21 @@ local function setText(
     generationIsRunning = false
 end
 
-function TextModule.connect(): ()
+local function preload()
     ContentProvider:PreloadAsync({mainText})
+    local images: {ImageLabel} = {}
 
     for _, face in pairs(faces) do
         local imageLabel = Instance.new("ImageLabel")
         imageLabel.Image = face
-        ContentProvider:PreloadAsync({imageLabel})
+        table.insert(images, imageLabel)
     end
+
+    ContentProvider:PreloadAsync(images)
+end
+
+function TextModule.connect(): ()
+    preload()
 
     UpdateTextEvent.OnClientEvent:Connect(
         function(action: "set" | "append", text: string, face: Face?)

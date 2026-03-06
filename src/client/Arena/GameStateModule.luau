@@ -1,8 +1,8 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextChatService = game:GetService("TextChatService")
 local KillToolModule = require(script.Parent.KillToolModule)
-local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Spring = require(ReplicatedStorage.Shared.spr)
 local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent")
 
@@ -11,13 +11,13 @@ local GameState = {}
 local localPlayerIsDead = false
 local localPlayer = Players.LocalPlayer
 
+GameState.localPlayerIsDead = localPlayerIsDead
+
+local showDieEffect = require(localPlayer.PlayerScripts.Client.Shared.DieEffectModule)
+
 local Blur: BlurEffect = Lighting:WaitForChild("Blur")
 local ColorCorrection: ColorCorrectionEffect = Lighting:WaitForChild("ColorCorrection")
 local Atmosphere: Atmosphere = Lighting:WaitForChild("Atmosphere")
-
-local dieSound: Sound = ReplicatedStorage
-    :WaitForChild("Sounds")
-    :WaitForChild("DieSound")
 
 Blur.Enabled = true
 Blur.Size = 16
@@ -95,100 +95,10 @@ local function onSyncEvent(
         end
     end
 
-    local character = player.Character
-    if not character then
-        return
-    end
-
-    local descendants = {}
-    for _, obj in ipairs(character:GetDescendants()) do
-        table.insert(descendants, obj)
-    end
-
-    Helpers.shuffleTable(descendants)
-
-    local color
-    if reason == "byKillTool" then
-        color = Color3.fromRGB(255, 238, 0)
-    else
-        color = Color3.fromRGB(56, 138, 245)
-    end
-
-    local opacity
-    if died then
-        for _, obj in ipairs(descendants) do
-            if obj:IsA("BasePart") then
-                obj.CanQuery = false
-            end
-        end
-
-        opacity = {
-            highlightStart = 1,
-            highlightTo = 0,
-            highlightEnd = 1,
-            objStart = 0,
-            objStartForMe = 0,
-            objTo = 0.999,
-            objEnd = 1,
-            objEndForMe = 0.65
-        }
-    else
-        for _, obj in ipairs(descendants) do
-            if obj:IsA("BasePart") then
-                obj.CanQuery = true
-            end
-        end
-
-        opacity = {
-            highlightStart = 1,
-            highlightTo = 0,
-            highlightEnd = 1,
-            objStart = 1,
-            objStartForMe = 0.65,
-            objTo = 0,
-            objEnd = 0,
-            objEndForMe = 0
-        }
-    end
-
-    local sound = dieSound:Clone()
-    sound.Parent = workspace
-    sound:Destroy()
-
-    for _, obj in ipairs(descendants) do
-        if obj:IsA("BasePart") and obj.Name ~= "HumanoidRootPart" then
-            task.wait(0.05)
-            obj.Transparency = opacity.objStart
-            if localPlayerIsDead or itsMe then
-                obj.Transparency = opacity.objStartForMe
-            end
-
-            local highlight = Instance.new("Highlight")
-            highlight.Parent = obj
-            highlight.OutlineTransparency = 1
-            highlight.FillTransparency = opacity.highlightStart
-            highlight.FillColor = color
-            highlight.DepthMode = Enum.HighlightDepthMode.Occluded
-
-            Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightTo })
-            Spring.target(obj, 1.5, 5, { Transparency = opacity.objTo })
-            Spring.completed(highlight, function()
-                if itsMe or localPlayerIsDead then
-                    Spring.target(obj, 1.5, 5, { Transparency = opacity.objEndForMe })
-                else
-                end
-
-                Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightEnd })
-                Spring.completed(highlight, function()
-
-                    highlight:Destroy()
-                    if not itsMe and not localPlayerIsDead then
-                        obj.Transparency = opacity.objEnd
-                    end
-                end)
-            end)
-        end
-    end
+    showDieEffect(player, not dead, localPlayerIsDead, reason)
+    TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage(
+        "<font color=\"#eb4034\"><b>" .. player.DisplayName .. " has been eliminated.</b></font>"
+    )
 
     return
 end

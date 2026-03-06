@@ -10,6 +10,7 @@ local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
 local SurvivesUpdated = Instance.new("BindableEvent")
 local StreakUpdated = Instance.new("BindableEvent")
 local NeverJoinedBeforeUpdated = Instance.new("BindableEvent")
+local DeathAnimationUpdated = Instance.new("BindableEvent")
 
 local survivesStore = DataStoreService:GetOrderedDataStore("Survives")
 local streakStore = DataStoreService:GetOrderedDataStore("Streak")
@@ -22,7 +23,8 @@ type PlayerData = {
     topStreak: number,
     streakLastUpdated: number,
     pendingRevives: number,
-    neverJoinedBefore: boolean?
+    neverJoinedBefore: boolean?,
+    currentDeathEffect: string?
 }
 
 local defaultData: PlayerData = {
@@ -31,7 +33,8 @@ local defaultData: PlayerData = {
     topStreak = 0,
     streakLastUpdated = 0,
     pendingRevives = 0,
-    neverJoinedBefore = true
+    neverJoinedBefore = true,
+    currentDeathEffect = "default"
 }
 
 local dataPerPlayer: {[Player]: PlayerData} = {}
@@ -40,6 +43,7 @@ DataStoreModule.dataPerPlayer = dataPerPlayer
 DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
 DataStoreModule.StreakUpdatedEvent = StreakUpdated
 DataStoreModule.NeverJoinedBeforeUpdated = NeverJoinedBeforeUpdated
+DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
@@ -218,6 +222,29 @@ function DataStoreModule.setNeverJoinedBefore(player: Player, value: boolean)
     end)
 end
 
+function DataStoreModule.setDeathEffect(player: Player, value: string)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            finalData.currentDeathEffect = value
+
+            dataPerPlayer[player].currentDeathEffect = value
+            DeathAnimationUpdated:Fire(player, value)
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to set currentDeathEffect for", player.Name)
+    end)
+end
+
 function DataStoreModule.getSurvives(player: Player): number?
     if not dataPerPlayer[player] then
         return nil
@@ -244,6 +271,13 @@ function DataStoreModule.getNeverJoinedBefore(player: Player): boolean
         return true
     end
     return dataPerPlayer[player].neverJoinedBefore or false
+end
+
+function DataStoreModule.getDeathEffect(player: Player): string
+    if not dataPerPlayer[player] then
+        return "default"
+    end
+    return dataPerPlayer[player].currentDeathEffect or "default"
 end
 
 local function getTop(from: OrderedDataStore)
@@ -305,6 +339,7 @@ function DataStoreModule.init()
             SurvivesUpdated:Fire(player, finalData.survives)
             StreakUpdated:Fire(player, finalData.streak)
             NeverJoinedBeforeUpdated:Fire(player, finalData.neverJoinedBefore)
+            DeathAnimationUpdated:Fire(player, finalData.currentDeathEffect)
         else
             warn("Failed to load data for", player.Name, data)
         end

@@ -52,6 +52,18 @@ function ArenaModule.init()
         local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
         local loadingLabel = gui:WaitForChild("loadingLabel") :: TextLabel
         loadingLabel.Visible = false
+
+        local removingConnection: RBXScriptConnection
+        local animationConnection = DataStoreModule.DeathAnimationUpdated.Event:Connect(function(_, value: string)
+            player:SetAttribute("death", value)
+        end)
+
+        removingConnection = Players.PlayerRemoving:Connect(function(playerRemoved: Player)
+            if playerRemoved == player then
+                removingConnection:Disconnect()
+                animationConnection:Disconnect()
+            end
+        end)
     end)
 
     Players.PlayerRemoving:Connect(function(player)

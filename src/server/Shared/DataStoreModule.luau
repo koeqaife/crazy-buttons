@@ -12,6 +12,7 @@ local StreakUpdated = Instance.new("BindableEvent")
 local NeverJoinedBeforeUpdated = Instance.new("BindableEvent")
 local DeathAnimationUpdated = Instance.new("BindableEvent")
 local OwnsUpdated = Instance.new("BindableEvent")
+local CashUpdated = Instance.new("BindableEvent")
 
 local survivesStore = DataStoreService:GetOrderedDataStore("Survives")
 local streakStore = DataStoreService:GetOrderedDataStore("Streak")
@@ -26,7 +27,8 @@ type PlayerData = {
     pendingRevives: number,
     neverJoinedBefore: boolean?,
     currentDeathEffect: string?,
-    owns: {string}
+    owns: {string},
+    cash: number
 }
 
 local defaultData: PlayerData = {
@@ -37,7 +39,8 @@ local defaultData: PlayerData = {
     pendingRevives = 0,
     neverJoinedBefore = true,
     currentDeathEffect = "default",
-    owns = {}
+    owns = {},
+    cash = 0
 }
 
 local dataPerPlayer: {[Player]: PlayerData} = {}
@@ -48,6 +51,7 @@ DataStoreModule.StreakUpdatedEvent = StreakUpdated
 DataStoreModule.NeverJoinedBeforeUpdated = NeverJoinedBeforeUpdated
 DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
 DataStoreModule.OwnsUpdated = OwnsUpdated
+DataStoreModule.CashUpdated = CashUpdated
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
@@ -249,6 +253,37 @@ function DataStoreModule.setDeathEffect(player: Player, value: string)
     end)
 end
 
+function DataStoreModule.addCash(player: Player, amount: number)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            if finalData.cash == nil then
+                finalData.cash = 0
+            end
+
+            finalData.cash += amount
+
+            if finalData.cash < 0 then
+                finalData.cash = 0
+            end
+
+            dataPerPlayer[player].cash = finalData.cash
+            CashUpdated:Fire(player, finalData.cash)
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to add cash for", player.Name)
+    end)
+end
+
 function DataStoreModule.appendOwns(player: Player, value: string)
     return Promise.promisify(function()
         return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
@@ -267,12 +302,12 @@ function DataStoreModule.appendOwns(player: Player, value: string)
             table.insert(finalData.owns, value)
             dataPerPlayer[player].owns = finalData.owns
 
-            DeathAnimationUpdated:Fire(player, value)
+            OwnsUpdated:Fire(player, finalData.owns)
 
             return finalData
         end)
     end)():catch(function(err)
-        warn("Failed to set currentDeathEffect for", player.Name)
+        warn("Failed to set owns for", player.Name)
     end)
 end
 
@@ -295,6 +330,13 @@ function DataStoreModule.getStreak(player: Player): number?
         return nil
     end
     return dataPerPlayer[player].streak
+end
+
+function DataStoreModule.getCash(player: Player): number?
+    if not dataPerPlayer[player] then
+        return nil
+    end
+    return dataPerPlayer[player].cash or 0
 end
 
 function DataStoreModule.getPendingRevives(player: Player): number
@@ -378,6 +420,8 @@ function DataStoreModule.init()
             StreakUpdated:Fire(player, finalData.streak)
             NeverJoinedBeforeUpdated:Fire(player, finalData.neverJoinedBefore)
             DeathAnimationUpdated:Fire(player, finalData.currentDeathEffect)
+            OwnsUpdated:Fire(player, finalData.owns)
+            CashUpdated:Fire(player, finalData.cash)
         else
             warn("Failed to load data for", player.Name, data)
         end

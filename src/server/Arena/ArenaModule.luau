@@ -53,8 +53,11 @@ function ArenaModule.init()
         local loadingLabel = gui:WaitForChild("loadingLabel") :: TextLabel
         loadingLabel.Visible = false
 
+        player:SetAttribute("death", DataStoreModule.getDeathEffect(player) or "default")
+
         local removingConnection: RBXScriptConnection
         local animationConnection = DataStoreModule.DeathAnimationUpdated.Event:Connect(function(_, value: string)
+            print("Death animation set for", player, "to", value)
             player:SetAttribute("death", value)
         end)
 

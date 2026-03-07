@@ -11,6 +11,7 @@ local SurvivesUpdated = Instance.new("BindableEvent")
 local StreakUpdated = Instance.new("BindableEvent")
 local NeverJoinedBeforeUpdated = Instance.new("BindableEvent")
 local DeathAnimationUpdated = Instance.new("BindableEvent")
+local OwnsUpdated = Instance.new("BindableEvent")
 
 local survivesStore = DataStoreService:GetOrderedDataStore("Survives")
 local streakStore = DataStoreService:GetOrderedDataStore("Streak")
@@ -24,7 +25,8 @@ type PlayerData = {
     streakLastUpdated: number,
     pendingRevives: number,
     neverJoinedBefore: boolean?,
-    currentDeathEffect: string?
+    currentDeathEffect: string?,
+    owns: {string}
 }
 
 local defaultData: PlayerData = {
@@ -34,7 +36,8 @@ local defaultData: PlayerData = {
     streakLastUpdated = 0,
     pendingRevives = 0,
     neverJoinedBefore = true,
-    currentDeathEffect = "default"
+    currentDeathEffect = "default",
+    owns = {}
 }
 
 local dataPerPlayer: {[Player]: PlayerData} = {}
@@ -44,6 +47,7 @@ DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
 DataStoreModule.StreakUpdatedEvent = StreakUpdated
 DataStoreModule.NeverJoinedBeforeUpdated = NeverJoinedBeforeUpdated
 DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
+DataStoreModule.OwnsUpdated = OwnsUpdated
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
@@ -243,6 +247,40 @@ function DataStoreModule.setDeathEffect(player: Player, value: string)
     end)():catch(function(err)
         warn("Failed to set currentDeathEffect for", player.Name)
     end)
+end
+
+function DataStoreModule.appendOwns(player: Player, value: string)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            if finalData.owns == nil then
+                finalData.owns = {}
+            end
+
+            table.insert(finalData.owns, value)
+            dataPerPlayer[player].owns = finalData.owns
+
+            DeathAnimationUpdated:Fire(player, value)
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to set currentDeathEffect for", player.Name)
+    end)
+end
+
+function DataStoreModule.getOwns(player: Player): {string}?
+    if not dataPerPlayer[player] then
+        return nil
+    end
+    return dataPerPlayer[player].owns
 end
 
 function DataStoreModule.getSurvives(player: Player): number?

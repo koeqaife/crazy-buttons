@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Spring = require(ReplicatedStorage.Shared.spr)
@@ -18,6 +19,7 @@ return function(
     local dieSound: Sound = ReplicatedStorage
         :WaitForChild("Sounds")
         :WaitForChild("ExplosionSound")
+    ContentProvider:PreloadAsync({dieSound})
 
     local character = player.Character
     if not character then

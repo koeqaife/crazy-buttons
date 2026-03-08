@@ -5,11 +5,15 @@ local ArenaModule = {}
 local Players = game:GetService("Players")
 local Arena = Players.LocalPlayer.PlayerScripts.Client.Arena
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
 
 local player = Players.LocalPlayer
 local PlayerLoaded = ReplicatedStorage:WaitForChild("PlayerLoaded")
 
+local SyncVolumes = ReplicatedStorage:WaitForChild("SyncVolumesEvent") :: RemoteEvent
+
 local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
+local MusicModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.MusicModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TextModule = require(Arena.TextModule)
 local GameStateModule = require(Arena.GameStateModule)
@@ -23,11 +27,22 @@ function ArenaModule.init()
     KillToolModule.connect()
     AmbienceModule.init()
     CustomPromptModule.onLoad()
+    MusicModule.init()
 
     game:GetService("ContentProvider"):PreloadAsync({player.Character})
 
     GameStateModule.setEffects()
     PlayerLoaded:FireServer()
+
+    SyncVolumes.OnClientEvent:Connect(function(volume: { music: number, ambient: number })
+        MusicModule.setMultiplier(volume.music)
+
+        local AmbientGroup = SoundService:WaitForChild("Ambient") :: SoundGroup
+        local AmbientOtherGroup = SoundService:WaitForChild("AmbientOther") :: SoundGroup
+
+        AmbientGroup.Volume = volume.ambient
+        AmbientOtherGroup.Volume = volume.ambient
+    end)
 end
 
 return ArenaModule

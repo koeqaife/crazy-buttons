@@ -19,6 +19,7 @@ State.PricesUpdated = Instance.new("BindableEvent")
 State.DeathAnimUpdated = Instance.new("BindableEvent")
 State.SurvivesUpdated = Instance.new("BindableEvent")
 State.StreakUpdated = Instance.new("BindableEvent")
+State.VolumeUpdated = Instance.new("BindableEvent")
 
 type PriceType = {
     currency: "cash" | "robux",
@@ -32,34 +33,39 @@ State.prices = {} :: {[string]: PriceType}
 State.streak = 0
 State.survives = 0
 State.currentShopPage = "deaths" :: "deaths" | "coins"
+State.volume = {
+    music = 0.75,
+    ambient = 1.0
+}
+
+type StateEvent = {
+    [string]: {
+        stateKey: string,
+        event: BindableEvent
+    }
+}
+
+local events: StateEvent = {
+    owns = { stateKey = "owns", event = State.OwnsUpdated },
+    cash = { stateKey = "cash", event = State.CashUpdated },
+    prices = { stateKey = "prices", event = State.PricesUpdated },
+    death = { stateKey = "deathAnim", event = State.DeathAnimUpdated },
+    streak = { stateKey = "streak", event = State.StreakUpdated },
+    survives = { stateKey = "survives", event = State.SurvivesUpdated },
+    volume = { stateKey = "volume", event = State.VolumeUpdated },
+}
 
 State.SyncEvent.OnClientEvent:Connect(function(key: string, value: any)
     print("Got sync event. Key:", key, ", Value:", value)
-    if key == "owns" then
-        local oldValue = State.owns
-        State.owns = value
-        State.OwnsUpdated:Fire(oldValue, value)
-    elseif key == "cash" then
-        local oldValue = State.cash
-        State.cash = value
-        State.CashUpdated:Fire(oldValue, value)
-    elseif key == "prices" then
-        local oldValue = State.prices
-        State.prices = value
-        State.PricesUpdated:Fire(oldValue, value)
-    elseif key == "death" then
-        local oldValue = State.deathAnim
-        State.deathAnim = value
-        State.DeathAnimUpdated:Fire(oldValue, value)
-    elseif key == "streak" then
-        local oldValue = State.streak
-        State.streak = value
-        State.StreakUpdated:Fire(oldValue, value)
-    elseif key == "survives" then
-        local oldValue = State.survives
-        State.survives = value
-        State.SurvivesUpdated:Fire(oldValue, value)
+
+    local entry = events[key]
+    if not entry then
+        return
     end
+
+    local oldValue = State[entry.stateKey]
+    State[entry.stateKey] = value
+    entry.event:Fire(oldValue, value)
 end)
 
 -- WIDGET SYSTEM --

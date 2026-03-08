@@ -11,6 +11,9 @@ local loadedPlayers = {}
 local PlayerLoaded = Instance.new("RemoteEvent", ReplicatedStorage)
 PlayerLoaded.Name = "PlayerLoaded"
 
+local SyncVolumesEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+SyncVolumesEvent.Name = "SyncVolumesEvent"
+
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
 local GameStateModule = require(script.Parent.GameStateModule)
@@ -44,6 +47,10 @@ function ArenaModule.init()
     MusicModule.init()
 
     mainText.Text = "Waiting for players..."
+
+    DataStoreModule.VolumeUpdated.Event:Connect(function(player: Player, value: any)
+        SyncVolumesEvent:FireClient(player, value)
+    end)
 
     PlayerLoaded.OnServerEvent:Connect(function(player)
         DataStoreModule.continueStreak(player)

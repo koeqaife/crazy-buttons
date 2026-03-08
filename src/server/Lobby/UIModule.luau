@@ -97,6 +97,9 @@ function UIModule.init()
     DataStoreModule.SurvivesUpdatedEvent.Event:Connect(function(player: Player, value: number)
         SyncEvent:FireClient(player, "survives", value)
     end)
+    DataStoreModule.VolumeUpdated.Event:Connect(function(player: Player, value: any)
+        SyncEvent:FireClient(player, "volume", value)
+    end)
     Players.PlayerAdded:Connect(function(player)
         SyncEvent:FireClient(player, "prices", priceList)
     end)
@@ -134,6 +137,12 @@ function UIModule.init()
                 local newValue = if value == DataStoreModule.getDeathEffect(player) then "default" else value
                 DataStoreModule.setDeathEffect(player, newValue):catch(warn):await()
             end
+        elseif action == "set_volume" then
+            local copy = {
+                music = value.music,
+                ambient = value.ambient
+            }
+            DataStoreModule.setVolume(player, copy)
         end
     end)
 

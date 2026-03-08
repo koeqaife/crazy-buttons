@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local spr = require(ReplicatedStorage.Shared.spr)
 
 local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
+local MusicModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.MusicModule)
 local inQueueLabel: TextLabel = Players.LocalPlayer.PlayerGui
     :WaitForChild("ScreenGui")
     :WaitForChild("inQueueLabel")
@@ -19,6 +20,7 @@ local UIInit = require(Players.LocalPlayer.PlayerScripts.Client.Lobby.UI.Init)
 
 function LobbyModule.init()
     CustomPromptModule.onLoad()
+    MusicModule.init()
     UIInit()
 
     inQueueLabel.Visible = false

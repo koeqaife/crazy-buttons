@@ -3,7 +3,6 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
-local Promise = require(ReplicatedStorage.Shared.Promise)
 
 local MusicModule = {}
 
@@ -13,7 +12,9 @@ local SoundGroup = SoundService:WaitForChild("Music") :: SoundGroup
 local soundtracks: {Sound} = {}
 local lastTrackIndex = 0
 local currentTrack: Sound? = nil
-local lastPromise: Promise.TypedPromise<nil>? = nil
+
+local MusicEffectEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+MusicEffectEvent.Name = "MusicEffectEvent"
 
 local function getRandom()
     local index: number = nil
@@ -26,125 +27,19 @@ local function getRandom()
 end
 
 function MusicModule.fadeInGroup()
-    if lastPromise ~= nil then
-        lastPromise:cancel()
-    end
-
-    local promise = Promise.new(function(resolve, _, onCancel)
-        local initialVolume = SoundGroup.Volume
-        local targetVolume = 0.5
-        local duration = 2
-        local startTime = tick()
-
-        local conn
-        conn = game:GetService("RunService").Heartbeat:Connect(function()
-            local elapsed = tick() - startTime
-            if elapsed >= duration then
-                SoundGroup.Volume = targetVolume
-                conn:Disconnect()
-                resolve(nil)
-            else
-                SoundGroup.Volume = initialVolume + (targetVolume - initialVolume) * (elapsed / duration)
-            end
-        end)
-
-        onCancel(function()
-            conn:Disconnect()
-            SoundGroup.Volume = targetVolume
-        end)
-    end)
-
-    lastPromise = promise
-    return promise
+    MusicEffectEvent:FireAllClients("fadeInGroup")
 end
 
 function MusicModule.fadeOutGroup()
-    if lastPromise ~= nil then
-        lastPromise:cancel()
-    end
-
-    local promise = Promise.new(function(resolve, _, onCancel)
-        local initialVolume = SoundGroup.Volume
-        local targetVolume = 0
-        local duration = 2
-        local startTime = tick()
-
-        local conn
-        conn = game:GetService("RunService").Heartbeat:Connect(function()
-            local elapsed = tick() - startTime
-            if elapsed >= duration then
-                SoundGroup.Volume = targetVolume
-                conn:Disconnect()
-                resolve(nil)
-            else
-                SoundGroup.Volume = initialVolume + (targetVolume - initialVolume) * (elapsed / duration)
-            end
-        end)
-
-        onCancel(function()
-            conn:Disconnect()
-            SoundGroup.Volume = targetVolume
-        end)
-    end)
-
-    lastPromise = promise
-    return promise
+    MusicEffectEvent:FireAllClients("fadeOutGroup")
 end
 
 local function fadeOutSound(sound: Sound, from: number, to: number)
-    local promise = Promise.new(function(resolve, _, onCancel)
-        local initialVolume = from
-        local targetVolume = to
-        local duration = 2
-        local startTime = tick()
-
-        local conn
-        conn = game:GetService("RunService").Heartbeat:Connect(function()
-            local elapsed = tick() - startTime
-            if elapsed >= duration then
-                sound.Volume = targetVolume
-                conn:Disconnect()
-                resolve(nil)
-            else
-                sound.Volume = initialVolume + (targetVolume - initialVolume) * (elapsed / duration)
-            end
-        end)
-
-        onCancel(function()
-            conn:Disconnect()
-            sound.Volume = targetVolume
-        end)
-    end)
-
-    return promise
+    MusicEffectEvent:FireAllClients("fadeOutSound", sound, from, to)
 end
 
 local function fadeInSound(sound: Sound, from: number, to: number)
-    local promise = Promise.new(function(resolve, _, onCancel)
-        local initialVolume = from
-        local targetVolume = to
-        local duration = 2
-        local startTime = tick()
-
-        local conn
-        conn = game:GetService("RunService").Heartbeat:Connect(function()
-            local elapsed = tick() - startTime
-            if elapsed >= duration then
-                sound.Volume = targetVolume
-                conn:Disconnect()
-                resolve(nil)
-            else
-                sound.Volume = initialVolume + (targetVolume - initialVolume) * (elapsed / duration)
-            end
-        end)
-
-        onCancel(function()
-            conn:Disconnect()
-            sound.Volume = targetVolume
-        end)
-    end)
-
-    return promise
+    MusicEffectEvent:FireAllClients("fadeInSound", sound, from, to)
 end
 
 local function loop()
@@ -159,14 +54,16 @@ local function loop()
         end
 
         local initialVolume = currentTrack.Volume
-        currentTrack.Volume = 0
-        fadeInSound(currentTrack, 0, initialVolume):await()
-
         currentTrack.SoundGroup = SoundGroup
+        currentTrack.Volume = 0
         currentTrack:Play()
+
+        fadeInSound(currentTrack, 0, initialVolume)
+
         task.wait(currentTrack.TimeLength - 2)
 
-        fadeOutSound(currentTrack, initialVolume, 0):await()
+        fadeOutSound(currentTrack, initialVolume, 0)
+        task.wait(2)
         currentTrack:Stop()
 
         task.wait(1)
@@ -179,6 +76,7 @@ function MusicModule.init()
             table.insert(soundtracks, child)
         end
     end
+    SoundGroup.Volume = 0
 
     task.spawn(loop)
 end

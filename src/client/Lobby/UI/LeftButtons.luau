@@ -10,11 +10,14 @@ local window = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):W
 local lazyToggle = require(localPlayer.PlayerScripts.Client.Lobby.UI.LazyToggle)
 
 function LeftButtons.initialize()
-    local settingsButton = window:WaitForChild("SettingsButton") :: TextButton
+    local volumeButton = window:WaitForChild("VolumeButton") :: TextButton
     local shopButton = window:WaitForChild("ShopButton") :: TextButton
 
     shopButton.Activated:Connect(function(inputObject, clickCount)
         lazyToggle("shop")
+    end)
+    volumeButton.Activated:Connect(function(inputObject, clickCount)
+        lazyToggle("volume")
     end)
 end
 

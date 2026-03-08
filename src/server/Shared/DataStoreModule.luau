@@ -13,12 +13,17 @@ local NeverJoinedBeforeUpdated = Instance.new("BindableEvent")
 local DeathAnimationUpdated = Instance.new("BindableEvent")
 local OwnsUpdated = Instance.new("BindableEvent")
 local CashUpdated = Instance.new("BindableEvent")
+local VolumeUpdated = Instance.new("BindableEvent")
 
 local survivesStore = DataStoreService:GetOrderedDataStore("Survives")
 local streakStore = DataStoreService:GetOrderedDataStore("Streak")
 
 local DataStoreModule = {}
 
+type Volume = {
+    music: number,
+    ambient: number
+}
 type PlayerData = {
     survives: number,
     streak: number,
@@ -28,7 +33,8 @@ type PlayerData = {
     neverJoinedBefore: boolean?,
     currentDeathEffect: string?,
     owns: {string},
-    cash: number
+    cash: number,
+    volume: Volume
 }
 
 local defaultData: PlayerData = {
@@ -40,7 +46,11 @@ local defaultData: PlayerData = {
     neverJoinedBefore = true,
     currentDeathEffect = "default",
     owns = {},
-    cash = 0
+    cash = 0,
+    volume = {
+        music = 0.5,
+        ambient = 1
+    }
 }
 
 local dataPerPlayer: {[Player]: PlayerData} = {}
@@ -52,6 +62,7 @@ DataStoreModule.NeverJoinedBeforeUpdated = NeverJoinedBeforeUpdated
 DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
 DataStoreModule.OwnsUpdated = OwnsUpdated
 DataStoreModule.CashUpdated = CashUpdated
+DataStoreModule.VolumeUpdated = VolumeUpdated
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
@@ -311,6 +322,29 @@ function DataStoreModule.appendOwns(player: Player, value: string)
     end)
 end
 
+function DataStoreModule.setVolume(player: Player, value: Volume)
+    return Promise.promisify(function()
+        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+            local finalData: PlayerData
+
+            if data == nil then
+                finalData = table.clone(defaultData)
+            else
+                finalData = data
+            end
+
+            finalData.volume = value
+            dataPerPlayer[player].volume = finalData.volume
+
+            VolumeUpdated:Fire(player, finalData.volume)
+
+            return finalData
+        end)
+    end)():catch(function(err)
+        warn("Failed to set volume for", player.Name)
+    end)
+end
+
 function DataStoreModule.getOwns(player: Player): {string}?
     if not dataPerPlayer[player] then
         return nil
@@ -358,6 +392,13 @@ function DataStoreModule.getDeathEffect(player: Player): string
         return "default"
     end
     return dataPerPlayer[player].currentDeathEffect or "default"
+end
+
+function DataStoreModule.getVolume(player: Player): Volume?
+    if not dataPerPlayer[player] then
+        return nil
+    end
+    return dataPerPlayer[player].volume
 end
 
 local function getTop(from: OrderedDataStore)
@@ -422,6 +463,7 @@ function DataStoreModule.init()
             DeathAnimationUpdated:Fire(player, finalData.currentDeathEffect)
             OwnsUpdated:Fire(player, finalData.owns)
             CashUpdated:Fire(player, finalData.cash)
+            VolumeUpdated:Fire(player, finalData.volume)
         else
             warn("Failed to load data for", player.Name, data)
         end

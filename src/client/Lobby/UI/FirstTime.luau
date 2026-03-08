@@ -54,7 +54,6 @@ local function onFirstTimeJoin()
 end
 
 function FirstTimeModule.initialize()
-    onFirstTimeJoin()
     FirstTimeJoined.OnClientEvent:Connect(onFirstTimeJoin)
 end
 

@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -24,6 +25,7 @@ return function(
     local attachment: Attachment = nil
 
     local emitters: {ParticleEmitter} = {}
+    local textures: {any} = {}
 
     for _, child in (ReplicatedStorage.Effects.GreenAura :: Folder):GetChildren() do
         if child:IsA("Attachment") then
@@ -33,8 +35,10 @@ return function(
             clone.Parent = root
             clone.Enabled = true
             table.insert(emitters, clone)
+            table.insert(textures, clone.Texture)
         end
     end
+    ContentProvider:PreloadAsync(textures)
 
     local childrenPerPart: {[BasePart]: {Instance}} = {}
 

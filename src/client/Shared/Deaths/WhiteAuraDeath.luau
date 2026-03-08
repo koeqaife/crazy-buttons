@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -15,9 +16,12 @@ return function(
     endHook: () -> ()?
 )
     local emitters: {ParticleEmitter} = {}
+    local textures: {any} = {}
     for _, child in (ReplicatedStorage.Effects.WhiteAura :: Folder):GetChildren() do
         table.insert(emitters, child :: ParticleEmitter)
+        table.insert(textures, (child:: ParticleEmitter).Texture)
     end
+    ContentProvider:PreloadAsync(textures)
 
     local childrenPerPart: {[BasePart]: {ParticleEmitter}} = {}
 

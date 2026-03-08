@@ -15,6 +15,8 @@ State.CashUpdated = Instance.new("BindableEvent")
 State.OwnsUpdated = Instance.new("BindableEvent")
 State.PricesUpdated = Instance.new("BindableEvent")
 State.DeathAnimUpdated = Instance.new("BindableEvent")
+State.SurvivesUpdated = Instance.new("BindableEvent")
+State.StreakUpdated = Instance.new("BindableEvent")
 
 type PriceType = {
     currency: "cash" | "robux",
@@ -25,6 +27,8 @@ State.owns = {} :: {string}
 State.cash = 0
 State.deathAnim = nil :: string?
 State.prices = {} :: {[string]: PriceType}
+State.streak = 0
+State.survives = 0
 
 State.currentShopPage = "deaths" :: "deaths" | "coins"
 
@@ -46,6 +50,14 @@ State.SyncEvent.OnClientEvent:Connect(function(key: string, value: any)
         local oldValue = State.deathAnim
         State.deathAnim = value
         State.DeathAnimUpdated:Fire(oldValue, value)
+    elseif key == "streak" then
+        local oldValue = State.streak
+        State.streak = value
+        State.StreakUpdated:Fire(oldValue, value)
+    elseif key == "survives" then
+        local oldValue = State.survives
+        State.survives = value
+        State.SurvivesUpdated:Fire(oldValue, value)
     end
 end)
 

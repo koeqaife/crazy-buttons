@@ -36,12 +36,12 @@ local function onFirstTimeJoin()
 
     local text = (
         "Hey " .. player.Name .. "!\n\n" ..
-        "This is Buttons Experiment\n" ..
-        "The game was only released so it might a bit buggy\n" ..
-        "Also it's really hard to get new players together...\n" ..
-        "So if you see empty lobby, just invite your friends!\n" ..
-        "I hope you like the game and share your feedback\n\n" ..
-        "Enjoy!!"
+        "Welcome to the Buttons Experiment!\n" ..
+        "The game is freshly released, so you might encounter a few bugs.\n" ..
+        "Gathering new players can be tricky...\n" ..
+        "If the lobby looks empty, invite your friends!\n" ..
+        "We'd love to hear your feedback and see what you think.\n\n" ..
+        "Have fun and enjoy!!"
     )
     textLabel.Text = text
     State.addToStack(ensureStackItem())

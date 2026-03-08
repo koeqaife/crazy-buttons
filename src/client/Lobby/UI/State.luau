@@ -289,10 +289,17 @@ local screenGui = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"
 local overlayFrame = screenGui:WaitForChild("OverlayFrame") :: Frame
 overlayFrame.BackgroundTransparency = 1
 
+local function rebuildStackIndexes()
+    for i, window in windowsStack do
+        window.canvas.ZIndex = (i + 1) * 2
+    end
+end
+
 local function updateIndexesAndOverlay(id: string, widget: OverlayWidget)
+    rebuildStackIndexes()
+
     local item = windowsStack[#windowsStack]
     if item ~= nil then
-        item.canvas.ZIndex = (#windowsStack + 1) * 2
         overlayFrame.Visible = true
         Spring.target(overlayFrame, 0.75, 6, { BackgroundTransparency = 0.5 })
         overlayFrame.ZIndex = item.canvas.ZIndex - 1
@@ -308,6 +315,11 @@ local function updateIndexesAndOverlay(id: string, widget: OverlayWidget)
 end
 
 function State.addToStack(window: WindowWidget)
+    local idx = table.find(windowsStack, window)
+    if idx then
+        table.remove(windowsStack, idx)
+    end
+
     table.insert(windowsStack, window)
     State.invalidate("overlay")
 end

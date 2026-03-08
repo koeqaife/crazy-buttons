@@ -150,6 +150,7 @@ function Event.onEvent()
 
         GameState.runNewPromisePerAlive(function(player)
             local selected = chosen[player]
+            GameState.addRewardTo(player, 0.5)
             if randomText.idx then
                 if (randomText.opposite and randomText.idx == selected) or
                     (not randomText.opposite and randomText.idx ~= selected)

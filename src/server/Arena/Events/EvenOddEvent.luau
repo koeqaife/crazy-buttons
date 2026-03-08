@@ -89,10 +89,12 @@ function Event.onEvent()
             TextModule.setText(player, "It's odd", "normal")
         end
         task.wait(5)
+        GameState.addRewardTo(player, 3)
 
         if (isEven and table.find(clickedPlayers, player)) or
            (not isEven and not table.find(clickedPlayers, player))
         then
+            GameState.addRewardTo(player, 4)
             TextModule.setText(player, "You survived", "happy")
         else
             TextModule.setText(player, "You're eliminated", "dead")

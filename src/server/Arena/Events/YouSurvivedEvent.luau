@@ -44,6 +44,7 @@ function Event.onEvent()
             GameState.rewardBadge(survivor, badgeId):catch(warn):await()
         end
     end
+    GameState.addRewardTo(survivor, 5)
 
     TextModule.showTextSequence(survivor, {
         { text = "Oh, looks like you're the one who is left", delay = 4, face = "shy" },

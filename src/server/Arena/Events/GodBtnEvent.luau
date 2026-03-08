@@ -76,6 +76,7 @@ function Event.onEvent()
                     local clicked = await(clickPromise)
 
                     if clicked == godButton then
+                        GameState.addRewardTo(player, 2)
                         if not awardedResolved then
                             awardedResolved = true
                             awardedPlayer = player
@@ -89,6 +90,7 @@ function Event.onEvent()
                         end
                         break
                     elseif clicked ~= nil then
+                        GameState.addRewardTo(player, 0.25)
                         GameState.runFuncPerAlive(function(player2)
                             ButtonsModule.updateButtons(player2, {{ idx = clicked, disabled = true }})
                         end)

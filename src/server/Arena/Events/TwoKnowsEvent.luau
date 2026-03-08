@@ -90,21 +90,22 @@ function Event.onEvent()
     end)
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
+        GameState.addRewardTo(player, 5)
         if player == p1 or player == p2 then
             return TextModule.setText(player, "Let's see who died...")
         end
 
         local resultText
         local kill
-        if chosen[player] == 1 then
-            resultText = "You chose " .. p1.DisplayName .. "'s button, you died"
-            kill = true
-        elseif chosen[player] == 2 then
-            resultText = "You chose " .. p2.DisplayName .. "'s button, you are safe"
-            kill = false
-        else
+        if chosen[player] == nil then
             resultText = "You didn't choose a button, you died"
             kill = true
+        elseif chosen[player] == kills then
+            resultText = "You chose " .. p1.DisplayName .. "'s button, you died"
+            kill = true
+        else
+            resultText = "You chose " .. p2.DisplayName .. "'s button, you are safe"
+            kill = false
         end
 
         TextModule.setText(player, resultText)

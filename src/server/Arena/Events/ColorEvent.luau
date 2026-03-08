@@ -19,7 +19,7 @@ type EventType = EventTypeModule.Event
 local Event = {} :: EventType
 
 Event.chance = 0.1
-Event.minPlayers = 2
+Event.minPlayers = 6
 Event.maxPerGame = 2
 
 local chosenColors: {[Player]: number} = {}
@@ -80,6 +80,7 @@ function Event.onEvent()
                     { text = "Woa, you actually remember!", delay = 4, face = "happy" },
                     { text = "Good job", delay = 2, face = "shy" },
                 }))
+                GameState.addRewardTo(player, 8)
             end
         end):catch(error):await()
 
@@ -135,11 +136,13 @@ function Event.onEvent()
             TextModule.setText(player, "Nothing? Let's go with " .. colorName .. " then", "laughing")
         end
         toSave[player] = color
+        GameState.addRewardTo(player, 2)
     end)
     chosenColors = toSave
 
     -- Can show this event only after 5 rounds
     counter = 5
+    Event.minPlayers = 2
 
     task.wait(5)
 

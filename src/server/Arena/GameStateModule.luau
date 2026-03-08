@@ -12,6 +12,8 @@ local GameState = {}
 local SyncDeadEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 SyncDeadEvent.Name = "SyncDeadEvent"
 
+local rewards: {[Player]: number} = {}
+
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
 local linkedPlayers: {[Player]: Player} = {}
@@ -139,6 +141,7 @@ function GameState.kill(player: Player, reason: string?)
 
     Promise.defer(function(resolve)
         task.wait(1)
+        GameState.flushReward(player)
 
         -- Kill other linked player
         local linked = linkedPlayers[player]
@@ -502,6 +505,23 @@ function GameState.cancelAll()
     for i, player in ipairs(Players:GetPlayers()) do
         cancelPlayerPromises(player)
     end
+end
+
+function GameState.addRewardTo(player: Player, amount: number)
+    if rewards[player] == nil then
+        rewards[player] = amount
+    else
+        rewards[player] += amount
+    end
+end
+
+function GameState.flushReward(player: Player)
+    if rewards[player] == nil then
+        return
+    end
+    local cash = rewards[player]
+    rewards[player] = nil
+    DataStoreModule.addCash(player, math.ceil(cash)):catch(warn)
 end
 
 return GameState

@@ -120,6 +120,7 @@ function Event.onEvent()
         GameState.addHighlightToOne(stealer, Color3.new(1, 0, 0), Color3.new(1, 0, 0))
         task.wait(10)
 
+        GameState.addRewardTo(stealer, 10)
         GameState.kill(victim)
     else
         GameState.addHighlightTo(randomPlayers, Color3.new(0.3, 1, 0))
@@ -130,6 +131,10 @@ function Event.onEvent()
                 "happy"
             )
         end)
+
+        GameState.addRewardTo(p1, 5)
+        GameState.addRewardTo(p2, 5)
+
         task.wait(10)
     end
 

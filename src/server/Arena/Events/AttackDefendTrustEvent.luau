@@ -149,6 +149,7 @@ function Event.onEvent()
                     end
                 end)
                 task.wait(4)
+                GameState.addRewardTo(p1, 7)
                 GameState.kill(p2)
                 break
             else
@@ -160,6 +161,7 @@ function Event.onEvent()
                     end
                 end)
                 task.wait(4)
+                GameState.addRewardTo(p2, 7)
                 GameState.kill(p1)
                 break
             end

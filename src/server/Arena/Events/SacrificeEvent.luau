@@ -28,7 +28,7 @@ function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They will need to sacrifice for 3" .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName, "scared")
+        TextModule.setText(player, "They will need to sacrifice for " .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName, "scared")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
@@ -64,6 +64,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
 
         if clicked then
+            GameState.addRewardTo(player, 8)
             TextModule.setText(player, "Your choice cannot be undone", "dead")
             table.insert(toKill, player)
             task.wait(3)
@@ -73,6 +74,7 @@ function Event.onEvent()
     local playerMustBeKilled = #toKill == 0
 
     GameState.runFuncPerAll(function(player)
+        GameState.addRewardTo(player, 1)
         if playerMustBeKilled then
             if table.find(randomPlayers, player) then
                 TextModule.setText(player, "You're eliminated", "dead")

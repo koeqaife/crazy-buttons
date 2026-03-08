@@ -87,6 +87,7 @@ function Event.onEvent()
     GameState.runNewPromisePerAlive(function(player)
         local clicked = chosen[player] ~= nil
 
+        GameState.addRewardTo(player, 2)
         if randomAction == 1 and not clicked then
             TextModule.setText(player, "You should've clicked", "dead")
             GameState.kill(player)
@@ -95,6 +96,7 @@ function Event.onEvent()
             GameState.kill(player)
         else
             TextModule.setText(player, "You survived", "happy")
+            GameState.addRewardTo(player, 4)
         end
     end):catch(error):await()
     task.wait(5)

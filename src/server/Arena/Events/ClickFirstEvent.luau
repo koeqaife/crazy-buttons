@@ -150,12 +150,14 @@ function Event.onEvent()
                 { text = "You clicked too slow", delay = 4, face = "scared" },
                 { text = "You will be eliminated", delay = 4, face = "dead" },
             }))
+            GameState.addRewardTo(player, 1)
             GameState.kill(player)
         else
             await(TextModule.showTextSequence(player, {
                 { text = "You survived", delay = 4, face = "happy" },
                 { text = "Wait for the others to click", delay = 4, face = "normal" },
             }))
+            GameState.addRewardTo(player, 5)
         end
     end):catch(error):await()
 

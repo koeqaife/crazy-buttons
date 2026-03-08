@@ -167,8 +167,10 @@ function Event.onEvent()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         local lost = if firstClicked == p1 then p2 else p1
+        GameState.addRewardTo(player, 3)
 
         if player == firstClicked then
+            GameState.addRewardTo(player, 4)
             await(TextModule.showTextSequence(player, {
                 { text = "You were fast enough", delay = 3, face = "happy" },
                 { text = "Good job", delay = 2.5, face = "shy" },

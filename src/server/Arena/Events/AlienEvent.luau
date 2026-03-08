@@ -58,6 +58,7 @@ function Event.onEvent()
         end
 
         GameState.rewardBadge(player, BADGE_ID):andThenCall(print, "rewardBadge: success")
+        GameState.addRewardTo(player, 5)
     end):catch(error):await()
 
     return

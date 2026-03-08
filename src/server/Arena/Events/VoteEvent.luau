@@ -142,6 +142,10 @@ function Event.onEvent()
         mostVotedPlayer = mostVoted
     end
 
+    GameState.runFuncPerAlive(function(player)
+        GameState.addRewardTo(player, 3)
+    end)
+
     GameState.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
             TextModule.setText(player, "You were eliminated... I'm sorry", "dead")

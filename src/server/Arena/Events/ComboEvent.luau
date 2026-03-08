@@ -144,6 +144,9 @@ function Event.onEvent()
                 if clicked ~= idx then
                     local mistakeCount = mistakes[player] or 0
                     mistakes[player] = mistakeCount + 1
+                else
+                    -- If all 27 are without mistakes gonna be 14 (ceil of 13.5)
+                    GameState.addRewardTo(player, 0.5)
                 end
 
                 disableInput(player)
@@ -189,6 +192,8 @@ function Event.onEvent()
             { text = "You have " .. mistakes[player] .. " mistakes...", delay = 3, face = "laughing" },
             { text = "Let's see what we got here", delay = 4, face = "scared" }
         }))
+        -- For everyone who played, even if they died
+        GameState.addRewardTo(player, 3)
 
         if table.find(toKill, player) then
             TextModule.setText(player, "You are the one of people who are eliminated", "dead")

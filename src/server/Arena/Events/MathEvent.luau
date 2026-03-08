@@ -201,6 +201,7 @@ function Event.onEvent()
         if player == randomPlayer then
             if isRight then
                 TextModule.setText(player, "Your answer was right", "happy")
+                GameState.addRewardTo(player, 5)
                 task.wait(5)
             else
                 TextModule.setText(player, "Your answer was wrong", "scared")
@@ -210,6 +211,7 @@ function Event.onEvent()
                     GameState.kill(player)
                     task.wait(3)
                 else
+                    GameState.addRewardTo(player, 5)
                     task.wait(5)
                 end
             end
@@ -220,6 +222,7 @@ function Event.onEvent()
                 TextModule.setText(player, "You had to answer...", "dead")
                 GameState.kill(player)
             elseif isYes ~= isRight then
+                GameState.addRewardTo(player, 3)
                 if playerMustDie then
                     TextModule.setText(player, "You were wrong, but lucky this time", "happy")
                 else
@@ -227,6 +230,7 @@ function Event.onEvent()
                     GameState.kill(player)
                 end
             else
+                GameState.addRewardTo(player, 6)
                 TextModule.setText(player, "You were right", "happy")
             end
             task.wait(5)

@@ -51,6 +51,7 @@ function Event.onEvent()
                 { text = "Very pretty confetti is gonna spawn", delay = 5, face = "laughing" },
             }))
         else
+            GameState.addRewardTo(player, 1)
             await(TextModule.showTextSequence(player, {
                 { text = randomPlayer.DisplayName, delay = 2.5, face = "normal" },
                 { text = "They have a cool gift now", delay = 5, face = "happy" },

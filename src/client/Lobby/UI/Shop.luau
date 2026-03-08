@@ -3,7 +3,6 @@
 local Shop = {}
 
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local localPlayer = Players.LocalPlayer
 
 local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)

@@ -2,10 +2,12 @@
 --!optimize 2
 
 local UIModule = {}
+local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
+local PurchaseProcessor = require(ServerScriptService.Server.Shared.PurchaseProcessor)
 
 local BuyEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 BuyEvent.Name = "BuyEvent"
@@ -16,9 +18,17 @@ SyncEvent.Name = "SyncEvent"
 local debounceFor: {Player} = {}
 
 type PriceType = {
-    currency: "cash" | "robux",
+    currency: "cash",
     amount: number
+} | {
+    currency: "robux",
+    productId: number
 }
+
+local COINS_100_PRODUCT = 3551873361
+local COINS_250_PRODUCT = 3551873921
+local COINS_500_PRODUCT = 3551875059
+local COINS_1000_PRODUCT = 3551875445
 
 local priceList: {[string]: PriceType} = {
     white = { currency = "cash", amount = 100 },
@@ -26,6 +36,11 @@ local priceList: {[string]: PriceType} = {
     green = { currency = "cash", amount = 200 },
     incognito = { currency = "cash", amount = 300 },
     explosion = { currency = "cash", amount = 3000 },
+
+    coins_100 = { currency = "robux", productId = COINS_100_PRODUCT },
+    coins_250 = { currency = "robux", productId = COINS_250_PRODUCT },
+    coins_500 = { currency = "robux", productId = COINS_500_PRODUCT },
+    coins_1000 = { currency = "robux", productId = COINS_1000_PRODUCT },
 }
 
 local function debounced(player: Player)
@@ -43,6 +58,27 @@ local function debounced(player: Player)
     end)
 
     return false
+end
+
+local function processReceipt(receiptInfo: {PlayerId: number, ProductId: number})
+    print("Got receipt", receiptInfo)
+    local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
+    if player then
+        if receiptInfo.ProductId == COINS_100_PRODUCT then
+            DataStoreModule.addCash(player, 100):catch(error):await()
+            return Enum.ProductPurchaseDecision.PurchaseGranted
+        elseif receiptInfo.ProductId == COINS_250_PRODUCT then
+            DataStoreModule.addCash(player, 250):catch(error):await()
+            return Enum.ProductPurchaseDecision.PurchaseGranted
+        elseif receiptInfo.ProductId == COINS_500_PRODUCT then
+            DataStoreModule.addCash(player, 500):catch(error):await()
+            return Enum.ProductPurchaseDecision.PurchaseGranted
+        elseif receiptInfo.ProductId == COINS_1000_PRODUCT then
+            DataStoreModule.addCash(player, 1000):catch(error):await()
+            return Enum.ProductPurchaseDecision.PurchaseGranted
+        end
+    end
+    return Enum.ProductPurchaseDecision.NotProcessedYet
 end
 
 function UIModule.init()
@@ -74,6 +110,7 @@ function UIModule.init()
                 DataStoreModule.addCash(player, -price.amount):catch(error):await()
             end
         elseif price.currency == "robux" then
+            MarketplaceService:PromptProductPurchase(player, price.productId)
             -- TODO
         end
     end)
@@ -93,6 +130,8 @@ function UIModule.init()
             end
         end
     end)
+
+    PurchaseProcessor.addProcessor("shop", 5, processReceipt)
 end
 
 return UIModule

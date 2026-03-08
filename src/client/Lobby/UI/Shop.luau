@@ -20,12 +20,22 @@ categoryTemplate.Visible = false
 local deaths = window:WaitForChild("Deaths") :: Frame
 local itemsDeaths = deaths:WaitForChild("Items") :: ScrollingFrame
 local gridDeaths = itemsDeaths:WaitForChild("Grid") :: Frame
-
 local deathsItemTemplate = gridDeaths:WaitForChild("Template") :: Frame
 deathsItemTemplate.Visible = false
 
+-- COINS --
+local coins = window:WaitForChild("Coins") :: Frame
+local gridCoins = coins:WaitForChild("Grid") :: Frame
+local coinsItemTemplate = gridCoins:WaitForChild("Template") :: TextButton
+coinsItemTemplate.Visible = false
+
 type DeathsItem = {
     image: string,
+    id: string,
+}
+
+type CoinsItem = {
+    value: number,
     id: string,
 }
 
@@ -58,6 +68,25 @@ local deathsItems: {DeathsItem} = {
     },
 }
 
+local coinsItems: {CoinsItem} = {
+    {
+        value = 100,
+        id = "coins_100"
+    },
+    {
+        value = 250,
+        id = "coins_250"
+    },
+    {
+        value = 500,
+        id = "coins_500"
+    },
+    {
+        value = 1000,
+        id = "coins_1000"
+    },
+}
+
 local pages: {PageItem} = {
     {
         frame = deaths,
@@ -65,7 +94,7 @@ local pages: {PageItem} = {
         page = "deaths"
     },
     {
-        frame = nil,
+        frame = coins,
         name = "Coins",
         page = "coins"
     },
@@ -121,6 +150,20 @@ function Shop.initialize()
             else
                 State.BuyEvent:FireServer(item.id)
             end
+        end)
+    end
+
+    for _, item in ipairs(coinsItems) do
+        local clone = coinsItemTemplate:Clone()
+        clone.Name = item.id
+        clone.Parent = gridCoins
+        clone.Visible = true
+
+        local text = clone:WaitForChild("TextLabel") :: TextLabel
+        text.Text = tostring(item.value) .. "$"
+
+        clone.Activated:Connect(function(inputObject, clickCount)
+            State.BuyEvent:FireServer(item.id)
         end)
     end
 

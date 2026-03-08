@@ -1,12 +1,9 @@
 --!strict
 --!optimize 2
 local ContentProvider = game:GetService("ContentProvider")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Spring = require(ReplicatedStorage.Shared.spr)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
-
-local localPlayer = Players.LocalPlayer
 
 return function(
     player: Player,
@@ -19,12 +16,15 @@ return function(
     partEndHook: (part: BasePart) -> ()?,
     endHook: () -> ()?
 )
-    local itsMe = player == localPlayer
-
-    local dieSound: Sound = ReplicatedStorage
-        :WaitForChild("Sounds")
-        :WaitForChild("DieSound")
-    ContentProvider:PreloadAsync({dieSound})
+    if not reverse then
+        local dieSound: Sound = ReplicatedStorage
+            :WaitForChild("Sounds")
+            :WaitForChild("DieSound")
+        ContentProvider:PreloadAsync({dieSound})
+        local sound = dieSound:Clone()
+        sound.Parent = workspace
+        sound:Destroy()
+    end
 
     local character = player.Character
     if not character then
@@ -84,58 +84,60 @@ return function(
         }
     end
 
-    local sound = dieSound:Clone()
-    sound.Parent = workspace
-    sound:Destroy()
-
-    local counter = #descendants
+    local animatedChildren: {BasePart} = {}
 
     for _, obj in ipairs(descendants) do
         if obj:IsA("BasePart") and obj.Name ~= "HumanoidRootPart" then
-            task.wait(0.05)
-            obj.Transparency = opacity.objStart
-            if localPlayerIsDead or itsMe then
-                obj.Transparency = opacity.objStartForMe
-            end
-
-            local highlight = Instance.new("Highlight")
-            highlight.Parent = obj
-            highlight.OutlineTransparency = 1
-            highlight.FillTransparency = opacity.highlightStart
-            highlight.FillColor = color
-            highlight.DepthMode = Enum.HighlightDepthMode.Occluded
-
-            if partStartHook then
-                partStartHook(obj)
-            end
-
-            Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightTo })
-            Spring.target(obj, 1.5, 5, { Transparency = opacity.objTo })
-            Spring.completed(highlight, function()
-                if itsMe or localPlayerIsDead then
-                    Spring.target(obj, 1.5, 5, { Transparency = opacity.objEndForMe })
-                end
-                if partMiddleHook then
-                    partMiddleHook(obj)
-                end
-
-                Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightEnd })
-                Spring.completed(highlight, function()
-                    if partEndHook then
-                        partEndHook(obj)
-                    end
-
-                    counter -= 1
-                    if counter <= 0 and endHook then
-                        endHook()
-                    end
-
-                    highlight:Destroy()
-                    if not itsMe and not localPlayerIsDead then
-                        obj.Transparency = opacity.objEnd
-                    end
-                end)
-            end)
+            table.insert(animatedChildren, obj)
         end
+    end
+    local counter = #animatedChildren
+
+    for _, obj in ipairs(animatedChildren) do
+        task.wait(0.05)
+        obj.Transparency = opacity.objStart
+        if localPlayerIsDead then
+            obj.Transparency = opacity.objStartForMe
+        end
+
+        local highlight = Instance.new("Highlight")
+        highlight.Parent = obj
+        highlight.OutlineTransparency = 1
+        highlight.FillTransparency = opacity.highlightStart
+        highlight.FillColor = color
+        highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+
+        if partStartHook then
+            partStartHook(obj)
+        end
+
+        Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightTo })
+        Spring.target(obj, 1.5, 5, { Transparency = opacity.objTo })
+        Spring.completed(highlight, function()
+            if localPlayerIsDead then
+                Spring.target(obj, 1.5, 5, { Transparency = opacity.objEndForMe })
+            end
+            if partMiddleHook then
+                partMiddleHook(obj)
+            end
+
+            Spring.target(highlight, 1.5, 5, { FillTransparency = opacity.highlightEnd })
+            Spring.completed(highlight, function()
+                if partEndHook then
+                    partEndHook(obj)
+                end
+
+                counter -= 1
+                print("counter", counter)
+                if counter <= 0 and endHook then
+                    endHook()
+                end
+
+                highlight:Destroy()
+                if not localPlayerIsDead then
+                    obj.Transparency = opacity.objEnd
+                end
+            end)
+        end)
     end
 end

@@ -18,7 +18,10 @@ local deaths = {
     incognito = require(DeathsFolder.IncognitoDeath),
 }
 
-return function(player: Player, reverse: boolean, localPlayerIsDead: boolean, reason: string?, force: string?)
+return function(player: Player, reverse: boolean, localPlayerIsDead: boolean, reason: string?, force: string?, endHook: () -> ()?)
     local deathEffect = force or player:GetAttribute("death") :: string? or "default"
-    (deaths[deathEffect] or deaths["default"])(player, reverse, localPlayerIsDead, reason)
+    if reverse then
+        deathEffect = "default"
+    end
+    (deaths[deathEffect] or deaths["default"])(player, reverse, localPlayerIsDead, reason, endHook)
 end

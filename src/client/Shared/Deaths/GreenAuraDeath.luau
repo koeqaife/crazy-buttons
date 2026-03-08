@@ -11,7 +11,8 @@ return function(
     player: Player,
     reverse: boolean,
     localPlayerIsDead: boolean,
-    reason: string?
+    reason: string?,
+    endHook: () -> ()?
 )
     local character = player.Character
     if not character then
@@ -75,6 +76,7 @@ return function(
                     emitter:Destroy()
                 end
             end)
-        end
+        end,
+        endHook
     )
 end

@@ -3,36 +3,21 @@
 
 local FirstTimeModule = {}
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local player = Players.LocalPlayer
-local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
-local window = gui:WaitForChild("FirstTimeFrame") :: Frame
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local State = require(player.PlayerScripts.Client.Lobby.UI.State)
-local stackItem: State.WindowStackItem? = nil
+
+local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
+local canvas = gui:WaitForChild("FirstTimeCanvas") :: CanvasGroup
 
 local FirstTimeJoined = ReplicatedStorage:WaitForChild("FirstTimeJoined") :: RemoteEvent
 
-local function ensureStackItem(): State.WindowStackItem
-    if stackItem == nil then
-        local new: State.WindowStackItem = {
-            frame = window,
-            closeFunc = function()
-                window.Visible = false
-            end
-        }
-        stackItem = new
-        return new
-    else
-        return stackItem
-    end
-end
-
 local function onFirstTimeJoin()
-    local textLabel = window:WaitForChild("TextLabel") :: TextLabel
-    local closeButton = window:WaitForChild("CloseButton") :: TextButton
-    window.Visible = true
+    local window = State.createWindow("first_time_window", canvas)
+    local textLabel = canvas:WaitForChild("TextLabel") :: TextLabel
+    local closeButton = canvas:WaitForChild("CloseButton") :: TextButton
+    window.show()
 
     local text = (
         "Hey " .. player.Name .. "!\n\n" ..
@@ -44,11 +29,9 @@ local function onFirstTimeJoin()
         "Have fun and enjoy!!"
     )
     textLabel.Text = text
-    State.addToStack(ensureStackItem())
 
     closeButton.Activated:Once(function(inputObject, clickCount)
-        State.removeFromStack(ensureStackItem())
-        window.Visible = false
+        window.hide()
         FirstTimeJoined:FireServer()
     end)
 end

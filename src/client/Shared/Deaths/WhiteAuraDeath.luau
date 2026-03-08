@@ -11,7 +11,8 @@ return function(
     player: Player,
     reverse: boolean,
     localPlayerIsDead: boolean,
-    reason: string?
+    reason: string?,
+    endHook: () -> ()?
 )
     local emitters: {ParticleEmitter} = {}
     for _, child in (ReplicatedStorage.Effects.WhiteAura :: Folder):GetChildren() do
@@ -43,6 +44,7 @@ return function(
                     emitter:Destroy()
                 end
             end)
-        end
+        end,
+        endHook
     )
 end

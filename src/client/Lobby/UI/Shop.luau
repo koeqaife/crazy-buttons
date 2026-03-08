@@ -5,29 +5,31 @@ local Shop = {}
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
+local showDieEffect = require(localPlayer.PlayerScripts.Client.Shared.DieEffectModule)
+
+local Dialog = require(localPlayer.PlayerScripts.Client.Lobby.UI.Dialog)
 local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
 
-local window = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):WaitForChild("ShopFrame") :: Frame
-window.Visible = false
+local canvas = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):WaitForChild("ShopCanvas") :: CanvasGroup
+local window = State.createWindow("shop_window", canvas)
+Shop.window = window
 
-local header = window:WaitForChild("Header")
+local header = canvas:WaitForChild("Header")
 local closeButton = header:WaitForChild("CloseButton") :: TextButton
 
 local categories = header:WaitForChild("Categories") :: Frame
 local categoryTemplate = categories:WaitForChild("Template") :: TextButton
 categoryTemplate.Visible = false
 
-Shop.stackItem = nil :: State.WindowStackItem?
-
 -- DEATHS --
-local deaths = window:WaitForChild("Deaths") :: Frame
+local deaths = canvas:WaitForChild("Deaths") :: Frame
 local itemsDeaths = deaths:WaitForChild("Items") :: ScrollingFrame
 local gridDeaths = itemsDeaths:WaitForChild("Grid") :: Frame
 local deathsItemTemplate = gridDeaths:WaitForChild("Template") :: Frame
 deathsItemTemplate.Visible = false
 
 -- COINS --
-local coins = window:WaitForChild("Coins") :: Frame
+local coins = canvas:WaitForChild("Coins") :: Frame
 local gridCoins = coins:WaitForChild("Grid") :: Frame
 local coinsItemTemplate = gridCoins:WaitForChild("Template") :: TextButton
 coinsItemTemplate.Visible = false
@@ -105,45 +107,6 @@ local pages: {PageItem} = {
     },
 }
 
-local function ensureStackItem(): State.WindowStackItem
-    if Shop.stackItem == nil then
-        local new: State.WindowStackItem = {
-            frame = window,
-            closeFunc = Shop.onHide
-        }
-        Shop.stackItem = new
-        return new
-    else
-        return Shop.stackItem
-    end
-end
-
-function Shop.showWindow()
-    Shop.onShow()
-    State.addToStack(ensureStackItem())
-end
-
-function Shop.hideWindow()
-    Shop.onHide()
-    State.removeFromStack(ensureStackItem())
-end
-
-function Shop.onHide()
-    window.Visible = false
-end
-
-function Shop.onShow()
-    window.Visible = true
-end
-
-function Shop.toggleWindow()
-    if window.Visible then
-        Shop.hideWindow()
-    else
-        Shop.showWindow()
-    end
-end
-
 function Shop.setPage(page: string)
     local oldPage = State.currentShopPage
 
@@ -157,6 +120,12 @@ function Shop.setPage(page: string)
     State.invalidate(pageId)
     State.invalidate(oldButtonId)
     State.invalidate(oldPageId)
+end
+
+local function testDeathAnimation(id: string)
+    showDieEffect(localPlayer, false, false, "test", id, function()
+        showDieEffect(localPlayer, true, false, "test", id)
+    end)
 end
 
 function Shop.initialize()
@@ -191,6 +160,20 @@ function Shop.initialize()
             else
                 State.BuyEvent:FireServer(item.id)
             end
+        end)
+
+        image.Activated:Connect(function(inputObject, clickCount)
+            Dialog.showDialog("Do you want to test this animation?", {
+                { text = "No" },
+                {
+                    text = "Yes",
+                    func = function()
+                        State.hideAllWindows()
+                        task.wait(0.3)
+                        testDeathAnimation(item.id)
+                    end
+                },
+            })
         end)
     end
 
@@ -282,7 +265,7 @@ function Shop.initialize()
     end)
 
     closeButton.Activated:Connect(function(inputObject, clickCount)
-        Shop.hideWindow()
+        window.hide()
     end)
 end
 

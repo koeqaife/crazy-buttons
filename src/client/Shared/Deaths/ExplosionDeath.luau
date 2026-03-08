@@ -1,26 +1,17 @@
 --!strict
 --!optimize 2
 local ContentProvider = game:GetService("ContentProvider")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Spring = require(ReplicatedStorage.Shared.spr)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
-
-local localPlayer = Players.LocalPlayer
 
 return function(
     player: Player,
     reverse: boolean,
     localPlayerIsDead: boolean,
-    reason: string?
+    reason: string?,
+    endHook: () -> ()?
 )
-    local itsMe = player == localPlayer
-
-    local dieSound: Sound = ReplicatedStorage
-        :WaitForChild("Sounds")
-        :WaitForChild("ExplosionSound")
-    ContentProvider:PreloadAsync({dieSound})
-
     local character = player.Character
     if not character then
         return
@@ -64,10 +55,6 @@ return function(
         }
     end
 
-    local sound = dieSound:Clone()
-    sound.Parent = workspace
-    sound:Destroy()
-
     local humanoid = character:WaitForChild("Humanoid") :: Humanoid
     local root = character:WaitForChild("HumanoidRootPart") :: Part
 
@@ -83,11 +70,28 @@ return function(
     part.Position = Vector3.new(root.Position.X, bottomY + part.Size.Y/2, root.Position.Z)
 
     local explosionChildren: {ParticleEmitter} = {}
+    local explosionTextures: {any} = {}
     for _, child in (ReplicatedStorage.Effects.Explosion :: Folder):GetChildren() do
         local clone = child:Clone() :: ParticleEmitter
         table.insert(explosionChildren, clone)
+        table.insert(explosionTextures, clone.Texture)
         clone.Parent = part
-        clone.Enabled = true
+        clone.Enabled = false
+    end
+
+    ContentProvider:PreloadAsync(explosionTextures)
+
+    local dieSound: Sound = ReplicatedStorage
+        :WaitForChild("Sounds")
+        :WaitForChild("ExplosionSound")
+    ContentProvider:PreloadAsync({dieSound})
+
+    local sound = dieSound:Clone()
+    sound.Parent = workspace
+    sound:Destroy()
+
+    for _, child in explosionChildren do
+        child.Enabled = true
     end
 
     task.delay(0.6, function()
@@ -99,19 +103,22 @@ return function(
                 emitter:Destroy()
             end
             part:Destroy()
+            if endHook then
+                endHook()
+            end
         end)
     end)
 
     for _, obj in ipairs(descendants) do
         if obj:IsA("BasePart") and obj.Name ~= "HumanoidRootPart" then
             obj.Transparency = opacity.objStart
-            if localPlayerIsDead or itsMe then
+            if localPlayerIsDead then
                 obj.Transparency = opacity.objStartForMe
             end
 
             Spring.target(obj, 1.5, 5, { Transparency = opacity.objTo })
             Spring.completed(obj, function()
-                if itsMe or localPlayerIsDead then
+                if localPlayerIsDead then
                     Spring.target(obj, 1.5, 5, { Transparency = opacity.objEndForMe })
                 end
             end)

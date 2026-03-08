@@ -10,6 +10,6 @@ return function(name: "shop" | "settings")
     if name == "shop" then
         local shop = require(UI.Shop)
         shop.initialize()
-        shop.toggleWindow()
+        shop.window.toggle()
     end
 end

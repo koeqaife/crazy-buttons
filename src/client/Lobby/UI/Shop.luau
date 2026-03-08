@@ -30,6 +30,8 @@ local gridCoins = coins:WaitForChild("Grid") :: Frame
 local coinsItemTemplate = gridCoins:WaitForChild("Template") :: TextButton
 coinsItemTemplate.Visible = false
 
+local initialized = false
+
 type DeathsItem = {
     image: string,
     id: string,
@@ -109,6 +111,10 @@ function Shop.hideWindow()
     window.Visible = false
 end
 
+function Shop.toggleWindow()
+    window.Visible = not window.Visible
+end
+
 function Shop.setPage(page: string)
     local oldPage = State.currentShopPage
 
@@ -125,6 +131,11 @@ function Shop.setPage(page: string)
 end
 
 function Shop.initialize()
+    if initialized then
+        return
+    end
+
+    initialized = true
     for _, item in ipairs(deathsItems) do
         local clone = deathsItemTemplate:Clone()
         clone.Name = item.id

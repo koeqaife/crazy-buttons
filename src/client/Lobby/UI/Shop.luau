@@ -285,11 +285,6 @@ function Shop.initialize()
     closeButton.Activated:Connect(function(inputObject, clickCount)
         Shop.hideWindow()
     end)
-
-    local noInputBtn = window:WaitForChild("NoInput") :: TextButton
-    noInputBtn.MouseEnter:Connect(function()
-        UserInputService.MouseIcon = ""
-    end)
 end
 
 return Shop

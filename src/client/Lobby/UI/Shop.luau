@@ -8,6 +8,7 @@ local localPlayer = Players.LocalPlayer
 local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
 
 local window = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):WaitForChild("ShopFrame") :: Frame
+window.Visible = false
 
 local header = window:WaitForChild("Header")
 local closeButton = header:WaitForChild("CloseButton") :: TextButton

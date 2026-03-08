@@ -70,5 +70,6 @@ else
     print("Who am I....")
 end
 
+game.Players.LocalPlayer.PlayerGui.ScreenOrientation = Enum.ScreenOrientation.LandscapeSensor
 spawnCoolPlatforms()
 disableReset()

@@ -7,7 +7,6 @@ local localPlayer = Players.LocalPlayer
 
 local window = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):WaitForChild("LeftButtons") :: Frame
 
-local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
 local lazyToggle = require(localPlayer.PlayerScripts.Client.Lobby.UI.LazyToggle)
 
 function LeftButtons.initialize()

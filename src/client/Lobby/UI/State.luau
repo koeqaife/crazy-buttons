@@ -23,6 +23,11 @@ type PriceType = {
     amount: number
 }
 
+export type WindowStackItem = {
+    closeFunc: () -> (),
+    frame: Frame
+}
+
 State.owns = {} :: {string}
 State.cash = 0
 State.deathAnim = nil :: string?
@@ -160,6 +165,41 @@ end
 function State.addWidget(id: string, widget: Widget)
     itemsWidgets[id] = widget
     State.invalidate(id)
+end
+
+-- WINDOW STACK / CLOSE ANY HANDLER --
+local windowsStack: {WindowStackItem} = {}
+local screenGui = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
+local overlayFrame = screenGui:WaitForChild("OverlayFrame") :: Frame
+
+local function updateCloseAny()
+    local item = windowsStack[#windowsStack]
+    if item then
+        overlayFrame.Visible = true
+        overlayFrame.ZIndex = item.frame.ZIndex - 1
+    else
+        overlayFrame.Visible = false
+    end
+end
+
+function State.addToStack(window: WindowStackItem)
+    table.insert(windowsStack, window)
+    updateCloseAny()
+end
+
+function State.popStack()
+    local window = table.remove(windowsStack, #windowsStack)
+    updateCloseAny()
+    return window
+end
+
+function State.removeFromStack(window: WindowStackItem)
+    local idx = table.find(windowsStack, window)
+    if idx then
+        table.remove(windowsStack, idx)
+    end
+    updateCloseAny()
+    return window
 end
 
 return State

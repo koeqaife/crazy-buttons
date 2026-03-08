@@ -3,6 +3,7 @@
 local Shop = {}
 
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local localPlayer = Players.LocalPlayer
 
 local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
@@ -16,6 +17,8 @@ local closeButton = header:WaitForChild("CloseButton") :: TextButton
 local categories = header:WaitForChild("Categories") :: Frame
 local categoryTemplate = categories:WaitForChild("Template") :: TextButton
 categoryTemplate.Visible = false
+
+Shop.stackItem = nil :: State.WindowStackItem?
 
 -- DEATHS --
 local deaths = window:WaitForChild("Deaths") :: Frame
@@ -103,16 +106,43 @@ local pages: {PageItem} = {
     },
 }
 
+local function ensureStackItem(): State.WindowStackItem
+    if Shop.stackItem == nil then
+        local new: State.WindowStackItem = {
+            frame = window,
+            closeFunc = Shop.onHide
+        }
+        Shop.stackItem = new
+        return new
+    else
+        return Shop.stackItem
+    end
+end
+
 function Shop.showWindow()
-    window.Visible = true
+    Shop.onShow()
+    State.addToStack(ensureStackItem())
 end
 
 function Shop.hideWindow()
+    Shop.onHide()
+    State.removeFromStack(ensureStackItem())
+end
+
+function Shop.onHide()
     window.Visible = false
 end
 
+function Shop.onShow()
+    window.Visible = true
+end
+
 function Shop.toggleWindow()
-    window.Visible = not window.Visible
+    if window.Visible then
+        Shop.hideWindow()
+    else
+        Shop.showWindow()
+    end
 end
 
 function Shop.setPage(page: string)
@@ -254,6 +284,11 @@ function Shop.initialize()
 
     closeButton.Activated:Connect(function(inputObject, clickCount)
         Shop.hideWindow()
+    end)
+
+    local noInputBtn = window:WaitForChild("NoInput") :: TextButton
+    noInputBtn.MouseEnter:Connect(function()
+        UserInputService.MouseIcon = ""
     end)
 end
 

@@ -11,6 +11,7 @@ local ButtonsModule = require(Arena.ButtonsModule)
 type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
+Event.category = "social"
 
 local buttons = {
     { idx = 1, text = "Attack" },

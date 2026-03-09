@@ -20,7 +20,8 @@ local Event = {} :: EventType
 local firstIdxColor = Color3.new(0.95, 0.21, 0.21)
 local secondIdxColor = Color3.new(0, 0.35, 1)
 
-Event.chance = 0.1
+Event.category = "social"
+Event.chance = 0.09
 Event.minPlayers = 4
 Event.maxPerGame = 2
 

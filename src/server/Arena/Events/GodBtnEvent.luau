@@ -21,6 +21,7 @@ local Event = {} :: EventType
 
 local BADGE_ID = 2055081105258413
 
+Event.category = "rare"
 Event.chance = 0.1
 Event.maxPerGame = 2
 Event.minPlayers = 3

@@ -14,6 +14,7 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
+Event.category = "survival"
 Event.chance = 0.09
 Event.maxPerGame = 1
 Event.minPlayers = 5

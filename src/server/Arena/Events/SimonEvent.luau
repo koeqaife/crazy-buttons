@@ -18,6 +18,7 @@ type EventType = EventTypeModule.Event
 type Text = { opposite: boolean, text: string, idx: number?, custom: number? }
 
 local Event = {} :: EventType
+Event.category = "reaction"
 
 local texts: {Text} = {
     -- 4

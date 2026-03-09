@@ -20,6 +20,7 @@ Event.chance = 0.005
 Event.minRound = 4
 Event.minPlayers = 7
 Event.maxPerGame = 1
+Event.category = "rare"
 
 function Event.check()
     return true

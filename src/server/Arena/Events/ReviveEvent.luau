@@ -19,6 +19,7 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
+Event.category = "social"
 Event.chance = 0.05
 Event.maxPerGame = 2
 Event.minPlayers = 3

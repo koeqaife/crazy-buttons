@@ -62,7 +62,10 @@ local events: {Event} = {
 
 local eventCounts: {[Event]: number} = {}
 local forcedNextEvent: { event: Event, by: Player }? = nil
-local lastEvent: Event? = nil
+local lastEventCategory: string? = nil
+
+local eventCooldown: {[Event]: number} = {}
+local EVENT_COOLDOWN = 3
 
 local function chooseRandomEvent(): Event?
     local validEvents: {Event} = {}
@@ -78,7 +81,8 @@ local function chooseRandomEvent(): Event?
             and (not event.maxRound or round <= event.maxRound)
             and (not event.maxPerGame or count < event.maxPerGame)
             and event.check()
-            and event ~= lastEvent
+            and event.category ~= lastEventCategory
+            and (not eventCooldown[event] or GameState.round >= eventCooldown[event])
         then
             table.insert(validEvents, event)
         end
@@ -134,6 +138,7 @@ local function runEvent(event: Event?)
         GameState.runFuncPerAlive(function(player)
             TextModule.setText(player, "An error occurred...", "dead")
         end)
+
         task.wait(5)
     end
 end
@@ -227,9 +232,11 @@ function GameLoopModule.start()
             if nextEvent ~= nil then
                 runEvent(nextEvent)
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
+                eventCooldown[nextEvent] = GameState.round + EVENT_COOLDOWN
+                lastEventCategory = nextEvent.category
+            else
+                lastEventCategory = nil
             end
-
-            lastEvent = nextEvent
 
             GameState.runFuncPerAll(function(player)
                 TextModule.setText(

@@ -42,20 +42,20 @@ function Event.onEvent()
         if player == playerKills then
             return protect(TextModule.showTextSequence(player, {
                 { text = "You got a button that kills", delay = 5, face = "shy" },
-                { text = "Everybody who clicks it, dies", delay = 5, face = "scared" },
-                { text = "Try to convince others to click it for you", delay = 6, face = "normal" },
+                { text = "Everybody who clicks it, dies", delay = 6, face = "scared" },
+                { text = "Try to convince others to click it for you (your kills)", face = "normal" },
             }))
         elseif player == p2 or player == p1 then
             return protect(TextModule.showTextSequence(player, {
                 { text = "You got a button that saves", delay = 5, face = "shy" },
-                { text = "Everybody who clicks it, is saved", delay = 5, face = "happy" },
-                { text = "Try to convince others to click it for you", delay = 6, face = "normal" },
+                { text = "Everybody who clicks it, is saved", delay = 6, face = "happy" },
+                { text = "Try to convince others to click it for you (your saves)", face = "normal" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
                 { text = "You have to talk with " .. p1.DisplayName .. " and " .. p2.DisplayName, delay = 5, face = "shy" },
                 { text = "One of them has a button that kills you", delay = 6, face = "normal" },
-                { text = "So who do you believe?", delay = 5, face = "nerd" },
+                { text = "So who do you believe?", face = "nerd" },
             }))
         end
     end):catch(error):await()

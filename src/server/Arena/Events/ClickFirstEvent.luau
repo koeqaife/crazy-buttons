@@ -35,6 +35,7 @@ Event.category = "reaction"
 Event.chance = 0.08
 Event.minPlayers = 4
 Event.maxPerGame = 3
+Event.minRound = 5
 
 function Event.check()
     return true

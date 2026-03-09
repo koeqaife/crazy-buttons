@@ -74,14 +74,14 @@ function Event.onEvent()
         end
     end)
 
-    TimerModule.setTime(59)
+    TimerModule.setTime(30)
     AmbienceModule.playEerieHorrorRising()
-    local _, chosen = ButtonsModule.initiateButtonChoice(59):catch(error):await()
+    local _, chosen = ButtonsModule.initiateButtonChoice(30):catch(error):await()
+    AmbienceModule.stopEerieHorrorRising()
 
     task.wait(1)
     GameState.removeHighlightFrom(randomPlayers)
     clickSound:Play()
-    AmbienceModule.stopEerieHorrorRising()
 
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]

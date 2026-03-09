@@ -59,7 +59,7 @@ local COLOR_NAMES = { "Red", "Blue", "Pink", "Yellow" }
 Event.chance = 0.09
 Event.maxPerGame = 1
 Event.minRound = 3
-Event.minPlayers = 7
+Event.minPlayers = 4
 
 local MAX_DEATHS_ALLOWED = 5
 local MAX_SUB_ROUNDS = 15

@@ -81,7 +81,7 @@ local function chooseRandomEvent(): Event?
             and (not event.maxRound or round <= event.maxRound)
             and (not event.maxPerGame or count < event.maxPerGame)
             and event.check()
-            and event.category ~= lastEventCategory
+            and (not lastEventCategory or event.category ~= lastEventCategory)
             and (not eventCooldown[event] or GameState.round >= eventCooldown[event])
         then
             table.insert(validEvents, event)

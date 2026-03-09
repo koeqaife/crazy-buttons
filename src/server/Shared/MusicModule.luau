@@ -78,7 +78,7 @@ function MusicModule.init()
     SoundGroup.Volume = 0
 
     Players.PlayerAdded:Connect(function(player)
-        if currentTrack then
+        if currentTrack ~= nil then
             local initialVolume = currentTrack.Volume
             MusicEffectEvent:FireClient(player, "fadeInSound", currentTrack, 0, initialVolume)
         end

@@ -12,6 +12,7 @@ local SoundGroup = SoundService:WaitForChild("Music") :: SoundGroup
 local MusicEffectEvent: RemoteEvent = ReplicatedStorage:WaitForChild("MusicEffectEvent")
 local volumeMultiplier = 1
 
+local lastPlaying: Sound? = nil
 local lastPromise: Promise.TypedPromise<nil>? = nil
 
 local clamp = math.clamp
@@ -116,7 +117,12 @@ end
 
 local function fadeInSound(sound: Sound, from: number, to: number)
     ContentProvider:PreloadAsync({sound})
+    if lastPlaying ~= nil then
+        lastPlaying:Stop()
+        lastPlaying = nil
+    end
     sound:Play()
+    lastPlaying = sound
     local promise = Promise.new(function(resolve, _, onCancel)
         local initialVolume = from
         local targetVolume = to

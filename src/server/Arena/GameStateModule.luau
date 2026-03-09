@@ -125,7 +125,15 @@ end
 
 function GameState.runButtonsForDead()
     GameState.runNewPromisePerDead(function(player, protect, await)
+        local function clearButtons()
+            ButtonsModule.setButtons(player, {})
+        end
+
         GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
+            if ButtonsModule.doesPlayerHaveButton(player, 5) then
+                return
+            end
+
             if GameState.forceReviveIsAllowed(player) then
                 local forceReviveText = "Force Random Revive"
                 if DataStoreModule.getPendingRevives(player) > 0 then
@@ -142,12 +150,15 @@ function GameState.runButtonsForDead()
                 })
             end
 
-            local promise = protect(ButtonsModule.waitForClick(player, -1))
+            local clickPromise = ButtonsModule.waitForClick(player, -1)
             onCancel(function()
-                promise:cancel()
+                clickPromise:cancel()
+                clearButtons()
             end)
 
-            local _, clickedIdx = promise:catch(error):await()
+            local _, clickedIdx = await(clickPromise:catch(error))
+            clearButtons()
+
             if clickedIdx == 5 then
                 ButtonsModule.setButtons(player, {
                     { idx = 5, text = "Teleporting...", inputDisabled = true }
@@ -491,6 +502,7 @@ function GameState.connect()
             removeLink(player, linked)
         end
 
+        cancelPlayerPromises(player)
         GameState.flushReward(player)
     end)
 end

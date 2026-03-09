@@ -59,19 +59,12 @@ function Event.onEvent()
     local awardedPlayer: Player? = nil
     local awardedResolved = false
 
-    local eventPromise: Promise.TypedPromise<any>
-    local cancelEventPromise: (() -> ())?
-
-    eventPromise = GameState.runPromisePerAlive(function(player, protect, await)
-        return protect(Promise.new(function(resolve, _, onCancel)
-            while task.wait(0.3) do -- for debouncing
-                if awardedResolved then
-                    resolve()
-                    break
-                end
-
+    GameState.runPromisePerAlive(function(player, protect, await)
+        return protect(Promise.new(function(resolve, reject, onCancel)
+            while task.wait(0.3) and not awardedResolved do -- for debouncing
                 local clickPromise = ButtonsModule.waitForClick(player, 60)
                 onCancel(function()
+                    awardedResolved = true
                     clickPromise:cancel()
                 end)
 
@@ -79,42 +72,31 @@ function Event.onEvent()
 
                 if clicked == godButton then
                     GameState.addRewardTo(player, 2)
-
                     if not awardedResolved then
                         awardedResolved = true
                         awardedPlayer = player
                         GameState.addHighlightTo({player})
-
-                        if cancelEventPromise then
-                            cancelEventPromise()
-                        end
+                        GameState.cancelAll()
+                        return resolve()
+                    elseif awardedPlayer == player then
+                        return resolve()
                     end
-
-                    resolve()
                     break
-                elseif clicked ~= nil then
+                elseif clicked ~= nil and not awardedResolved then
                     GameState.addRewardTo(player, 0.25)
                     GameState.runFuncPerAlive(function(player2)
                         ButtonsModule.updateButtons(player2, {{ idx = clicked, disabled = true }})
                     end)
                 end
             end
-
-            resolve()
         end))
-    end):catch(error)
-
-    cancelEventPromise = function()
-        eventPromise:cancel()
-    end
-
-    task.delay(60, function()
-        if cancelEventPromise then
-            cancelEventPromise()
+    end):timeout(60):catch(function(e)
+        if Promise.Error.isKind(e, Promise.Error.Kind.TimedOut) then
+            return
+        else
+            error(e)
         end
-    end)
-
-    eventPromise:await()
+    end):await()
 
     GameState.runFuncPerAll(function(player)
         ButtonsModule.setButtons(player, {})

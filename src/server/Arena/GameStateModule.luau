@@ -130,10 +130,6 @@ function GameState.runButtonsForDead()
         end
 
         GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
-            if ButtonsModule.doesPlayerHaveButton(player, 5) then
-                return
-            end
-
             if GameState.forceReviveIsAllowed(player) then
                 local forceReviveText = "Force Random Revive"
                 if DataStoreModule.getPendingRevives(player) > 0 then
@@ -156,7 +152,7 @@ function GameState.runButtonsForDead()
                 clearButtons()
             end)
 
-            local _, clickedIdx = await(clickPromise:catch(error))
+            local _, clickedIdx = clickPromise:catch(error):await()
             clearButtons()
 
             if clickedIdx == 5 then

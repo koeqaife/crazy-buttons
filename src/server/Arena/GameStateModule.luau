@@ -206,6 +206,7 @@ function GameState.kill(player: Player, reason: string?)
             GameState.kill(linked)
             removeLink(player, linked)
         end
+        GameState.runButtonsForDead()
         resolve()
     end):catch(warn)
 end

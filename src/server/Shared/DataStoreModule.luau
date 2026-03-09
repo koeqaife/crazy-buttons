@@ -349,7 +349,7 @@ end
 
 function DataStoreModule.appendOwns(player: Player, value: string)
     return Promise.promisify(function()
-        markDirty(player, { owns_add = { value } })
+        markDirty(player, { owns = { value } })
         return dataPerPlayer[player]
     end)():catch(function()
         warn("Failed to mark append owns for", player.Name)

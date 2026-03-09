@@ -16,41 +16,50 @@ local UpdateButtonsEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 UpdateButtonsEvent.Name = "UpdateButtonsEvent"
 
 local buttonsPerPlayer: {[Player]: Indices} = {}
+local lastInputPromise: {[Player]: Promise.TypedPromise<any>} = {}
 
 local ButtonsModule = {}
 
 local function waitForButton(player: Player, timeout: number, filter: ((Player, number) -> boolean)?)
     local conn
-    return Promise.race({
-        Promise.new(function(resolve, _, onCancel)
-            conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
-                local playerButtons = buttonsPerPlayer[playerWhoClicked]
-                if not playerButtons then
-                    return
-                end
+    local inputPromise = Promise.new(function(resolve, _, onCancel)
+        conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
+            local playerButtons = buttonsPerPlayer[playerWhoClicked]
+            if not playerButtons then
+                return
+            end
 
-                local exists = false
-                for _, b in ipairs(playerButtons) do
-                    if b.idx == idx then
-                        exists = true
-                        break
-                    end
+            local exists = false
+            for _, b in ipairs(playerButtons) do
+                if b.idx == idx then
+                    exists = true
+                    break
                 end
+            end
 
-                if not exists then
-                    return
-                end
+            if not exists then
+                return
+            end
 
-                if playerWhoClicked == player and (not filter or filter(playerWhoClicked, idx)) then
-                    resolve(idx :: number?)
-                    conn:Disconnect()
-                end
-            end)
-
-            onCancel(function()
+            if playerWhoClicked == player and (not filter or filter(playerWhoClicked, idx)) then
+                resolve(idx :: number?)
                 conn:Disconnect()
-            end)
-        end),
+            end
+        end)
+
+        onCancel(function()
+            conn:Disconnect()
+        end)
+    end)
+
+    local lastPromise = lastInputPromise[player]
+    if lastPromise then
+        lastPromise:cancel()
+    end
+    lastInputPromise[player] = inputPromise
+
+    return Promise.race({
+        inputPromise,
         Promise.new(function(resolve)
             -- Never resolve promise on timeout -1
             if timeout ~= -1 then

@@ -67,23 +67,25 @@ local lastEventCategory: string? = nil
 local eventCooldown: {[Event]: number} = {}
 local EVENT_COOLDOWN = 3
 
-local function chooseRandomEvent(): Event?
-    local validEvents: {Event} = {}
+local function checkEvent(event: Event)
     local players = #GameState.alivePlayers
     local round = GameState.round
-
-    for _, event in ipairs(events) do
-        local count = eventCounts[event] or 0
-
-        if (not event.minPlayers or players >= event.minPlayers)
+    local count = eventCounts[event] or 0
+    return (not event.minPlayers or players >= event.minPlayers)
             and (not event.maxPlayers or players <= event.maxPlayers)
             and (not event.minRound or round >= event.minRound)
             and (not event.maxRound or round <= event.maxRound)
             and (not event.maxPerGame or count < event.maxPerGame)
             and event.check()
             and (not lastEventCategory or event.category ~= lastEventCategory)
-            and (not eventCooldown[event] or GameState.round >= eventCooldown[event])
-        then
+            and (not eventCooldown[event] or round >= eventCooldown[event])
+end
+
+local function chooseRandomEvent(): Event?
+    local validEvents: {Event} = {}
+
+    for _, event in ipairs(events) do
+        if checkEvent(event) then
             table.insert(validEvents, event)
         end
     end
@@ -182,7 +184,37 @@ local function onForceReviveButton(player: Player)
     end
 end
 
+local function dumpState()
+    print("Round: ", GameState.round)
+    print("Last event category: ", lastEventCategory)
+    for _, event in ipairs(events) do
+        print(
+            "EVENT: " .. event.name,
+            "| Category: " .. event.category,
+            "| Chance: " .. tostring(event.chance),
+            "| Min/Max players: " .. tostring(event.minPlayers) .. "/" .. tostring(event.maxPlayers),
+            "| Min/Max round: " .. tostring(event.minRound) .. "/" .. tostring(event.maxRound),
+            "| CanRun: " .. tostring(checkEvent(event))
+        )
+    end
+end
+
+local function dumpPlayers()
+    print("ALIVE PLAYERS:", #GameState.alivePlayers)
+    for _, player in ipairs(GameState.alivePlayers) do
+        print("  ", player.Name)
+    end
+
+    print("DEAD PLAYERS:", #GameState.deadPlayers)
+    for _, player in ipairs(GameState.deadPlayers) do
+        print("  ", player.Name)
+    end
+end
+
 function GameLoopModule.start()
+    _G.dumpState = dumpState
+    _G.dumpPlayers = dumpPlayers
+
     for _, player in ipairs(Players:GetPlayers()) do
         table.insert(GameState.alivePlayers, player)
 

@@ -30,6 +30,7 @@ local clickSound = ReplicatedStorage
     :WaitForChild("Sounds")
     :WaitForChild("LoudClickSound") :: Sound
 
+Event.name = "click_first"
 Event.category = "reaction"
 Event.chance = 0.08
 Event.minPlayers = 4

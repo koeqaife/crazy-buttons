@@ -2,6 +2,7 @@
 
 export type Event = {
     chance: number, -- float: from 0 to 1
+    name: string,
     category: string,
     minPlayers: number?,
     maxPlayers: number?,

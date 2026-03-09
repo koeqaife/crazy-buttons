@@ -21,6 +21,7 @@ Event.minRound = 4
 Event.minPlayers = 7
 Event.maxPerGame = 1
 Event.category = "rare"
+Event.name = "alien"
 
 function Event.check()
     return true

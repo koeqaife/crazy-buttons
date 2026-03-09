@@ -9,7 +9,6 @@ local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
-local ButtonsModule = require(Arena.ButtonsModule)
 
 type EventType = EventTypeModule.Event
 
@@ -17,6 +16,7 @@ local Event = {} :: EventType
 
 Event.chance = 1.0
 Event.maxRound = 1
+Event.name = "start"
 
 function Event.check()
     return true

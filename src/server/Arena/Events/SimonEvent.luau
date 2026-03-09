@@ -19,6 +19,7 @@ type Text = { opposite: boolean, text: string, idx: number?, custom: number? }
 
 local Event = {} :: EventType
 Event.category = "reaction"
+Event.name = "simon"
 
 local texts: {Text} = {
     -- 4

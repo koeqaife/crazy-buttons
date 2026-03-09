@@ -15,6 +15,7 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
+Event.name = "sacrifice"
 Event.category = "survival"
 Event.chance = 0.09
 Event.minRound = 2

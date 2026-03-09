@@ -12,6 +12,7 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 Event.category = "social"
+Event.name = "att_def_trust"
 
 local buttons = {
     { idx = 1, text = "Attack" },

@@ -19,6 +19,7 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
+Event.name = "click"
 Event.category = "reaction"
 Event.chance = 0.08
 Event.minPlayers = 4

@@ -18,6 +18,7 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
+Event.name = "color"
 Event.category = "mind"
 Event.chance = 0.1
 Event.minPlayers = 6

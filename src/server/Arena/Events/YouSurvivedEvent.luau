@@ -21,6 +21,7 @@ local badges = {
 
 local Event = {} :: EventType
 
+Event.name = "you_survived"
 Event.category = "end"
 Event.chance = 1.0
 Event.maxPlayers = 1

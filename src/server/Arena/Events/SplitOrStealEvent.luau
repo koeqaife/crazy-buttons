@@ -23,6 +23,7 @@ local clickSound = ReplicatedStorage
     :WaitForChild("Sounds")
     :WaitForChild("LoudClickSound") :: Sound
 
+Event.name = "split_steal"
 Event.category = "social"
 Event.chance = 0.08
 Event.minPlayers = 2

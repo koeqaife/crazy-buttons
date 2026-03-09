@@ -123,6 +123,45 @@ function GameState.forceReviveIsAllowed(player: Player?)
     end
 end
 
+function GameState.runButtonsForDead()
+    GameState.runNewPromisePerDead(function(player, protect, await)
+        GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
+            if GameState.forceReviveIsAllowed(player) then
+                local forceReviveText = "Force Random Revive"
+                if DataStoreModule.getPendingRevives(player) > 0 then
+                    forceReviveText = "Force Random Revive (Bought)"
+                end
+
+                ButtonsModule.setButtons(player, {
+                    { idx = 3, text = forceReviveText },
+                    { idx = 5, text = "Return to lobby" }
+                })
+            else
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Return to lobby" }
+                })
+            end
+
+            local promise = protect(ButtonsModule.waitForClick(player, -1))
+            onCancel(function()
+                promise:cancel()
+            end)
+
+            local _, clickedIdx = promise:catch(error):await()
+            if clickedIdx == 5 then
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Teleporting...", inputDisabled = true }
+                })
+                TeleportService:Teleport(LOBBY_PLACE_ID, player)
+                resolve2()
+            elseif clickedIdx == 3 then
+                ForceRevive:Fire(player)
+                resolve2()
+            end
+        end)):catch(warn)
+    end)
+end
+
 function GameState.kill(player: Player, reason: string?)
     if not player or not player.Parent then
         return
@@ -139,10 +178,17 @@ function GameState.kill(player: Player, reason: string?)
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
     OnPlayerDied:Fire(player)
 
+    if #alivePlayers < 3 then
+        GameState.runFuncPerDead(function(player)
+            ButtonsModule.setButtons(player, {
+                { idx = 5, text = "Return to lobby" }
+            })
+        end)
+    end
+
     cancelPlayerPromises(player)
 
     Promise.defer(function(resolve)
-        task.wait(1)
         GameState.flushReward(player)
 
         -- Kill other linked player
@@ -153,44 +199,6 @@ function GameState.kill(player: Player, reason: string?)
             GameState.kill(linked)
             removeLink(player, linked)
         end
-
-        GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
-            if
-                reason ~= "end_of_the_game"
-                and GameState.forceReviveIsAllowed(player)
-            then
-                local forceReviveText = "Force Random Revive"
-                if DataStoreModule.getPendingRevives(player) > 0 then
-                    forceReviveText = "Force Random Revive (Bought)"
-                end
-
-                ButtonsModule.setButtons(player, {
-                    { idx = 3, text = forceReviveText },
-                    { idx = 5, text = "Return to lobby" }
-                })
-            else
-                ButtonsModule.setButtons(player, {
-                    { idx = 5, text = "Return to lobby" }
-                })
-            end
-
-            local promise = ButtonsModule.waitForClick(player, -1)
-            onCancel(function()
-                promise:cancel()
-            end)
-
-            local _, clickedIdx = promise:catch(error):await()
-            if clickedIdx == 5 then
-                TeleportService:Teleport(LOBBY_PLACE_ID, player)
-                ButtonsModule.setButtons(player, {
-                    { idx = 5, text = "Teleporting...", inputDisabled = true }
-                })
-                resolve2()
-            elseif clickedIdx == 3 then
-                ForceRevive:Fire(player)
-                resolve2()
-            end
-        end)):catch(warn)
         resolve()
     end):catch(warn)
 end

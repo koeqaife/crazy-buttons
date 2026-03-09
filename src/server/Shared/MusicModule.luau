@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local Players = game:GetService("Players")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
@@ -77,6 +78,12 @@ function MusicModule.init()
         end
     end
     SoundGroup.Volume = 0
+
+    Players.PlayerAdded:Connect(function(player)
+        if currentTrack then
+            currentTrack:Play()
+        end
+    end)
 
     task.spawn(loop)
 end

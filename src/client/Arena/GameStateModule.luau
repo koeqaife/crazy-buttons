@@ -95,7 +95,8 @@ local function onSyncEvent(
         end
     end
 
-    showDieEffect(player, not dead, localPlayerIsDead, reason)
+    -- reverse death effect when the player is resurrected (died == false)
+    showDieEffect(player, not died, localPlayerIsDead, reason)
     TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage(
         "<font color=\"#eb4034\"><b>" .. player.DisplayName .. " has been eliminated.</b></font>"
     )

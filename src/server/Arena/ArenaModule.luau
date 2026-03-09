@@ -63,9 +63,11 @@ function ArenaModule.init()
         player:SetAttribute("death", DataStoreModule.getDeathEffect(player) or "default")
 
         local removingConnection: RBXScriptConnection
-        local animationConnection = DataStoreModule.DeathAnimationUpdated.Event:Connect(function(_, value: string)
-            print("Death animation set for", player, "to", value)
-            player:SetAttribute("death", value)
+        local animationConnection = DataStoreModule.DeathAnimationUpdated.Event:Connect(function(p: Player, value: string)
+            if player == p then
+                print("Death animation set for", player, "to", value)
+                player:SetAttribute("death", value)
+            end
         end)
 
         removingConnection = Players.PlayerRemoving:Connect(function(playerRemoved: Player)

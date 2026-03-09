@@ -20,11 +20,11 @@ local streakStore = DataStoreService:GetOrderedDataStore("Streak")
 
 local DataStoreModule = {}
 
-type Volume = {
+export type Volume = {
     music: number,
     ambient: number
 }
-type PlayerData = {
+export type PlayerData = {
     survives: number,
     streak: number,
     topStreak: number,
@@ -32,7 +32,7 @@ type PlayerData = {
     pendingRevives: number,
     neverJoinedBefore: boolean?,
     currentDeathEffect: string?,
-    owns: {string},
+    owns: { string },
     cash: number,
     volume: Volume
 }
@@ -53,7 +53,7 @@ local defaultData: PlayerData = {
     }
 }
 
-local dataPerPlayer: {[Player]: PlayerData} = {}
+local dataPerPlayer: { [Player]: PlayerData } = {}
 
 DataStoreModule.dataPerPlayer = dataPerPlayer
 DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
@@ -63,6 +63,253 @@ DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
 DataStoreModule.OwnsUpdated = OwnsUpdated
 DataStoreModule.CashUpdated = CashUpdated
 DataStoreModule.VolumeUpdated = VolumeUpdated
+
+-- Pending changes (debounce / coalesce)
+type PendingChange = {
+    survives: number?,
+    streak: number?,
+    topStreak: number?,
+    streakLastUpdated: number?,
+    pendingRevives: number?,
+    neverJoinedBefore: boolean?,
+    currentDeathEffect: string?,
+    owns: { string }?,
+    cash: number?,
+    volume: Volume?
+}
+local pendingChanges: { [Player]: PendingChange } = {}
+local dirtyTimers: { [Player]: boolean } = {}
+
+local FLUSH_DELAY = 5
+local MAX_CONCURRENT_UPDATES = 3
+local currentUpdates = 0
+local updateQueue: { [number]: () -> any } = {}
+
+local function processQueue()
+    if #updateQueue == 0 or currentUpdates >= MAX_CONCURRENT_UPDATES then
+        return
+    end
+
+    local fn = table.remove(updateQueue, 1)
+    if not fn then
+        return
+    end
+
+    currentUpdates += 1
+    task.spawn(function()
+        local ok, err = pcall(fn)
+        if not ok then
+            warn("Update task failed:", err)
+        end
+        currentUpdates -= 1
+        processQueue()
+    end)
+end
+
+local function enqueueUpdate(fn: () -> ())
+    table.insert(updateQueue, fn)
+    processQueue()
+end
+
+local function mergeOwns(target: { string }?, toAdd: { string }?)
+    target = target or {}
+    if toAdd and target ~= nil then
+        for _, v in ipairs(toAdd) do
+            table.insert(target, v)
+        end
+    end
+    return target
+end
+
+local function flushPlayer(player: Player)
+    local changes = pendingChanges[player]
+    if not changes then
+        return
+    end
+
+    pendingChanges[player] = nil
+
+    enqueueUpdate(function()
+        local ok, result = pcall(function()
+            return PlayerDataStore:UpdateAsync(tostring(player.UserId), function(data: PlayerData)
+                if data == nil then
+                    data = table.clone(defaultData)
+                end
+
+                if changes.survives then
+                    data.survives = (data.survives or 0) + changes.survives
+                end
+
+                if changes.cash then
+                    data.cash = math.max(0, (data.cash or 0) + changes.cash)
+                end
+
+                if changes.pendingRevives then
+                    data.pendingRevives = math.max(0, (data.pendingRevives or 0) + changes.pendingRevives)
+                end
+
+                if changes.owns then
+                    data.owns = mergeOwns(data.owns, changes.owns) or {}
+                end
+
+                if changes.volume then
+                    data.volume = changes.volume
+                end
+
+                if changes.currentDeathEffect then
+                    data.currentDeathEffect = changes.currentDeathEffect
+                end
+
+                if changes.neverJoinedBefore ~= nil then
+                    data.neverJoinedBefore = changes.neverJoinedBefore
+                end
+
+                if changes.streak then
+                    data.streak = changes.streak
+                end
+
+                if changes.streakLastUpdated then
+                    data.streakLastUpdated = changes.streakLastUpdated
+                end
+
+                for key, value in pairs(defaultData) do
+                    if data[key] == nil then
+                        data[key] = value
+                    end
+                end
+
+                return data
+            end)
+        end)
+
+        if not ok then
+            warn("Failed flush for", player.Name, result)
+
+            pendingChanges[player] = pendingChanges[player] or {}
+            pendingChanges[player] = pendingChanges[player] or changes
+
+            if pendingChanges[player] and changes then
+                for k, v in pairs(changes) do
+                    if type(v) == "number" then
+                        pendingChanges[player][k] = (pendingChanges[player][k] or 0) + v
+                    elseif k == "owns_add" then
+                        pendingChanges[player][k] = pendingChanges[player][k] or {}
+                        for _, vv in ipairs(v) do
+                            table.insert(pendingChanges[player][k], vv)
+                        end
+                    else
+                        pendingChanges[player][k] = v
+                    end
+                end
+            end
+            return
+        end
+
+        dataPerPlayer[player] = result
+
+        local ok2, err2 = pcall(function()
+            survivesStore:SetAsync(tostring(player.UserId), result.survives)
+            streakStore:SetAsync(tostring(player.UserId), result.topStreak)
+        end)
+        if not ok2 then
+            warn("Failed to set ordered stores:", err2)
+        end
+
+        SurvivesUpdated:Fire(player, result.survives)
+        StreakUpdated:Fire(player, result.streak)
+        NeverJoinedBeforeUpdated:Fire(player, result.neverJoinedBefore)
+        DeathAnimationUpdated:Fire(player, result.currentDeathEffect)
+        OwnsUpdated:Fire(player, result.owns)
+        CashUpdated:Fire(player, result.cash)
+        VolumeUpdated:Fire(player, result.volume)
+    end)
+end
+
+local function markDirty(player: Player, changeTable: PendingChange)
+    pendingChanges[player] = pendingChanges[player] or {}
+
+    if changeTable.survives then
+        pendingChanges[player].survives = (pendingChanges[player].survives or 0) + changeTable.survives
+    end
+    if changeTable.cash then
+        pendingChanges[player].cash = (pendingChanges[player].cash or 0) + changeTable.cash
+    end
+    if changeTable.pendingRevives then
+        pendingChanges[player].pendingRevives = (pendingChanges[player].pendingRevives or 0) + changeTable.pendingRevives
+    end
+
+    if changeTable.owns then
+        pendingChanges[player].owns = pendingChanges[player].owns or {}
+        for _, v in ipairs(changeTable.owns) do
+            table.insert(pendingChanges[player].owns or {}, v)
+        end
+    end
+
+    -- replace/overwrite fields
+    if changeTable.volume then
+        pendingChanges[player].volume = changeTable.volume
+    end
+    if changeTable.currentDeathEffect then
+        pendingChanges[player].currentDeathEffect = changeTable.currentDeathEffect
+    end
+    if changeTable.neverJoinedBefore ~= nil then
+        pendingChanges[player].neverJoinedBefore = changeTable.neverJoinedBefore
+    end
+    if changeTable.streak then
+        pendingChanges[player].streak = changeTable.streak
+        pendingChanges[player].streakLastUpdated = changeTable.streakLastUpdated or os.time()
+    end
+
+    dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
+    if changeTable.survives then
+        dataPerPlayer[player].survives = (dataPerPlayer[player].survives or 0) + changeTable.survives
+        SurvivesUpdated:Fire(player, dataPerPlayer[player].survives)
+    end
+    if changeTable.cash then
+        dataPerPlayer[player].cash = math.max(0, (dataPerPlayer[player].cash or 0) + changeTable.cash)
+        CashUpdated:Fire(player, dataPerPlayer[player].cash)
+    end
+    if changeTable.pendingRevives then
+        dataPerPlayer[player].pendingRevives = math.max(0, (dataPerPlayer[player].pendingRevives or 0) + changeTable.pendingRevives)
+    end
+    if changeTable.owns then
+        dataPerPlayer[player].owns = dataPerPlayer[player].owns or {}
+        for _, v in ipairs(changeTable.owns) do
+            table.insert(dataPerPlayer[player].owns, v)
+        end
+        OwnsUpdated:Fire(player, dataPerPlayer[player].owns)
+    end
+    if changeTable.volume then
+        dataPerPlayer[player].volume = changeTable.volume
+        VolumeUpdated:Fire(player, dataPerPlayer[player].volume)
+    end
+    if changeTable.currentDeathEffect then
+        dataPerPlayer[player].currentDeathEffect = changeTable.currentDeathEffect
+        DeathAnimationUpdated:Fire(player, dataPerPlayer[player].currentDeathEffect)
+    end
+    if changeTable.neverJoinedBefore ~= nil then
+        dataPerPlayer[player].neverJoinedBefore = changeTable.neverJoinedBefore
+        NeverJoinedBeforeUpdated:Fire(player, dataPerPlayer[player].neverJoinedBefore)
+    end
+    if changeTable.streak then
+        dataPerPlayer[player].streak = changeTable.streak
+        dataPerPlayer[player].streakLastUpdated = changeTable.streakLastUpdated or os.time()
+        StreakUpdated:Fire(player, dataPerPlayer[player].streak)
+    end
+
+    if dirtyTimers[player] then
+        return
+    end
+    dirtyTimers[player] = true
+    task.delay(FLUSH_DELAY, function()
+        dirtyTimers[player] = nil
+        if player and player.Parent then
+            flushPlayer(player)
+        elseif player ~= nil then
+            flushPlayer(player)
+        end
+    end)
+end
 
 local function setData(player: Player, data: PlayerData?)
     local finalData: PlayerData
@@ -84,38 +331,70 @@ end
 
 function DataStoreModule.increaseSurvives(player: Player)
     return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
-            local finalData: PlayerData
+        markDirty(player, { survives = 1 })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark increase survives for", player.Name)
+    end)
+end
 
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
+function DataStoreModule.addCash(player: Player, amount: number)
+    return Promise.promisify(function()
+        markDirty(player, { cash = amount })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark add cash for", player.Name)
+    end)
+end
 
-            finalData.survives += 1
-            dataPerPlayer[player].survives = finalData.survives
-            print("Changed survives counter for", player.Name, "to", finalData.survives)
-            SurvivesUpdated:Fire(player, finalData.survives)
+function DataStoreModule.appendOwns(player: Player, value: string)
+    return Promise.promisify(function()
+        markDirty(player, { owns_add = { value } })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark append owns for", player.Name)
+    end)
+end
 
-            local ok, err = pcall(function()
-                survivesStore:SetAsync(player.UserId, finalData.survives)
-            end)
+function DataStoreModule.setVolume(player: Player, value: Volume)
+    return Promise.promisify(function()
+        markDirty(player, { volume = value })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark set volume for", player.Name)
+    end)
+end
 
-            if not ok then
-                warn(err)
-            end
+function DataStoreModule.setDeathEffect(player: Player, value: string)
+    return Promise.promisify(function()
+        markDirty(player, { currentDeathEffect = value })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark set death effect for", player.Name)
+    end)
+end
 
-            return finalData
-        end)
-    end)():catch(function(err)
-        warn("Failed to increase survives for", player.Name)
+function DataStoreModule.setNeverJoinedBefore(player: Player, value: boolean)
+    return Promise.promisify(function()
+        markDirty(player, { neverJoinedBefore = value })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark neverJoinedBefore for", player.Name)
+    end)
+end
+
+function DataStoreModule.addPendingRevives(player: Player, amount: number)
+    return Promise.promisify(function()
+        markDirty(player, { pendingRevives = amount })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark add pending revives for", player.Name)
     end)
 end
 
 function DataStoreModule.setNewTopStreak(player: Player)
     return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+        return PlayerDataStore:UpdateAsync(tostring(player.UserId), function(data: PlayerData?)
             local finalData: PlayerData
 
             if data == nil then
@@ -128,11 +407,12 @@ function DataStoreModule.setNewTopStreak(player: Player)
                 finalData.topStreak = finalData.streak
             end
 
+            dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
             dataPerPlayer[player].topStreak = finalData.topStreak
             print("Changed top streak counter for", player.Name, "to", finalData.topStreak)
 
             local ok, err = pcall(function()
-                streakStore:SetAsync(player.UserId, finalData.topStreak)
+                streakStore:SetAsync(tostring(player.UserId), finalData.topStreak)
             end)
 
             if not ok then
@@ -141,14 +421,14 @@ function DataStoreModule.setNewTopStreak(player: Player)
 
             return finalData
         end)
-    end)():catch(function(err)
+    end)():catch(function()
         warn("Failed to set new top streak for", player.Name)
     end)
 end
 
 function DataStoreModule.continueStreak(player: Player)
     return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
+        return PlayerDataStore:UpdateAsync(tostring(player.UserId), function(data: PlayerData?)
             local finalData: PlayerData
 
             if data == nil then
@@ -164,9 +444,9 @@ function DataStoreModule.continueStreak(player: Player)
             local currentTime = os.time()
             local timePassed = currentTime - (finalData.streakLastUpdated or 0)
             if timePassed <= 24 * 60 * 60 then
-                -- do nothing, keep the streak
+                dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
                 dataPerPlayer[player].streak = finalData.streak
-                StreakUpdated:Fire(finalData.streak)
+                StreakUpdated:Fire(player, finalData.streak)
                 return finalData
             elseif timePassed <= 48 * 60 * 60 then
                 finalData.streak += 1
@@ -175,6 +455,7 @@ function DataStoreModule.continueStreak(player: Player)
             end
 
             finalData.streakLastUpdated = currentTime
+            dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
             dataPerPlayer[player].streak = finalData.streak
             print("Changed streak counter for", player.Name, "to", finalData.streak)
             StreakUpdated:Fire(player, finalData.streak)
@@ -183,169 +464,12 @@ function DataStoreModule.continueStreak(player: Player)
 
             return finalData
         end)
-    end)():catch(function(err)
+    end)():catch(function()
         warn("Failed to continue streak for", player.Name)
     end)
 end
 
-function DataStoreModule.addPendingRevives(player: Player, amount: number)
-    return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
-            local finalData: PlayerData
-
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            if finalData.pendingRevives == nil then
-                finalData.pendingRevives = 0
-            end
-
-            finalData.pendingRevives += amount
-
-            if finalData.pendingRevives < 0 then
-                finalData.pendingRevives = 0
-            end
-
-            dataPerPlayer[player].pendingRevives = finalData.pendingRevives
-
-            return finalData
-        end)
-    end)():catch(function(err)
-        warn("Failed to add pending revives for", player.Name)
-    end)
-end
-
-function DataStoreModule.setNeverJoinedBefore(player: Player, value: boolean)
-    return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
-            local finalData: PlayerData
-
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            finalData.neverJoinedBefore = value
-
-            dataPerPlayer[player].neverJoinedBefore = value
-            NeverJoinedBeforeUpdated:Fire(player, value)
-
-            return finalData
-        end)
-    end)():catch(function(err)
-        warn("Failed to set neverJoinedBefore for", player.Name)
-    end)
-end
-
-function DataStoreModule.setDeathEffect(player: Player, value: string)
-    return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
-            local finalData: PlayerData
-
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            finalData.currentDeathEffect = value
-
-            dataPerPlayer[player].currentDeathEffect = value
-            DeathAnimationUpdated:Fire(player, value)
-
-            return finalData
-        end)
-    end)():catch(function(err)
-        warn("Failed to set currentDeathEffect for", player.Name)
-    end)
-end
-
-function DataStoreModule.addCash(player: Player, amount: number)
-    return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
-            local finalData: PlayerData
-
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            if finalData.cash == nil then
-                finalData.cash = 0
-            end
-
-            finalData.cash += amount
-
-            if finalData.cash < 0 then
-                finalData.cash = 0
-            end
-
-            dataPerPlayer[player].cash = finalData.cash
-            CashUpdated:Fire(player, finalData.cash)
-
-            return finalData
-        end)
-    end)():catch(function(err)
-        warn("Failed to add cash for", player.Name)
-    end)
-end
-
-function DataStoreModule.appendOwns(player: Player, value: string)
-    return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
-            local finalData: PlayerData
-
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            if finalData.owns == nil then
-                finalData.owns = {}
-            end
-
-            table.insert(finalData.owns, value)
-            dataPerPlayer[player].owns = finalData.owns
-
-            OwnsUpdated:Fire(player, finalData.owns)
-
-            return finalData
-        end)
-    end)():catch(function(err)
-        warn("Failed to set owns for", player.Name)
-    end)
-end
-
-function DataStoreModule.setVolume(player: Player, value: Volume)
-    return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(player.UserId, function(data: PlayerData?)
-            local finalData: PlayerData
-
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            finalData.volume = value
-            dataPerPlayer[player].volume = finalData.volume
-
-            VolumeUpdated:Fire(player, finalData.volume)
-
-            return finalData
-        end)
-    end)():catch(function(err)
-        warn("Failed to set volume for", player.Name)
-    end)
-end
-
-function DataStoreModule.getOwns(player: Player): {string}?
+function DataStoreModule.getOwns(player: Player): { string }?
     if not dataPerPlayer[player] then
         return nil
     end
@@ -441,7 +565,7 @@ function DataStoreModule.init()
     game.Players.PlayerAdded:Connect(function(player: Player)
         local success, data: PlayerData? = Promise.retryWithDelay(function()
             return Promise.promisify(function()
-                return PlayerDataStore:GetAsync(player.UserId)
+                return PlayerDataStore:GetAsync(tostring(player.UserId))
             end)()
         end, 5, 3):await()
 
@@ -450,8 +574,8 @@ function DataStoreModule.init()
 
             DataStoreModule.setNewTopStreak(player):await()
             local ok, err = pcall(function()
-                survivesStore:SetAsync(player.UserId, finalData.survives)
-                streakStore:SetAsync(player.UserId, finalData.topStreak)
+                survivesStore:SetAsync(tostring(player.UserId), finalData.survives)
+                streakStore:SetAsync(tostring(player.UserId), finalData.topStreak)
             end)
             if not ok then
                 warn(err)
@@ -467,6 +591,21 @@ function DataStoreModule.init()
         else
             warn("Failed to load data for", player.Name, data)
         end
+    end)
+
+    Players.PlayerRemoving:Connect(function(player: Player)
+        if pendingChanges[player] then
+            flushPlayer(player)
+
+            local waited = 0
+            while pendingChanges[player] and waited < 5 do
+                task.wait(0.25)
+                waited = waited + 0.25
+            end
+        end
+        dataPerPlayer[player] = nil
+        pendingChanges[player] = nil
+        dirtyTimers[player] = nil
     end)
 end
 

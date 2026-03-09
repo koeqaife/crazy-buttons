@@ -189,7 +189,7 @@ function Event.onEvent()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
-            { text = "You have " .. mistakes[player] .. " mistakes...", delay = 3, face = "laughing" },
+            { text = "You have " .. mistakes[player] or 0 .. " mistakes...", delay = 3, face = "laughing" },
             { text = "Let's see what we got here", delay = 4, face = "scared" }
         }))
         -- For everyone who played, even if they died

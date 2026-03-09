@@ -100,7 +100,9 @@ local function cancelPlayerPromises(player: Player)
         for i = #playerRunningPromises, 1, -1 do
             print("Cancelling promise for", player.Name)
             local promise = playerRunningPromises[i]
-            promise:cancel()
+            if promise then
+                promise:cancel()
+            end
         end
         table.clear(playerRunningPromises)
     end):catch(warn)

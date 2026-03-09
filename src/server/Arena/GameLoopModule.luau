@@ -116,6 +116,7 @@ local function runEvent(event: Event?)
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
     end)
+    GameState.cancelAll()
     GameState.removeHighlightFromAll()
 
     local promise = Promise.promisify(event.onEvent)()

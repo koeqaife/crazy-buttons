@@ -29,36 +29,9 @@ function Event.onEvent()
             { text = "This is a Button Experiment", delay = 5, face = "normal" },
             { text = "You're gonna be tested in different scenarios", delay = 6, face = "scared" },
             { text = "Some of them will be easy, some of them will be hard", delay = 7, face = "dead" },
-            { text = "Let's start with something simple", delay = 5, face = "no_mouth" },
+            { text = "Let's begin", delay = 3, face = "happy" },
         }))
     end):catch(error):await()
-
-    GameState.runNewPromisePerAlive(function(player, protect, await)
-        TextModule.setText(player, "You see this button?\nDo whatever it says", "click_button_icon")
-        ButtonsModule.setButtons(player, {{ idx = 1, text = "Press me!" }})
-
-        local clicked = await(ButtonsModule.waitForClick(player, 15))
-
-        ButtonsModule.setButtons(player, {})
-        if clicked then
-            await(TextModule.showTextSequence(player, {
-                { text = "Good, you can follow simple instructions", delay = 6, face = "happy" },
-                { text = "That's already more than some people", delay = 5, face = "laughing" },
-                { text = "Let's see how long you last", delay = 5, face = "no_mouth" }
-            }))
-        else
-            await(TextModule.showTextSequence(player, {
-                { text = "Oh, so you're ignoring me?", delay = 3, face = "angry" },
-                { text = "That's not nice...", delay = 3, face = "unamused" }
-            }))
-            GameState.kill(player)
-        end
-    end):catch(error):await()
-
-    GameState.runFuncPerAlive(function(player)
-        TextModule.setText(player, "Let's begin!", "happy")
-    end)
-    task.wait(3)
 
     return
 end

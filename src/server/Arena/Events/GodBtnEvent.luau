@@ -66,7 +66,7 @@ function Event.onEvent()
     Promise.race({
         awardedPlayerPromise,
         GameState.runPromisePerAlive(function(player, protect, await)
-            return Promise.new(function(resolve, reject, onCancel)
+            return protect(Promise.new(function(resolve, reject, onCancel)
                 while task.wait(0.3) do -- for debouncing
                     local clickPromise = ButtonsModule.waitForClick(player, 60)
                     onCancel(function()
@@ -96,7 +96,7 @@ function Event.onEvent()
                         end)
                     end
                 end
-            end)
+            end))
         end),
         Promise.delay(60)
     }):catch(error):await()

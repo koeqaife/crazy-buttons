@@ -112,6 +112,12 @@ local function runEvent(event: Event?)
     end
 
     TimerModule.setTime(-1)
+    GameState.cancelAll()
+    task.wait()
+    task.wait()
+    task.wait()
+    task.wait()
+    GameState.runButtonsForDead()
     AmbienceModule.stopAll()
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})

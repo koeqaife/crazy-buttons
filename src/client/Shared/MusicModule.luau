@@ -116,6 +116,7 @@ end
 
 local function fadeInSound(sound: Sound, from: number, to: number)
     ContentProvider:PreloadAsync({sound})
+    sound:Play()
     local promise = Promise.new(function(resolve, _, onCancel)
         local initialVolume = from
         local targetVolume = to

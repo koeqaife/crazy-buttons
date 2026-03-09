@@ -490,6 +490,8 @@ function GameState.connect()
             linkedPlayers[player] = nil
             removeLink(player, linked)
         end
+
+        GameState.flushReward(player)
     end)
 end
 

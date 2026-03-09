@@ -4,9 +4,12 @@
 local LobbyModule = {}
 
 local MAX_PLAYERS = 20
-local MIN_PLAYERS = 5
+local MIN_PLAYERS = 3
 local COUNTDOWN_SECONDS = 75
 local TELEPORT_PLACE_ID = 137127365503309
+
+local MAX_WAIT = 180
+local LOCK_DURATION = 10
 
 local playerBoardText: TextLabel = workspace
     :WaitForChild("TerminalScreen")
@@ -14,8 +17,8 @@ local playerBoardText: TextLabel = workspace
     :WaitForChild("mainText")
 
 local boardText = {
-    players="",
-    countdown=""
+    players = "",
+    countdown = ""
 }
 
 local Players = game:GetService("Players")
@@ -31,6 +34,7 @@ local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
 local active: {[Player]: boolean} = {}
 local queue: {Player} = {}
 
+local joinTimes: {[Player]: number} = {}
 local InQueueLabel = Instance.new("RemoteEvent", ReplicatedStorage)
 InQueueLabel.Name = "InQueueLabel"
 
@@ -40,6 +44,7 @@ FirstTimeJoined.Name = "FirstTimeJoined"
 local timerActive = false
 local timerTimeLeft = 0
 local globalTimerTimeLeft = 0
+local countdownLockUntil = 0
 
 local function updateBoardText()
     if #boardText.countdown > 0 then
@@ -75,6 +80,23 @@ local function countActive()
     return count
 end
 
+local function oldestWait()
+    local oldest = 0
+    local now = os.time()
+    local oldestPlayer: Player? = nil
+    for player, _ in pairs(active) do
+        local joined = joinTimes[player]
+        if joined then
+            local waited = now - joined
+            if waited > oldest then
+                oldest = waited
+                oldestPlayer = player
+            end
+        end
+    end
+    return oldest, oldestPlayer
+end
+
 local function addHighlight(player: Player)
     if player.Character and not player.Character:FindFirstChild("PadHighlight") then
         local highlight = Instance.new("Highlight")
@@ -103,6 +125,7 @@ local function promoteFromQueue(limit)
         local nextPlayer = table.remove(queue, 1)
         if nextPlayer and Players:FindFirstChild(nextPlayer.Name) then
             active[nextPlayer] = true
+            joinTimes[nextPlayer] = os.time()
             addHighlight(nextPlayer)
             InQueueLabel:FireClient(nextPlayer, true)
             promoted += 1
@@ -124,6 +147,7 @@ local function startGame()
     end
 
     active = {}
+    joinTimes = {}
     updatePadCount(0, MAX_PLAYERS)
 
     local teleportOptions = Instance.new("TeleportOptions")
@@ -160,8 +184,12 @@ local function startGame()
     updatePadCount(countActive(), MAX_PLAYERS)
 end
 
-local function stopCountdown(reason: string)
+local function stopCountdown(reason: string, force: boolean?)
     if not timerActive then
+        return
+    end
+    local now = os.time()
+    if not force and now < countdownLockUntil then
         return
     end
     timerActive = false
@@ -169,22 +197,63 @@ local function stopCountdown(reason: string)
     updatePadCountdown("cancel", reason)
 end
 
+local function computeInitialCountdown(activeCount: number)
+    local reduction = math.max(0, (activeCount - MIN_PLAYERS) * 10)
+    local proposed = COUNTDOWN_SECONDS - reduction
+    if proposed < 10 then
+        proposed = 10
+    end
+    return proposed
+end
+
 local function startCountdown()
     if timerActive then
         return
     end
 
-    timerActive = true
-    timerTimeLeft = COUNTDOWN_SECONDS
-    globalTimerTimeLeft = 150
+    if countActive() < MIN_PLAYERS then
+        return
+    end
 
-    updatePadCountdown("started", COUNTDOWN_SECONDS)
+    local now = os.time()
+    local oldest, _ = oldestWait()
+    if oldest >= MAX_WAIT then
+        task.spawn(startGame)
+        return
+    end
+
+    timerActive = true
+    local activeCount = countActive()
+    timerTimeLeft = computeInitialCountdown(activeCount)
+
+    local timeUntilMaxWait = MAX_WAIT - oldest
+    if timeUntilMaxWait < timerTimeLeft then
+        timerTimeLeft = math.max(0, timeUntilMaxWait)
+    end
+
+    globalTimerTimeLeft = 150
+    countdownLockUntil = now + LOCK_DURATION
+
+    updatePadCountdown("started", timerTimeLeft)
 
     task.spawn(function()
         while timerActive do
             if countActive() < MIN_PLAYERS then
                 stopCountdown("not_enough_players")
                 return
+            end
+
+            local oldestNow, _ = oldestWait()
+            if oldestNow >= MAX_WAIT then
+                break
+            end
+
+            local newActiveCount = countActive()
+            local proposed = computeInitialCountdown(newActiveCount)
+            local untilMax = math.max(0, MAX_WAIT - oldestNow)
+            proposed = math.min(proposed, untilMax)
+            if proposed < timerTimeLeft then
+                timerTimeLeft = proposed
             end
 
             timerTimeLeft -= 1
@@ -223,7 +292,6 @@ local function checkStartConditions()
     end
 end
 
-
 local function onPlayerEnter(player: Player)
     if active[player] then
         return
@@ -237,16 +305,9 @@ local function onPlayerEnter(player: Player)
 
     local activeCount = countActive()
 
-    if activeCount >= MAX_PLAYERS and timerTimeLeft > 10 then
-        timerTimeLeft = 10
-    elseif activeCount >= 10 and timerTimeLeft > 45 then
-        timerTimeLeft = 45
-    elseif activeCount >= 5 and timerTimeLeft > 60 then
-        timerTimeLeft = 60
-    end
-
     if activeCount < MAX_PLAYERS then
         active[player] = true
+        joinTimes[player] = os.time()
         addHighlight(player)
         InQueueLabel:FireClient(player, true)
     else
@@ -255,12 +316,25 @@ local function onPlayerEnter(player: Player)
     end
 
     updatePadCount(countActive(), MAX_PLAYERS)
+
+    if timerActive then
+        local newProposed = computeInitialCountdown(countActive())
+        local oldestNow, _ = oldestWait()
+        local untilMax = math.max(0, MAX_WAIT - oldestNow)
+        newProposed = math.min(newProposed, untilMax)
+        if newProposed < timerTimeLeft then
+            timerTimeLeft = newProposed
+            updatePadCountdown("update", timerTimeLeft)
+        end
+    end
+
     checkStartConditions()
 end
 
 local function onPlayerExit(player: Player)
     if active[player] then
         active[player] = nil
+        joinTimes[player] = nil
         removeHighlight(player)
         InQueueLabel:FireClient(player, false)
 
@@ -268,13 +342,10 @@ local function onPlayerExit(player: Player)
             stopCountdown("not_enough_players")
         end
 
-        if countActive() < 10 and timerTimeLeft < 10 then
-            timerTimeLeft = 30
-        end
-
         local nextPlayer = table.remove(queue, 1)
         if nextPlayer then
             active[nextPlayer] = true
+            joinTimes[nextPlayer] = os.time()
             addHighlight(nextPlayer)
             InQueueLabel:FireClient(nextPlayer, true)
         end

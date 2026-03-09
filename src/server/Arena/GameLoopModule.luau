@@ -270,14 +270,16 @@ function GameLoopModule.start()
                 lastEventCategory = nil
             end
 
-            GameState.runFuncPerAll(function(player)
-                TextModule.setText(
-                    player, #GameState.alivePlayers .. " players left...",
-                    "normal"
-                )
-            end)
+            if #GameState.alivePlayers > 0 then
+                GameState.runFuncPerAll(function(player)
+                    TextModule.setText(
+                        player, #GameState.alivePlayers .. " players left...",
+                        "normal"
+                    )
+                end)
 
-            task.wait(10)
+                task.wait(10)
+            end
         end
 
         if forcedNextEvent then

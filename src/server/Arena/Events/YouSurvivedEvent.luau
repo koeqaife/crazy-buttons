@@ -1,11 +1,13 @@
 --!strict
 --!optimize 2
 local ServerScriptService = game:GetService("ServerScriptService")
+local TeleportService = game:GetService("TeleportService")
 
 -- Description:
 -- When one person is left
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local ButtonsModule = require(ServerScriptService.Server.Arena.ButtonsModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
@@ -13,6 +15,7 @@ local TextModule = require(Arena.TextModule)
 
 type EventType = EventTypeModule.Event
 
+local LOBBY_PLACE_ID = 115379867051786
 local badges = {
     [1] = 4478862295219855,
     [10] = 2597949705630302,
@@ -26,6 +29,7 @@ Event.category = "end"
 Event.chance = 1.0
 Event.maxPlayers = 1
 Event.minPlayers = 1
+Event.maxPerGame = 1
 
 function Event.check()
     return true
@@ -33,6 +37,7 @@ end
 
 function Event.onEvent()
     local survivor = GameState.alivePlayers[1]
+    table.clear(GameState.alivePlayers)
 
     GameState.runFuncPerDead(function(player)
         TextModule.setText(player, survivor.Name .. " made it to the end", "happy")
@@ -48,15 +53,22 @@ function Event.onEvent()
     end
     GameState.addRewardTo(survivor, 5)
 
+    task.spawn(function()
+        ButtonsModule.setButtons(survivor, {
+            { idx = 5, text = "Return to lobby"}
+        })
+
+        ButtonsModule.waitForClick(survivor, -1, nil):await()
+        ButtonsModule.setButtons(survivor, {
+            { idx = 5, text = "Teleporting...", inputDisabled = true }
+        })
+        TeleportService:Teleport(LOBBY_PLACE_ID, survivor)
+    end)
+
     TextModule.showTextSequence(survivor, {
         { text = "Oh, looks like you're the one who is left", delay = 4, face = "shy" },
-        { text = "Congratulations!", delay = 4, face = "happy" },
-        { text = "But we cannot continue the experiment...", delay = 4, face = "normal" },
-        { text = "So I will have to eliminate you", delay = 4, face = "scared" },
-        { text = "Otherwise, there is just nowhere to go for you", delay = 4, face = "dead" },
+        { text = "You survived, congratulations!", delay = 4, face = "happy" },
     }):catch(warn):await()
-
-    GameState.kill(survivor, "end_of_the_game")
 
     return
 end

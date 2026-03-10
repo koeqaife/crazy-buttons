@@ -111,7 +111,7 @@ function Event.onEvent()
 
     local lastChosen: {[Player]: number?} = {}
     for i = 1, MAX_SUB_ROUNDS do
-        if deathsThisEvent >= MAX_DEATHS_ALLOWED or #GameState.alivePlayers <= 3 then
+        if deathsThisEvent >= MAX_DEATHS_ALLOWED or (#GameState.alivePlayers <= 3 and i > 3) then
             break
         end
 

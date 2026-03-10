@@ -270,7 +270,7 @@ function GameLoopModule.start()
                 lastEventCategory = nil
             end
 
-            if #GameState.alivePlayers > 0 then
+            if #GameState.alivePlayers > 1 then
                 GameState.runFuncPerAll(function(player)
                     TextModule.setText(
                         player, #GameState.alivePlayers .. " players left...",

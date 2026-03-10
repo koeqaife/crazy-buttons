@@ -91,7 +91,7 @@ function ButtonsModule.initiateButtonChoice(
     stopOnChosen: {Player}?
 )
     return Promise.new(function(resolve, reject, onCancel)
-        local choices: {[Player]: number?} = currentChoices or {}
+        local choices: {[Player]: number?} = if currentChoices == nil then {} else currentChoices
 
         local conn
         conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)

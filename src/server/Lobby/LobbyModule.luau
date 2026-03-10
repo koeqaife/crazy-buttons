@@ -5,10 +5,10 @@ local LobbyModule = {}
 
 local MAX_PLAYERS = 20
 local MIN_PLAYERS = 3
-local COUNTDOWN_SECONDS = 75
+local COUNTDOWN_SECONDS = 45
 local TELEPORT_PLACE_ID = 137127365503309
 
-local MAX_WAIT = 180
+local MAX_WAIT = 75
 local LOCK_DURATION = 10
 
 local playerBoardText: TextLabel = workspace
@@ -184,17 +184,18 @@ local function startGame()
     updatePadCount(countActive(), MAX_PLAYERS)
 end
 
-local function stopCountdown(reason: string, force: boolean?)
+local function stopCountdown(reason: string, force: boolean?): boolean
     if not timerActive then
-        return
+        return true
     end
     local now = os.time()
     if not force and now < countdownLockUntil then
-        return
+        return false
     end
     timerActive = false
     timerTimeLeft = 0
     updatePadCountdown("cancel", reason)
+    return true
 end
 
 local function computeInitialCountdown(activeCount: number)
@@ -239,8 +240,11 @@ local function startCountdown()
     task.spawn(function()
         while timerActive do
             if countActive() < MIN_PLAYERS then
-                stopCountdown("not_enough_players")
-                return
+                local stopped = stopCountdown("not_enough_players")
+                if stopped then
+                    return
+                else
+                end
             end
 
             local oldestNow, _ = oldestWait()

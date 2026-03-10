@@ -140,7 +140,7 @@ function Event.onEvent()
         else
             TextModule.setText(player, "Player " .. mostVotedPlayer.DisplayName .. " was revived", "happy")
         end
-    end):await()
+    end)
     task.wait(5)
 
     return

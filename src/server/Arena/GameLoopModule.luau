@@ -266,19 +266,19 @@ function GameLoopModule.start()
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
                 eventCooldown[nextEvent] = GameState.round + EVENT_COOLDOWN
                 lastEventCategory = nextEvent.category
+
+                if #GameState.alivePlayers > 1 then
+                    GameState.runFuncPerAll(function(player)
+                        TextModule.setText(
+                            player, #GameState.alivePlayers .. " players left...",
+                            "normal"
+                        )
+                    end)
+
+                    task.wait(10)
+                end
             else
                 lastEventCategory = nil
-            end
-
-            if #GameState.alivePlayers > 1 then
-                GameState.runFuncPerAll(function(player)
-                    TextModule.setText(
-                        player, #GameState.alivePlayers .. " players left...",
-                        "normal"
-                    )
-                end)
-
-                task.wait(10)
             end
         end
 

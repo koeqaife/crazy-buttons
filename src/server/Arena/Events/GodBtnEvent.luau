@@ -100,6 +100,7 @@ function Event.onEvent()
             error(e)
         end
     end):await()
+    TimerModule.setTime(-1)
 
     GameState.runFuncPerAll(function(player)
         ButtonsModule.setButtons(player, {})

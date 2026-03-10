@@ -87,12 +87,14 @@ function ButtonsModule.initiateButtonChoice(
     filter: ((Player, number) -> boolean)?,
     post: ((Player, number?) -> nil)?,
     currentChoices: {[Player]: number?}?,
-    allowCancel: boolean?
+    allowCancel: boolean?,
+    stopOnChosen: {Player}?
 )
     return Promise.new(function(resolve, reject, onCancel)
         local choices: {[Player]: number?} = currentChoices or {}
 
-        local conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
+        local conn
+        conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
             if not ButtonsModule.doesPlayerHaveButton(playerWhoClicked, idx) then
                 return
             end
@@ -115,6 +117,20 @@ function ButtonsModule.initiateButtonChoice(
 
             if post then
                 post(playerWhoClicked, choices[playerWhoClicked])
+            end
+
+            if stopOnChosen ~= nil then
+                local finished = true
+                for _, player in ipairs(table.clone(stopOnChosen)) do
+                    if choices[player] == nil then
+                        finished = false
+                        break
+                    end
+                end
+                if finished then
+                    conn:Disconnect()
+                    resolve(choices)
+                end
             end
         end)
         onCancel(function()

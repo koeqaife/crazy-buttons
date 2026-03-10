@@ -64,7 +64,8 @@ function Event.onEvent()
             })
         end)
 
-        local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
+        local _, chosen = ButtonsModule.initiateButtonChoice(15, nil, nil, nil, nil, GameState.alivePlayers):catch(error):await()
+        TimerModule.setTime(-1)
 
         GameState.runNewPromisePerAlive(function(player, protect, await)
             if not chosenColors[player] then
@@ -116,7 +117,8 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, buttons)
     end)
 
-    local _, chosen = ButtonsModule.initiateButtonChoice(25):catch(error):await()
+    local _, chosen = ButtonsModule.initiateButtonChoice(25, nil, nil, nil, nil, GameState.alivePlayers):catch(error):await()
+    TimerModule.setTime(-1)
 
     local toSave: {[Player]: number} = {}
 

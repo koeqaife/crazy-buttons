@@ -104,7 +104,8 @@ function Event.onEvent()
         end)
 
         TimerModule.setTime(15)
-        local _, chosen = ButtonsModule.initiateButtonChoice(15):catch(error):await()
+        local _, chosen = ButtonsModule.initiateButtonChoice(15, nil, nil, nil, nil, {p1, p2}):catch(error):await()
+        TimerModule.setTime(-1)
 
         if chosen[p1] == nil and chosen[p2] == nil then
             GameState.runFuncPerAll(function(player)

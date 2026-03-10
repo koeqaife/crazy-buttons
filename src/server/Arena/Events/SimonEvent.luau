@@ -147,7 +147,9 @@ function Event.onEvent()
             function(playerWhoClicked)
                 clickedNow[playerWhoClicked] = true
             end,
-            lastChosenCopy
+            lastChosenCopy,
+            nil,
+            GameState.alivePlayers
         ):catch(error):await()
 
         GameState.runNewPromisePerAlive(function(player)

@@ -33,6 +33,7 @@ Event.chance = 0.1
 Event.minPlayers = 5
 Event.maxPerGame = 2
 Event.minRound = 2
+local COLOR_NAMES = { "Red", "Blue", "Pink", "Yellow" }
 
 function Event.check()
     return true
@@ -62,7 +63,14 @@ local function disableAllBtnExcept(player: Player, idx: number)
     local indices: IndicesType.Indices = {}
 
     for i = 1, 4 do
-        table.insert(indices, { idx = i, disabled = idx ~= i })
+        table.insert(
+            indices,
+            {
+                idx = i,
+                disabled = idx ~= i,
+                text = if idx ~= i then "" else COLOR_NAMES[i]
+            }
+        )
     end
 
     ButtonsModule.updateButtons(player, indices)
@@ -72,7 +80,7 @@ local function enableAllBtn(player: Player)
     local indices: IndicesType.Indices = {}
 
     for i = 1, 4 do
-        table.insert(indices, { idx = i, disabled = false })
+        table.insert(indices, { idx = i, disabled = false, text = COLOR_NAMES[i] })
     end
 
     ButtonsModule.updateButtons(player, indices)
@@ -93,10 +101,10 @@ function Event.onEvent()
 
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
-            { idx = 1 },
-            { idx = 2 },
-            { idx = 3 },
-            { idx = 4 },
+            { idx = 1, text = COLOR_NAMES[1] },
+            { idx = 2, text = COLOR_NAMES[2] },
+            { idx = 3, text = COLOR_NAMES[3] },
+            { idx = 4, text = COLOR_NAMES[4] },
         })
     end)
 

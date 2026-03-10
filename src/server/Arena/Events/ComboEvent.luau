@@ -88,14 +88,14 @@ end
 
 function Event.onEvent()
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're doing combos now, three players will be eliminated", "combo_event_icon")
+        TextModule.setText(player, "They're doing combos now, some players will be eliminated", "combo_event_icon")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { text = "Now you will have to repeat after me", delay = 6, face = "combo_event_icon" },
             { text = "Players with the highest amount of mistakes will be eliminated", delay = 7, face = "dead" },
-            { text = "And now we start", delay = 5, face = "shy" },
+            { text = "And now we start", delay = 3, face = "shy" },
         }))
     end):catch(error):await()
 
@@ -143,12 +143,12 @@ function Event.onEvent()
                 enableAllBtn(player)
 
                 TextModule.setText(player, tostring(i), "nerd")
-                local clicked = await(ButtonsModule.waitForClick(player, 10))
+                local clicked = await(ButtonsModule.waitForClick(player, 7.5))
 
                 if not clicked then
-                    TextModule.setText(player, "You didn't click anything", "dead")
-                    GameState.kill(player)
-                    return
+                    local mistakeCount = mistakes[player] or 0
+                    mistakes[player] = mistakeCount + (#combo - i)
+                    break
                 end
 
                 if clicked ~= idx then
@@ -199,7 +199,7 @@ function Event.onEvent()
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
-            { text = "You have " .. mistakes[player] or 0 .. " mistakes...", delay = 3, face = "laughing" },
+            { text = "You have " .. tostring(mistakes[player] or 0) .. " mistakes...", delay = 3, face = "laughing" },
             { text = "Let's see what we got here", delay = 4, face = "scared" }
         }))
         -- For everyone who played, even if they died

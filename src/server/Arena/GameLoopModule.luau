@@ -270,7 +270,7 @@ function GameLoopModule.start()
                 if #GameState.alivePlayers > 1 then
                     GameState.runFuncPerAll(function(player)
                         TextModule.setText(
-                            player, #GameState.alivePlayers .. " players left...",
+                            player, #GameState.alivePlayers .. " players are left...",
                             "normal"
                         )
                     end)

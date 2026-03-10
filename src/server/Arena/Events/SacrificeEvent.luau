@@ -21,7 +21,7 @@ Event.chance = 0.09
 Event.minRound = 2
 Event.maxPerGame = 2
 Event.minPlayers = 4
-Event.minRound = 5
+Event.minRound = 3
 
 function Event.check()
     return true

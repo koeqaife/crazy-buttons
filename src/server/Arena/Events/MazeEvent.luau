@@ -116,8 +116,13 @@ function Event.onEvent()
                     GameState.kill(player)
                 end
 
+                if awardedResolved and killResolved then
+                    GameState.cancelAll()
+                end
+
                 if counter <= 0 then
                     resolved = true
+                    GameState.cancelAll()
                     return resolve()
                 end
             end

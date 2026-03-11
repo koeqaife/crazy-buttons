@@ -4,6 +4,7 @@
 local TextModule = {}
 local ContentProvider = game:GetService("ContentProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextChatService = game:GetService("TextChatService")
 local spr = require(ReplicatedStorage.Shared.spr)
 
 local blipSound: Sound = ReplicatedStorage
@@ -133,6 +134,9 @@ local function setText(
     for i = 1, maxLength do
         if generation ~= currentGeneration then
             mainText.Text = new
+            TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage(
+                "<font color=\"#88f584\"><b>[TEXT] " .. new .. "</b></font>"
+            )
             return
         end
 
@@ -155,6 +159,9 @@ local function setText(
         task.wait(speed + bonus)
     end
     generationIsRunning = false
+    TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage(
+        "<font color=\"#88f584\"><b>[TEXT] " .. new .. "</b></font>"
+    )
 end
 
 local function preload()

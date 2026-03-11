@@ -20,7 +20,7 @@ local Event = {} :: EventType
 Event.name = "even_odd"
 Event.category = "social"
 Event.chance = 0.06
-Event.minPlayers = 10
+Event.minPlayers = 7
 Event.maxPerGame = 1
 
 function Event.check()
@@ -54,7 +54,11 @@ function Event.onEvent()
     end)
 
     TimerModule.setTime(30)
-    local _, chosen = ButtonsModule.initiateButtonChoice(30, nil, nil, nil, true):catch(error):await()
+    local _, chosen = ButtonsModule.initiateButtonChoice(30, nil, function(player, idx)
+        ButtonsModule.updateButtons(player, {
+            { idx = 2, text = if idx ~= nil then "Pressed" else "" }
+        })
+    end, nil, true):catch(error):await()
 
     local count = 0
     local clickedPlayers: {Player} = {}

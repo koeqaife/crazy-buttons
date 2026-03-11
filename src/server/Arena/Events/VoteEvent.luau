@@ -70,12 +70,12 @@ function Event.onEvent()
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be eliminated now", delay = 5, face = "normal" },
-                { text = "Other players will decide your fate...", delay = 3, face = "scared" },
+                { text = "People are gonna vote who to eliminate", delay = 5, face = "normal" },
+                { text = "Others will decide your fate...", delay = 3, face = "scared" },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be eliminated now", delay = 5, face = "normal" },
+                { text = "People are gonna vote who to eliminate", delay = 5, face = "normal" },
                 { text = "Choose wisely who should be eliminated", delay = 3, face = "happy" },
             }))
         end

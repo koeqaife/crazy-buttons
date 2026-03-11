@@ -111,7 +111,7 @@ function Event.onEvent()
 
     local lastChosen: {[Player]: number?} = {}
     for i = 1, MAX_SUB_ROUNDS do
-        if deathsThisEvent >= MAX_DEATHS_ALLOWED or (#GameState.alivePlayers <= 3 and i > 3) then
+        if deathsThisEvent >= MAX_DEATHS_ALLOWED or (#GameState.alivePlayers <= 3 and i > 5) then
             break
         end
 
@@ -137,7 +137,7 @@ function Event.onEvent()
             TextModule.setText(player, randomText.text, "normal")
         end)
 
-        local _, chosen = ButtonsModule.initiateButtonChoice(8, nil, nil, nil, true):catch(error):await()
+        local _, chosen = ButtonsModule.initiateButtonChoice(8, nil, nil, lastChosenCopy, true):catch(error):await()
 
         GameState.runNewPromisePerAlive(function(player)
             local selected = chosen[player]

@@ -17,7 +17,7 @@ local Event = {} :: EventType
 Event.name = "linked"
 Event.category = "survival"
 Event.chance = 0.09
-Event.minRound = 4
+Event.minRound = 2
 Event.maxPerGame = 1
 Event.minPlayers = 5
 

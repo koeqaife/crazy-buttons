@@ -18,6 +18,8 @@ local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
 local linkedPlayers: {[Player]: Player} = {}
 
+local registeredInstances: {Instance} = {}
+
 local playerRevivedTimes: {[Player]: number} = {}
 
 -- track how many revives have occurred during the current run
@@ -543,6 +545,17 @@ function GameState.flushReward(player: Player)
     local cash = rewards[player]
     rewards[player] = nil
     DataStoreModule.addCash(player, math.ceil(cash)):catch(warn)
+end
+
+function GameState.registerInstance(instance: Instance)
+    table.insert(registeredInstances, instance)
+end
+
+function GameState.destroyInstances()
+    for i, instance in ipairs(registeredInstances) do
+        instance:Destroy()
+    end
+    table.clear(registeredInstances)
 end
 
 return GameState

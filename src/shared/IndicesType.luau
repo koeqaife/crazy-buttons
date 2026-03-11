@@ -4,7 +4,8 @@ export type Button = {
     disabled: boolean?,
     highlighted: boolean?,
     inputDisabled: boolean?,
-    showAs: number?
+    showAs: number?,
+    spawnAt: string?
 }
 
 export type Indices = {Button}

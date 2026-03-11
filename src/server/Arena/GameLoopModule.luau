@@ -35,6 +35,7 @@ local YouSurvivedEvent = require(Arena.Events.YouSurvivedEvent)
 local DuelEvent = require(Arena.Events.DuelEvent)
 local LinkedEvent = require(Arena.Events.LinkedEvent)
 local TwoKnowsEvent = require(Arena.Events.TwoKnowsEvent)
+local MazeEvent = require(Arena.Events.MazeEvent)
 
 local EXPERIMENT_BADGE_ID = 4390814557028274
 
@@ -57,7 +58,8 @@ local events: {Event} = {
     YouSurvivedEvent,
     DuelEvent,
     LinkedEvent,
-    TwoKnowsEvent
+    TwoKnowsEvent,
+    MazeEvent
 }
 
 local eventCounts: {[Event]: number} = {}
@@ -123,6 +125,7 @@ local function runEvent(event: Event?)
     task.wait()
     task.wait()
     task.wait()
+    GameState.destroyInstances()
     GameState.runButtonsForDead()
     AmbienceModule.stopAll()
     GameState.runFuncPerAlive(function(player)

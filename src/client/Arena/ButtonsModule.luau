@@ -144,10 +144,26 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
         for i, obj in ipairs(indices) do
             local buttonData = BUTTONS[((obj.showAs or obj.idx) - 1) % #BUTTONS + 1]
             if buttonData then
-                local buttonClone = createButton(obj, buttonData, i)
-                local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
-                buttonClone:MoveTo(spawnPos)
-                xOffset += GAP
+                local buttonClone = createButton(obj, buttonData, -1)
+                if obj.spawnAt ~= nil then
+                    local part = workspace:WaitForChild(obj.spawnAt) :: Part
+                    buttonClone:MoveTo(part.Position)
+
+                    local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
+                    local button = buttonClone:WaitForChild("Button") :: Part
+                    buttonStand.Orientation = buttonStand.Orientation + Vector3.new(0, part.Orientation.Y - 90, 0)
+                    button.Orientation = button.Orientation + Vector3.new(0, part.Orientation.Y - 90, 0)
+                else
+                    local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
+                    buttonClone:MoveTo(spawnPos)
+
+                    local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
+                    local button = buttonClone:WaitForChild("Button") :: Part
+                    buttonStand.Orientation = buttonStand.Orientation + Vector3.new(0, buttonSpawn.Orientation.Y - 90, 0)
+                    button.Orientation = button.Orientation + Vector3.new(0, buttonSpawn.Orientation.Y - 90, 0)
+
+                    xOffset += GAP
+                end
             end
         end
     else

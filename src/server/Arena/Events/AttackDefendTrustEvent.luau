@@ -89,16 +89,21 @@ function Event.onEvent()
         GameState.removeHighlightFromAll()
         GameState.addHighlightTo({p1, p2})
 
-        GameState.runFuncPerAll(function(player)
+        GameState.runFuncPerAlive(function(player)
+            local inputEnabled = player == p1 or player == p2
+            ButtonsModule.setButtons(player, {})
+            ButtonsModule.setButtons(player, {
+                { idx = 1, text = "Attack", inputDisabled = not inputEnabled },
+                { idx = 2, text = "Defend", inputDisabled = not inputEnabled },
+                { idx = 3, text = "Trust", inputDisabled = not inputEnabled }
+            }, nil, false)
+
             if player == p1 or player == p2 then
-                ButtonsModule.setButtons(player, {})
-                ButtonsModule.setButtons(player, {
-                    { idx = 1, text = "Attack" },
-                    { idx = 2, text = "Defend" },
-                    { idx = 3, text = "Trust" }
-                })
                 TextModule.setText(player, "Choose your move", "normal")
-            else
+            end
+        end)
+        GameState.runFuncPerDead(function(player)
+            if not (player == p1 or player == p2) then
                 TextModule.setText(player, "Waiting for " .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName .. " to choose their move...", "normal")
             end
         end)

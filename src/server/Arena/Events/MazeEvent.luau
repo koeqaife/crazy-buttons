@@ -136,6 +136,7 @@ function Event.onEvent()
     end):await()
     TimerModule.setTime(-1)
 
+    GameState.runButtonsForDead() -- Restore "return to lobby" button
     GameState.destroyInstances()
 
     GameState.runFuncPerAlive(function(player)

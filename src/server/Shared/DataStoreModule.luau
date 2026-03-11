@@ -4,6 +4,7 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local NameService = require(script.Parent.NameService)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
 
@@ -538,7 +539,7 @@ local function getTop(from: OrderedDataStore)
                 end
 
                 local ok, name = pcall(function()
-                    return Players:GetNameFromUserIdAsync(entry.key)
+                    return NameService.getName(entry.key)
                 end)
                 if ok and name then
                     table.insert(result, { name = name, value = entry.value })

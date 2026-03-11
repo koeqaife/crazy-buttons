@@ -22,7 +22,7 @@ local function onFirstTimeJoin()
     local text = (
         "Hey " .. player.Name .. "!\n\n" ..
         "Welcome to the Buttons Experiment!\n" ..
-        "The game is freshly released, so you might encounter a few bugs.\n" ..
+        "The game was released 1 week ago, so you might encounter a few bugs.\n" ..
         "Gathering new players can be tricky...\n" ..
         "If the lobby looks empty, invite your friends!\n" ..
         "We'd love to hear your feedback and see what you think.\n\n" ..

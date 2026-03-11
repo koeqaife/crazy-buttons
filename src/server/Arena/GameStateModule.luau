@@ -199,6 +199,10 @@ function GameState.kill(player: Player, reason: string?)
 
     Promise.defer(function(resolve)
         GameState.flushReward(player)
+        task.wait()
+        task.wait()
+        task.wait()
+        task.wait()
 
         -- Kill other linked player
         local linked = linkedPlayers[player]

@@ -20,7 +20,7 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
-Event.chance = 0.08
+Event.chance = 0.1
 Event.minRound = 3
 Event.minPlayers = 3
 Event.maxPerGame = 1

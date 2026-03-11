@@ -137,20 +137,7 @@ function Event.onEvent()
             TextModule.setText(player, randomText.text, "normal")
         end)
 
-        local clickedNow: {[Player]: boolean} = {}
-
-        local _, chosen = ButtonsModule.initiateButtonChoice(
-            8,
-            function(playerWhoClicked)
-                return not clickedNow[playerWhoClicked]
-            end,
-            function(playerWhoClicked)
-                clickedNow[playerWhoClicked] = true
-            end,
-            lastChosenCopy,
-            nil,
-            GameState.alivePlayers
-        ):catch(error):await()
+        local _, chosen = ButtonsModule.initiateButtonChoice(8, nil, nil, nil, true):catch(error):await()
 
         GameState.runNewPromisePerAlive(function(player)
             local selected = chosen[player]

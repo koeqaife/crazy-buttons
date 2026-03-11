@@ -93,9 +93,9 @@ function Event.onEvent()
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to repeat after me", delay = 6, face = "combo_event_icon" },
+            { text = "Now you will have to repeat the sequence after me", delay = 6, face = "combo_event_icon" },
             { text = "Players with the highest amount of mistakes will be eliminated", delay = 7, face = "dead" },
-            { text = "And now we start", delay = 3, face = "shy" },
+            { text = "Let's start", delay = 3, face = "shy" },
         }))
     end):catch(error):await()
 
@@ -124,12 +124,11 @@ function Event.onEvent()
                 table.insert(combo, nextIdx)
             end
 
-            TextModule.setText(player, "My turn", "normal")
+            TextModule.setText(player, "My turn, watch closely", "normal")
             enableAllBtn(player)
             disableInput(player)
             task.wait(2)
             for i, idx in ipairs(combo) do
-                TextModule.setText(player, tostring(i), "normal")
                 disableAllBtnExcept(player, idx)
                 task.wait(1)
             end
@@ -142,7 +141,7 @@ function Event.onEvent()
                 enableInput(player)
                 enableAllBtn(player)
 
-                TextModule.setText(player, tostring(i), "nerd")
+                TextModule.setText(player, tostring(#combo - i + 1) .. " clicks left", "nerd")
                 local clicked = await(ButtonsModule.waitForClick(player, 7.5))
 
                 if not clicked then
@@ -161,7 +160,7 @@ function Event.onEvent()
 
                 disableInput(player)
                 disableAllBtnExcept(player, clicked or 0)
-                task.wait(1)
+                task.wait(0.25)
             end
         end
         TextModule.setText(player, "Let's wait for others to finish", "normal")

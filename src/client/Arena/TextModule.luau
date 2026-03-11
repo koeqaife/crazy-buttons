@@ -66,6 +66,16 @@ local faces: {[string]: string} = {
     even_odd_event_icon = "rbxassetid://103558857828491"
 }
 
+local emoticons: {[string]: string} = {
+    shy = "^_^",
+    scared = "D:",
+    dead = "x_x",
+    laughing = "XD",
+    angry = ">:(",
+    unamused = "-_-",
+    happy = ":D",
+}
+
 local currentGeneration = 0
 local generationIsRunning = false
 
@@ -119,7 +129,8 @@ local function setText(
     current: string,
     new: string,
     speed: number,
-    generation: number
+    generation: number,
+    face: any?
 ): ()
     if #new == 0 then
         mainText.Text = ""
@@ -160,7 +171,7 @@ local function setText(
     end
     generationIsRunning = false
     TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage(
-        "<font color=\"#88f584\"><b>[TEXT] " .. new .. "</b></font>"
+        "<font color=\"#88f584\"><b>[TEXT] " .. new .. " " .. (emoticons[face or ""] or "") .. "</b></font>"
     )
 end
 
@@ -204,13 +215,14 @@ function TextModule.connect(): ()
             end
 
             if action == "set" then
-                setText("", text, 0.04, myGeneration)
+                setText("", text, 0.04, myGeneration, face)
             elseif action == "append" then
                 setText(
                     mainText.Text,
                     mainText.Text .. text,
                     0.04,
-                    myGeneration
+                    myGeneration,
+                    face
                 )
             end
         end

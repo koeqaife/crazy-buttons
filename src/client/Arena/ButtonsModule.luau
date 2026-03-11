@@ -1,7 +1,10 @@
 --!strict
 --!optimize 2
+local Players = game:GetService("Players")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
 
 local IndicesModule = require(ReplicatedStorage.Shared.IndicesType)
 type Indices = IndicesModule.Indices
@@ -15,6 +18,9 @@ local buttonTemplate: Model = ReplicatedStorage:WaitForChild("ButtonTemplate")
 local clickSound: Sound = ReplicatedStorage
     :WaitForChild("Sounds")
     :WaitForChild("ClickSound")
+
+local ViewportGui = player:WaitForChild("PlayerGui"):WaitForChild("ViewportGui") :: ScreenGui
+local ViewportFrame = ViewportGui:WaitForChild("ViewportFrame") :: ViewportFrame
 
 local GAP = 4;
 local BUTTONS = {
@@ -56,6 +62,7 @@ local GAMEPAD_KEYS = {
     Enum.KeyCode.ButtonX
 }
 
+local copyToViewport: { Model } = {}
 local spawnedButtons: { Model } = {}
 local spawnedButtonsMap: { [number]: Model } = {}
 local spawnedButtonsIndicesMap: { [number]: IndicesModule.Button } = {}
@@ -123,6 +130,10 @@ local function createButton(obj: IndicesModule.Button, buttonData: { color: Colo
     spawnedButtonsMap[obj.idx] = buttonClone
     spawnedButtonsIndicesMap[obj.idx] = obj
 
+    if obj.onViewportFrame then
+        table.insert(copyToViewport, buttonClone)
+    end
+
     return buttonClone
 end
 
@@ -137,6 +148,7 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
     spawnedButtons = {}
     spawnedButtonsMap = {}
     spawnedButtonsIndicesMap = {}
+    copyToViewport = {}
 
     if #indices <= 20 then
         local xOffset = -((#indices - 1) * GAP) / 2
@@ -200,6 +212,13 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
             end
         end
     end
+
+    ViewportFrame:ClearAllChildren()
+    ViewportFrame.CurrentCamera = workspace.CurrentCamera
+    for _, model in copyToViewport do
+        local clone = model:Clone()
+        clone.Parent = ViewportFrame
+    end
 end
 
 function ButtonsModule.updateButtons(indices: Indices)
@@ -258,6 +277,15 @@ function ButtonsModule.updateButtons(indices: Indices)
                 original.disabled = disabled
             end
 
+            if obj.onViewportFrame == true and not table.find(copyToViewport, button) then
+                table.insert(copyToViewport, button)
+            elseif obj.onViewportFrame == false then
+                local idx = table.find(copyToViewport, button)
+                if idx then
+                    table.remove(copyToViewport, idx)
+                end
+            end
+
             local inputDisabled = obj.inputDisabled
             if inputDisabled == nil then
                 inputDisabled = original.inputDisabled
@@ -267,6 +295,13 @@ function ButtonsModule.updateButtons(indices: Indices)
 
             proximityPrompt.Enabled = not disabled and not inputDisabled
         end
+    end
+
+    ViewportFrame:ClearAllChildren()
+    ViewportFrame.CurrentCamera = workspace.CurrentCamera
+    for _, model in copyToViewport do
+        local clone = model:Clone()
+        clone.Parent = ViewportFrame
     end
 end
 

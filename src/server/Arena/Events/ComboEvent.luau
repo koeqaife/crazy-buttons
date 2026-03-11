@@ -43,7 +43,7 @@ local function disableInput(player: Player)
     local indices: IndicesType.Indices = {}
 
     for i = 1, 4 do
-        table.insert(indices, { idx = i, inputDisabled = true })
+        table.insert(indices, { idx = i, inputDisabled = true, onViewportFrame = true })
     end
 
     ButtonsModule.updateButtons(player, indices)
@@ -53,12 +53,11 @@ local function enableInput(player: Player)
     local indices: IndicesType.Indices = {}
 
     for i = 1, 4 do
-        table.insert(indices, { idx = i, inputDisabled = false })
+        table.insert(indices, { idx = i, inputDisabled = false, onViewportFrame = false })
     end
 
     ButtonsModule.updateButtons(player, indices)
 end
-
 local function disableAllBtnExcept(player: Player, idx: number)
     local indices: IndicesType.Indices = {}
 

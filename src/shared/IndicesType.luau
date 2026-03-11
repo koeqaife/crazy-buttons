@@ -5,7 +5,8 @@ export type Button = {
     highlighted: boolean?,
     inputDisabled: boolean?,
     showAs: number?,
-    spawnAt: string?
+    spawnAt: string?,
+    onViewportFrame: boolean?
 }
 
 export type Indices = {Button}

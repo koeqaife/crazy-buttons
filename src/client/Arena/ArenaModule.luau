@@ -10,6 +10,9 @@ local SoundService = game:GetService("SoundService")
 local player = Players.LocalPlayer
 local PlayerLoaded = ReplicatedStorage:WaitForChild("PlayerLoaded")
 
+local ViewportGui = player:WaitForChild("PlayerGui"):WaitForChild("ViewportGui") :: ScreenGui
+local ViewportFrame = ViewportGui:WaitForChild("ViewportFrame") :: ViewportFrame
+
 local SyncVolumes = ReplicatedStorage:WaitForChild("SyncVolumesEvent") :: RemoteEvent
 
 local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
@@ -28,6 +31,8 @@ function ArenaModule.init()
     AmbienceModule.init()
     CustomPromptModule.onLoad()
     MusicModule.init()
+
+    ViewportFrame.CurrentCamera = workspace.CurrentCamera
 
     game:GetService("ContentProvider"):PreloadAsync({player.Character})
 

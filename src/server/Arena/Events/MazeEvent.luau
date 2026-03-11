@@ -24,7 +24,7 @@ Event.chance = 0.08
 Event.minRound = 3
 Event.minPlayers = 3
 Event.maxPerGame = 1
-Event.name = "start"
+Event.name = "maze"
 Event.category = "rare"
 
 function Event.check()

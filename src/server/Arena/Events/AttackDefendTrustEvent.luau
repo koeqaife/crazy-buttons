@@ -102,7 +102,7 @@ function Event.onEvent()
                 TextModule.setText(player, "Choose your move", "normal")
             end
         end)
-        GameState.runFuncPerDead(function(player)
+        GameState.runFuncPerAll(function(player)
             if not (player == p1 or player == p2) then
                 TextModule.setText(player, "Waiting for " .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName .. " to choose their move...", "normal")
             end

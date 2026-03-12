@@ -35,7 +35,7 @@ local English: DictTemplate = {
         both_did_not_move = { text = "No action? Double elimination!", face = "dead" },
         you_both_chose = { text = "Unbelievable! You both locked in {btn}!", requiredKeys = {"btn"}, face = "laughing" },
         they_both_chose = { text = "Mind readers! They both chose {btn}!", requiredKeys = {"btn"}, face = "laughing" },
-        tie_choose_again = { text = "It's a draw! We go to sudden death!", face = "shy" },
+        tie_choose_again = { text = "It's a draw! Do that again!", face = "shy" },
         tie_they_choose_again = { text = "It's a tie! Let's rerun that!", face = "shy" },
         att_def = { text = "Denied! They blocked your strike!", face = "dead" },
         def_att = { text = "What a block! You survived the hit!", face = "happy" },

@@ -152,6 +152,7 @@ function GameState.runButtonsForDead()
                 })
             end
 
+            task.wait(0.75)  -- Wait a bit to make sure they don't click it accidentally
             local clickPromise = ButtonsModule.waitForClick(player, -1)
             onCancel(function()
                 clickPromise:cancel()

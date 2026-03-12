@@ -16,6 +16,7 @@ local ButtonsModule = require(Arena.ButtonsModule)
 
 type EventType = EventTypeModule.Event
 
+local BADGE_ID = 3143538501927930
 local COMBO_COUNT = 5
 local ROUND_COMBO_LENGTH = {
     [1] = 3,
@@ -207,6 +208,9 @@ function Event.onEvent()
             TextModule.setText(player, "You are the one of people who are eliminated", "dead")
             GameState.kill(player)
         else
+            if mistakes[player] == 0 then
+                GameState.rewardBadge(player, BADGE_ID):catch(warn)
+            end
             TextModule.setText(player, "You survived", "happy")
         end
         task.wait(5)

@@ -17,7 +17,7 @@ return function(
 )
     local emitters: {ParticleEmitter} = {}
     local textures: {any} = {}
-    for _, child in (ReplicatedStorage.Effects.Incognito :: Folder):GetChildren() do
+    for _, child in (ReplicatedStorage.Effects.Hearts :: Folder):GetChildren() do
         table.insert(emitters, child :: ParticleEmitter)
         table.insert(textures, (child:: ParticleEmitter).Texture)
     end
@@ -28,7 +28,7 @@ return function(
     defaultDeath(
         player, reverse, localPlayerIsDead, reason,
         endHook,
-        Color3.new(0, 0, 0),
+        Color3.fromRGB(255, 76, 79),
         function(part)
             childrenPerPart[part] = {}
             for _, emitter in emitters do
@@ -44,7 +44,7 @@ return function(
             end
         end,
         function(part)
-            task.delay(1.25, function()
+            task.delay(3, function()
                 for _, emitter in childrenPerPart[part] do
                     emitter:Destroy()
                 end

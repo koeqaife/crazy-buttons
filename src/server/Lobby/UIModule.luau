@@ -34,7 +34,9 @@ local priceList: {[string]: PriceType} = {
     white = { currency = "cash", amount = 100 },
     purple = { currency = "cash", amount = 200 },
     green = { currency = "cash", amount = 200 },
+    hearts = { currency = "cash", amount = 300 },
     incognito = { currency = "cash", amount = 300 },
+    magic = { currency = "cash", amount = 400 },
     explosion = { currency = "cash", amount = 3000 },
 
     coins_100 = { currency = "robux", productId = COINS_100_PRODUCT },

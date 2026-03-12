@@ -66,8 +66,16 @@ local deathsItems: {DeathsItem} = {
         id = "green",
     },
     {
+        image = "rbxassetid://140523309655719",
+        id = "hearts",
+    },
+    {
         image = "rbxassetid://88691291915491",
         id = "incognito",
+    },
+    {
+        image = "rbxassetid://116357703440514",
+        id = "magic",
     },
     {
         image = "rbxassetid://110065419392232",

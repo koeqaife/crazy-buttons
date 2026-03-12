@@ -44,6 +44,7 @@ return function(
 
     defaultDeath(
         player, reverse, localPlayerIsDead, reason,
+        endHook,
         Color3.fromRGB(0, 255, 0),
         function(part)
             childrenPerPart[part] = {}
@@ -80,7 +81,6 @@ return function(
                     emitter:Destroy()
                 end
             end)
-        end,
-        endHook
+        end
     )
 end

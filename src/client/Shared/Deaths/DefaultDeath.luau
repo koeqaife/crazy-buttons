@@ -10,11 +10,11 @@ return function(
     reverse: boolean,
     localPlayerIsDead: boolean,
     reason: string?,
+    endHook: () -> ()?,
     overrideColor: Color3?,
     partStartHook: (part: BasePart) -> ()?,
     partMiddleHook: (part: BasePart) -> ()?,
-    partEndHook: (part: BasePart) -> ()?,
-    endHook: () -> ()?
+    partEndHook: (part: BasePart) -> ()?
 )
     if not reverse then
         local dieSound: Sound = ReplicatedStorage

@@ -1,9 +1,11 @@
 --!strict
 --!optimize 2
 local ContentProvider = game:GetService("ContentProvider")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Spring = require(ReplicatedStorage.Shared.spr)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
+local localPlayer = Players.LocalPlayer
 
 return function(
     player: Player,
@@ -12,6 +14,10 @@ return function(
     reason: string?,
     endHook: () -> ()?
 )
+    if reverse then
+        local defaultDeath = require(localPlayer.PlayerScripts.Client.Shared.Deaths.DefaultDeath)
+        return defaultDeath(player, reverse, localPlayerIsDead, reason, endHook)
+    end
     local character = player.Character
     if not character then
         return

@@ -132,7 +132,8 @@ local function updateDeaths(id: string, widget: DeathsWidget)
     else
         button.BackgroundColor3 = Colors.containerHigh
         buttonText.TextColor3 = Colors.text
-        buttonText.Text = "Buy (" .. tostring(State.prices[id].amount) .. ")"
+        local price = State.prices[id] or { amount = "..." }
+        buttonText.Text = "Buy (" .. tostring(price.amount) .. ")"
     end
 end
 

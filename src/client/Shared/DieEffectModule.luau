@@ -16,12 +16,12 @@ local deaths = {
     purple = require(DeathsFolder.PurpleAuraDeath),
     green = require(DeathsFolder.GreenAuraDeath),
     incognito = require(DeathsFolder.IncognitoDeath),
+    magic = require(DeathsFolder.MagicDeath),
+    hearts = require(DeathsFolder.HeartsDeath),
 }
 
 return function(player: Player, reverse: boolean, localPlayerIsDead: boolean, reason: string?, force: string?, endHook: () -> ()?)
     local deathEffect = force or player:GetAttribute("death") :: string? or "default"
-    if reverse then
-        deathEffect = "default"
-    end
+
     (deaths[deathEffect] or deaths["default"])(player, reverse, localPlayerIsDead, reason, endHook)
 end

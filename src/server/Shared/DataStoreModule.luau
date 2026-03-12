@@ -208,14 +208,6 @@ local function flushPlayer(player: Player)
 
         dataPerPlayer[player] = result
 
-        local ok2, err2 = pcall(function()
-            survivesStore:SetAsync(tostring(player.UserId), result.survives)
-            streakStore:SetAsync(tostring(player.UserId), result.topStreak)
-        end)
-        if not ok2 then
-            warn("Failed to set ordered stores:", err2)
-        end
-
         SurvivesUpdated:Fire(player, result.survives)
         StreakUpdated:Fire(player, result.streak)
         NotJoinedBeforeUpdated:Fire(player, result.NotJoinedBeforeUpdated)
@@ -412,14 +404,6 @@ function DataStoreModule.setNewTopStreak(player: Player)
             dataPerPlayer[player].topStreak = finalData.topStreak
             print("Changed top streak counter for", player.Name, "to", finalData.topStreak)
 
-            local ok, err = pcall(function()
-                streakStore:SetAsync(tostring(player.UserId), finalData.topStreak)
-            end)
-
-            if not ok then
-                warn(err)
-            end
-
             return finalData
         end)
     end)():catch(function()
@@ -460,8 +444,6 @@ function DataStoreModule.continueStreak(player: Player)
             dataPerPlayer[player].streak = finalData.streak
             print("Changed streak counter for", player.Name, "to", finalData.streak)
             StreakUpdated:Fire(player, finalData.streak)
-
-            DataStoreModule.setNewTopStreak(player):await()
 
             return finalData
         end)

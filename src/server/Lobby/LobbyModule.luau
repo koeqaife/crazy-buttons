@@ -148,7 +148,8 @@ local function startGame()
 
     active = {}
     joinTimes = {}
-    updatePadCount(0, MAX_PLAYERS)
+
+    playerBoardText.Text = "Teleporting..."
 
     local teleportOptions = Instance.new("TeleportOptions")
     teleportOptions.ShouldReserveServer = true
@@ -180,6 +181,7 @@ local function startGame()
         end
     end
 
+    updatePadCount(0, MAX_PLAYERS)
     promoteFromQueue(MAX_PLAYERS)
     updatePadCount(countActive(), MAX_PLAYERS)
 end

@@ -34,14 +34,14 @@ end
 
 function Event.onEvent()
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're searching one button between 100 buttons", "laughing")
+        TextModule.setText(player, "intro_dead")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Are you ready for searching?", delay = 5, face = "happy" },
-            { text = "Because now there are gonna be 100 buttons", delay = 5, face = "scared" },
-            { text = "First to find it will be awarded", delay = 5, face = "shy" },
+            { key = "intro_ready", delay = 5 },
+            { key = "intro_100_buttons", delay = 5 },
+            { key = "intro_first_rewarded", delay = 5 },
         }))
     end):catch(error):await()
 
@@ -56,7 +56,7 @@ function Event.onEvent()
         end
 
         ButtonsModule.setButtons(player, buttons, nil, nil, seed)
-        TextModule.setText(player, "Good luck finding it", "laughing")
+        TextModule.setText(player, "good_luck")
     end)
 
     local awardedPlayer: Player? = nil
@@ -106,14 +106,14 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
         if awardedPlayer ~= nil then
             if awardedPlayer == player then
-                TextModule.setText(player, "You found the button!", "happy")
+                TextModule.setText(player, "you_found_god_btn")
                 KillToolModule.giveTool(player)
                 GameState.rewardBadge(player, BADGE_ID)
             else
-                TextModule.setText(player, awardedPlayer.DisplayName .. " found the button", "scared")
+                TextModule.setText(player, "someone_found_god_btn", { player = awardedPlayer })
             end
         else
-            TextModule.setText(player, "No one found the button...", "laughing")
+            TextModule.setText(player, "no_one_found_god_btn")
         end
     end)
     task.wait(10)

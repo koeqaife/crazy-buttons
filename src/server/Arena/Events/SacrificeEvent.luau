@@ -18,10 +18,9 @@ local Event = {} :: EventType
 Event.name = "sacrifice"
 Event.category = "survival"
 Event.chance = 0.09
-Event.minRound = 2
+Event.minRound = 3
 Event.maxPerGame = 2
 Event.minPlayers = 4
-Event.minRound = 3
 
 function Event.check()
     return true
@@ -29,26 +28,28 @@ end
 
 function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
+    local p1 = randomPlayers[1]
+    local p2 = randomPlayers[2]
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They will need to sacrifice for " .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName, "scared")
+        TextModule.setText(player, "dead_intro", { p1 = p1, p2 = p2 })
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You have been chosen...", delay = 5, face = "scared" },
-                { text = "Someone has to sacrifice themselves to save you", delay = 6, face = "scared" }
+                { key = "chosen_you_1", delay = 5 },
+                { key = "chosen_you_2", delay = 6 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName .. " are chosen.", delay = 6, face = "laughing" },
-                { text = "Will you sacrifice yourself to save them?", delay = 6, face = "shy" }
+                { key = "chosen_others_1", delay = 6, data = { p1 = p1, p2 = p2 } },
+                { key = "prompt_sacrifice", delay = 6 },
             }))
         end
     end):catch(error):await()
 
-    local toKill: {Player} = {}
+    local toKill: { Player } = {}
 
     GameState.addHighlightTo(randomPlayers)
 
@@ -58,7 +59,7 @@ function Event.onEvent()
             return
         end
 
-        TextModule.setText(player, "Press to save them", "shy")
+        TextModule.setText(player, "press_to_save")
         ButtonsModule.setButtons(player, {
             { idx = 1, text = "Sacrifice yourself" }
         })
@@ -68,7 +69,7 @@ function Event.onEvent()
 
         if clicked then
             GameState.addRewardTo(player, 8)
-            TextModule.setText(player, "Your choice cannot be undone", "dead")
+            TextModule.setText(player, "choice_cannot_be_undone")
             table.insert(toKill, player)
             task.wait(3)
         end
@@ -80,19 +81,19 @@ function Event.onEvent()
         GameState.addRewardTo(player, 1)
         if playerMustBeKilled then
             if table.find(randomPlayers, player) then
-                TextModule.setText(player, "You're eliminated", "dead")
+                TextModule.setText(player, "you_are_eliminated")
                 GameState.kill(player)
             else
-                TextModule.setText(player, "They are eliminated", "scared")
+                TextModule.setText(player, "they_are_eliminated", { p1 = p1, p2 = p2 })
             end
         else
             if table.find(randomPlayers, player) then
-                TextModule.setText(player, "You're saved", "happy")
+                TextModule.setText(player, "you_are_saved")
             elseif table.find(toKill, player) then
-                TextModule.setText(player, "You saved them", "dead")
+                TextModule.setText(player, "you_saved_them")
                 GameState.kill(player)
             else
-                TextModule.setText(player, "They were saved!", "happy")
+                TextModule.setText(player, "they_were_saved", { p1 = p1, p2 = p2 })
             end
         end
     end)

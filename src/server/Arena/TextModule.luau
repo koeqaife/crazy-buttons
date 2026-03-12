@@ -1,28 +1,31 @@
 --!strict
 --!optimize 2
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local Replicas = require(ServerScriptService.Server.Arena.Replicas.Module)
+local Format = require(ServerScriptService.Server.Arena.Replicas.Format)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local TextModule = {}
 
 local UpdateTextEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 UpdateTextEvent.Name = "UpdateTextEvent"
 
-type FaceString = "normal"
-    | "shy" | "scared" | "dead" | "no_mouth"
-    | "laughing" | "angry" | "unamused"
-    | "nerd" | "happy" | "looking" | "alien"
+local globalType = "default"
+local globalContext = "misc"
+local replicasPerPlayer: {[Player]: {[string]: {[string]: Format.Template}}} = {}
 
-    | "att_def_tru_icon" | "click_button_icon" | "color_event_icon"
-    | "combo_event_icon" | "even_odd_event_icon"
-
-type FaceObject = { text: string, face: FaceString? }
-type Face = FaceString | FaceObject
-
-local function fire(player: Player, type: "set" | "append", text: string, face: Face?)
-     UpdateTextEvent:FireClient(player, type, text, face)
+local function loadReplicas(player: Player, type: string, language: string)
+    local typeFolder = Replicas[type]()
+    local languageLoad = typeFolder[language] or typeFolder["english"]
+    replicasPerPlayer[player] = languageLoad()
 end
 
-function TextModule.showTextSequence(player: Player, sequence: {{text: string, delay: number?, face: Face?}})
+local function fire(player: Player, text: string, face: Format.Face?)
+     UpdateTextEvent:FireClient(player, text, face)
+end
+
+function TextModule.showTextSequence(player: Player, sequence: {{key: string, data: {[string]: any}?, delay: number?}})
     return Promise.new(function(resolve, reject, onCancel)
         local cancelled = false
 
@@ -36,7 +39,7 @@ function TextModule.showTextSequence(player: Player, sequence: {{text: string, d
                 return
             end
 
-            TextModule.setText(player, step.text, step.face)
+            TextModule.setText(player, step.key, step.data)
             if step.delay then
                 Promise.delay(step.delay):await()
             end
@@ -45,12 +48,48 @@ function TextModule.showTextSequence(player: Player, sequence: {{text: string, d
     end)
 end
 
-function TextModule.setText(player: Player, text: string, face: Face?)
-    fire(player, "set", text, face)
+function TextModule.setText(player: Player, key: string, data: {[string]: any}?)
+    local replica = replicasPerPlayer[player][globalContext][key]
+    local formatted = Format(replica, data)
+    fire(player, formatted.text, formatted.face)
 end
 
-function TextModule.appendText(player: Player, text: string, face: Face?)
-    fire(player, "append", text, face)
+function TextModule.setContext(value: string)
+    globalContext = value
+end
+
+function TextModule.init()
+    UpdateTextEvent.OnServerEvent:Connect(function(player, action: string, value: string)
+        if action == "set_language" then
+            loadReplicas(player, globalType, value)
+        end
+    end)
+
+    -- Set random type
+    local keys = {}
+    for k in pairs(Replicas) do
+        table.insert(keys, k)
+    end
+
+    local randomKey = keys[math.random(1, #keys)]
+    globalType = randomKey
+
+    -- Load english by default
+    for i, player in Players:GetPlayers() do
+        if replicasPerPlayer[player] == nil then  -- I don't trust roblox
+            loadReplicas(player, globalType, "english")
+        end
+    end
+
+    Players.PlayerAdded:Connect(function(player)
+        if replicasPerPlayer[player] == nil then
+            loadReplicas(player, globalType, "english")
+        end
+    end)
+
+    Players.PlayerRemoving:Connect(function(player, reason)
+        replicasPerPlayer[player] = nil
+    end)
 end
 
 return TextModule

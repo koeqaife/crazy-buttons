@@ -40,7 +40,7 @@ function Event.onEvent()
     table.clear(GameState.alivePlayers)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, survivor.Name .. " made it to the end", "happy")
+        TextModule.setText(player, "survivor_made_it", { survivor = survivor })
     end)
 
     DataStoreModule.increaseSurvives(survivor):await()
@@ -55,7 +55,7 @@ function Event.onEvent()
 
     task.spawn(function()
         ButtonsModule.setButtons(survivor, {
-            { idx = 5, text = "Return to lobby"}
+            { idx = 5, text = "Return to lobby" }
         })
 
         ButtonsModule.waitForClick(survivor, -1, nil):await()
@@ -66,8 +66,8 @@ function Event.onEvent()
     end)
 
     TextModule.showTextSequence(survivor, {
-        { text = "Oh, looks like you're the one who is left", delay = 4, face = "shy" },
-        { text = "You survived, congratulations!", delay = 4, face = "happy" },
+        { key = "survivor_one_left", delay = 4 },
+        { key = "survivor_congratulations", delay = 4 },
     }):catch(warn):await()
 
     return

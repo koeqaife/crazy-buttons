@@ -29,13 +29,13 @@ end
 
 function Event.onEvent()
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're answering to some secret question...")
+        TextModule.setText(player, "secret_question")
     end)
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
-            { text = "I have a question for you", delay = 4, face = "normal" },
-            { text = "Do you like aliens?", delay = 4, face = "alien" },
+            { key = "question_for_you", delay = 4 },
+            { key = "question_like_aliens", delay = 4 },
         }))
 
         ButtonsModule.setButtons(player, {
@@ -46,20 +46,21 @@ function Event.onEvent()
         local clicked = await(ButtonsModule.waitForClick(player, 15))
 
         ButtonsModule.setButtons(player, {})
+        GameState.rewardBadge(player, BADGE_ID):andThenCall(print, "rewardBadge: success")
+
         if clicked ~= 1 then
             await(TextModule.showTextSequence(player, {
-                { text = "Oh no...", delay = 2, face = "no_mouth" },
-                { text = "That's not nice.....", delay = 3, face = "unamused" }
+                { key = "oh_no", delay = 2 },
+                { key = "unamused", delay = 3 }
             }))
             GameState.kill(player)
         else
             await(TextModule.showTextSequence(player, {
-                { text = ":D", delay = 2, face = "happy" },
-                { text = "That's cool", delay = 3, face = "shy" }
+                { key = "happy_face", delay = 2 },
+                { key = "that_is_cool", delay = 3 }
             }))
         end
 
-        GameState.rewardBadge(player, BADGE_ID):andThenCall(print, "rewardBadge: success")
         GameState.addRewardTo(player, 5)
     end):catch(error):await()
 

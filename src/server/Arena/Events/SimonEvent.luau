@@ -90,13 +90,13 @@ function Event.onEvent()
     local deathsThisEvent = 0
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're playing Simon says", "nerd")
+        TextModule.setText(player, "intro_dead")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Alright, I'm Simon now", delay = 5, face = "shy" },
-            { text = "No \"Simon says\"? Then do the opposite", delay = 5, face = "nerd" },
+            { key = "intro_alive_1", delay = 5 },
+            { key = "intro_alive_2", delay = 5 },
         }))
     end):catch(error):await()
 
@@ -133,8 +133,10 @@ function Event.onEvent()
         for player, idx in pairs(lastChosen) do
             lastChosenCopy[player] = idx
         end
+
+        -- use localization key with dynamic text passed in data
         GameState.runFuncPerAlive(function(player)
-            TextModule.setText(player, randomText.text, "normal")
+            TextModule.setText(player, "round_text", { text = randomText.text })
         end)
 
         local _, chosen = ButtonsModule.initiateButtonChoice(8, nil, nil, lastChosenCopy, true):catch(error):await()

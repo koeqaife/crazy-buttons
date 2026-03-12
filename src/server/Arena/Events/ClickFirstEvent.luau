@@ -22,8 +22,6 @@ type EventType = EventTypeModule.Event
 
 local COOLDOWN = 1
 
-local numbers = {"one", "two", "three", "four"}
-
 local Event = {} :: EventType
 
 local clickSound = ReplicatedStorage
@@ -54,20 +52,18 @@ function Event.onEvent()
         toKill = 1
     end
 
-    local textNumber = numbers[toKill]
-
     GameState.runPromisePerDead(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now they will have to click the button", delay = 5, face = "click_button_icon" },
-            { text = "And the last " .. textNumber .. " to click will be eliminated", delay = 6, face = "dead" },
+            { key = "they_have_to_click", delay = 5 },
+            { key = "last_num_eliminate", delay = 7, data = {num = toKill} },
         }))
     end):andThen(function() end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to click the button", delay = 6, face = "click_button_icon" },
-            { text = "Click faster than the others", delay = 5, face = "scared" },
-            { text = "The last " .. textNumber .. " to click will be eliminated", delay = 7, face = "dead" },
+            { key = "you_have_to_click", delay = 6 },
+            { key = "click_faster", delay = 5 },
+            { key = "last_num_eliminate", delay = 7, data = {num = toKill} },
         }))
     end):await()
 
@@ -75,7 +71,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {
             { idx = 1 }
         })
-        TextModule.setText(player, "Wait until the button turns green", { text = "..." })
+        TextModule.setText(player, "wait_for_green")
     end)
 
     local counter = #GameState.alivePlayers - toKill
@@ -139,9 +135,10 @@ function Event.onEvent()
 
         if not clicked then
             await(TextModule.showTextSequence(player, {
-                { text = "You didn't click the button", delay = 4, face = "angry" },
-                { text = "You will be eliminated", delay = 4, face = "dead" },
+                { key = "you_did_not_click", delay = 4 },
+                { key = "you_are_eliminated", delay = 4 },
             }))
+            counter -= 1
             GameState.kill(player)
             return
         end
@@ -150,15 +147,15 @@ function Event.onEvent()
         counter -= 1
         if counter < 0 then
             await(TextModule.showTextSequence(player, {
-                { text = "You clicked too slow", delay = 4, face = "scared" },
-                { text = "You will be eliminated", delay = 4, face = "dead" },
+                { key = "you_clicked_too_slow", delay = 4},
+                { key = "you_are_eliminated", delay = 4 },
             }))
             GameState.addRewardTo(player, 1)
             GameState.kill(player)
         else
             await(TextModule.showTextSequence(player, {
-                { text = "You survived", delay = 4, face = "happy" },
-                { text = "Wait for the others to click", delay = 4, face = "normal" },
+                { key = "you_survived", delay = 4 },
+                { key = "wait_for_others", delay = 4 },
             }))
             GameState.addRewardTo(player, 5)
         end

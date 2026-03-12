@@ -192,7 +192,7 @@ function TextModule.connect(): ()
     preload()
 
     UpdateTextEvent.OnClientEvent:Connect(
-        function(action: "set" | "append", text: string, face: Face?)
+        function(text: string, face: Face?)
             currentGeneration += 1
             local myGeneration = currentGeneration
 
@@ -214,17 +214,7 @@ function TextModule.connect(): ()
                 faceJumpAnimation()
             end
 
-            if action == "set" then
-                setText("", text, 0.04, myGeneration, face)
-            elseif action == "append" then
-                setText(
-                    mainText.Text,
-                    mainText.Text .. text,
-                    0.04,
-                    myGeneration,
-                    face
-                )
-            end
+            setText("", text, 0.04, myGeneration, face)
         end
     )
 end

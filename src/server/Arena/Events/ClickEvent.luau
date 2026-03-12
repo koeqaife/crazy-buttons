@@ -38,18 +38,17 @@ function Event.onEvent()
     local variant = math.random(1, 2)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They have reaction test with a button", "click_button_icon")
+        TextModule.setText(player, "reaction_test_for_dead")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Now you will have to click or not the button", delay = 5, face = "click_button_icon" },
-            { text = "But you will not have much time", delay = 5, face = "no_mouth" },
-            { text = "Only two seconds", delay = 5, face = "scared" },
-            { text = "Be ready", delay = 4, face = "shy" },
-            { text = "3...", delay = 1.5, face = { text = "3" }},
-            { text = "2...", delay = 1.5, face = { text = "2" }},
-            { text = "1...", delay = 1.5, face = { text = "1" }},
+            { key = "reaction_test", delay = 6 },
+            { key = "not_much_time", delay = 6 },
+            { key = "be_ready", delay = 4 },
+            { key = "seconds_3", delay = 1.5 },
+            { key = "seconds_2", delay = 1.5 },
+            { key = "seconds_1", delay = 1.5 },
         }))
     end):catch(error):await()
 
@@ -70,12 +69,12 @@ function Event.onEvent()
         if (randomAction == 1 and variant == 1) or
             (randomAction ~= 1 and variant == 2)
         then
-            screenText = "BUTTON SAYS TRUTH"
+            screenText = "button_says_truth"
         else
-            screenText = "BUTTON SAYS LIE"
+            screenText = "button_says_lie"
         end
 
-        TextModule.setText(player, screenText, "click_button_icon")
+        TextModule.setText(player, screenText)
     end)
 
     -- Longer delay for the case when player doesn't have to click
@@ -84,23 +83,21 @@ function Event.onEvent()
 
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
-    end)
 
-    GameState.runNewPromisePerAlive(function(player)
         local clicked = chosen[player] ~= nil
 
         GameState.addRewardTo(player, 2)
         if randomAction == 1 and not clicked then
-            TextModule.setText(player, "You should've clicked", "dead")
+            TextModule.setText(player, "you_had_to_click")
             GameState.kill(player)
         elseif randomAction == 2 and clicked then
-            TextModule.setText(player, "You shouldn't have to click", "dead")
+            TextModule.setText(player, "you_had_to_not_click")
             GameState.kill(player)
         else
-            TextModule.setText(player, "You survived", "happy")
+            TextModule.setText(player, "you_survived")
             GameState.addRewardTo(player, 4)
         end
-    end):catch(error):await()
+    end)
     task.wait(5)
 
     return

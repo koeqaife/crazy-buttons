@@ -50,14 +50,14 @@ local function onEventVariant()
     GameState.runNewPromisePerAll(function(player, protect, await)
         if player == randomPlayer then
             await(TextModule.showTextSequence(player, {
-                { text = "Someone random will be revived now", delay = 6, face = "shy" },
-                { text = "You were revived!", delay = 6, face = "happy" },
+                { key = "intro_random", delay = 6 },
+                { key = "you_were_revived", delay = 6 },
             }))
             GameState.revive(player)
         else
             await(TextModule.showTextSequence(player, {
-                { text = "Someone random will be revived now", delay = 6, face = "shy" },
-                { text = "Player " .. randomPlayer.DisplayName .. " was revived", delay = 6, face = "happy" },
+                { key = "intro_random", delay = 6 },
+                { key = "player_revived", delay = 6, data = { player = randomPlayer } },
             }))
         end
     end):catch(error):await()
@@ -68,8 +68,7 @@ function Event.onEvent()
         return onEventVariant()
     end
 
-    -- Pretty much the copy of VoteEvent
-
+    -- Vote variant
     local amount
     if #GameState.deadPlayers > 5 then
         amount = 4
@@ -85,18 +84,18 @@ function Event.onEvent()
     GameState.runPromisePerAll(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 5, face = "shy" },
-                { text = "Other players will decide if that's you...", delay = 5, face = "shy" },
+                { key = "intro_vote_common", delay = 5 },
+                { key = "intro_vote_candidate", delay = 5 },
             }))
         elseif table.find(GameState.deadPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 5, face = "shy" },
-                { text = "But not you, sadly...", delay = 5, face = "no_mouth" },
+                { key = "intro_vote_common", delay = 5 },
+                { key = "intro_dead_not_you", delay = 5 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Someone will be revived now", delay = 5, face = "shy" },
-                { text = "Choose wisely who should be revived", delay = 5, face = "nerd" },
+                { key = "intro_vote_common", delay = 5 },
+                { key = "intro_choose_wise", delay = 5 },
             }))
         end
     end):await()
@@ -135,10 +134,10 @@ function Event.onEvent()
 
     GameState.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
-            TextModule.setText(player, "You were revived!", "happy")
+            TextModule.setText(player, "you_are_revived")
             GameState.revive(player)
         else
-            TextModule.setText(player, "Player " .. mostVotedPlayer.DisplayName .. " was revived", "happy")
+            TextModule.setText(player, "player_revived", { player = mostVotedPlayer })
         end
     end)
     task.wait(5)

@@ -34,33 +34,30 @@ function Event.onEvent()
 
     GameState.runPromisePerAll(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Two people are gonna be linked together now", delay = 5, face = "scared" },
-            { text = "If one of them dies, the other one dies too", delay = 5, face = "dead" },
-            { text = "Let me think who is going to be linked", delay = 5, face = "shy" },
-            { text = "The first player is...", delay = 5, face = "normal" },
+            { key = "intro_part1", delay = 5 },
+            { key = "intro_part2", delay = 5 },
+            { key = "intro_part3", delay = 5 },
+            { key = "first_player_is", delay = 5 },
         }))
     end):await()
 
-    -- First player
     GameState.runFuncPerAll(function(player)
-        return TextModule.setText(player, p1.DisplayName)
+        TextModule.setText(player, "player", { player = p1 })
     end)
     GameState.addHighlightToOne(p1, COLOR, COLOR)
     task.wait(5)
 
-    -- Second player
     GameState.runFuncPerAll(function(player)
-        TextModule.setText(player, "The second player is...", "normal")
+        TextModule.setText(player, "second_player_is")
     end)
     task.wait(5)
 
     GameState.runFuncPerAll(function(player)
-        return TextModule.setText(player, p2.DisplayName)
+        TextModule.setText(player, "player", { player = p2 })
     end)
     GameState.addHighlightToOne(p2, COLOR, COLOR)
     task.wait(5)
 
-    -- Link them together
     GameState.linkTogether(p1, p2)
 
     return

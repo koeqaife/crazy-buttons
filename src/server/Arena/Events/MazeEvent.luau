@@ -61,10 +61,7 @@ function Event.onEvent()
     GameState.runFuncPerAlive(function(player)
         local buttons: IndicesType.Indices = {}
         for i, buttonSpawn in ipairs(spawns) do
-            if i > 6 then
-                break
-            end
-
+            if i > 6 then break end
             table.insert(buttons, { idx = i, spawnAt = buttonSpawn.Name })
         end
         ButtonsModule.setButtons(player, buttons, nil, false)
@@ -77,10 +74,10 @@ function Event.onEvent()
 
     GameState.runPromisePerAll(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "I just spawned a maze", delay = 4 },
-            { text = "There are 6 buttons", delay = 4 },
-            { text = "One of them kills, one gives reward", delay = 4 },
-            { text = "Good luck searching", delay = 4 },
+            { key = "intro_part1", delay = 4 },
+            { key = "intro_part2", delay = 4 },
+            { key = "intro_part3", delay = 4 },
+            { key = "intro_part4", delay = 4 },
         }))
     end)
 
@@ -136,15 +133,15 @@ function Event.onEvent()
     end):await()
     TimerModule.setTime(-1)
 
-    GameState.runButtonsForDead() -- Restore "return to lobby" button
+    GameState.runButtonsForDead()
     GameState.destroyInstances()
 
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
         if awardedResolved then
-            TextModule.setText(player, "Somebody was awarded")
+            TextModule.setText(player, "somebody_awarded")
         else
-            TextModule.setText(player, "No one was awarded")
+            TextModule.setText(player, "no_one_awarded")
         end
     end)
     task.wait(10)

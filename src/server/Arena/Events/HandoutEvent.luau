@@ -27,38 +27,38 @@ end
 
 function Event.onEvent()
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "Someone will get a gift", "laughing")
+        TextModule.setText(player, "intro_dead")
     end)
 
     GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "One very lucky player will get a gift now", delay = 5, face = "happy" },
-            { text = "I think it's gonna be.......", delay = 4, face = "scared" },
+            { key = "intro_alive_part1", delay = 5 },
+            { key = "intro_alive_part2", delay = 4 },
         }))
     end):catch(error):await()
 
     local randomPlayer = GameState.pickOnePlayer()
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, randomPlayer.DisplayName .. " got a gift", "laughing")
+        TextModule.setText(player, "dead_who_got", { player = randomPlayer })
     end)
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         if player == randomPlayer then
             KillToolModule.giveTool(player)
             await(TextModule.showTextSequence(player, {
-                { text = "You!", delay = 2.5, face = "happy" },
-                { text = "Click on the button that appeared", delay = 5, face = "shy" },
-                { text = "And then click on somebody cool!!", delay = 5, face = "no_mouth" },
-                { text = "Very pretty confetti is gonna spawn", delay = 5, face = "laughing" },
+                { key = "you_got_tool_part1", delay = 2.5 },
+                { key = "you_got_tool_part2", delay = 5 },
+                { key = "you_got_tool_part3", delay = 5 },
+                { key = "you_got_tool_part4", delay = 5 },
             }))
         else
             GameState.addRewardTo(player, 1)
             await(TextModule.showTextSequence(player, {
-                { text = randomPlayer.DisplayName, delay = 2.5, face = "normal" },
-                { text = "They have a cool gift now", delay = 5, face = "happy" },
-                { text = "That's cool, right?", delay = 5, face = "shy" },
-                { text = "Good luck.", delay = 5, face = "scared" },
+                { key = "someone_got_tool_part1", delay = 2.5, data = { player = randomPlayer } },
+                { key = "someone_got_tool_part2", delay = 5 },
+                { key = "someone_got_tool_part3", delay = 5 },
+                { key = "someone_got_tool_part4", delay = 5 },
             }))
         end
     end):catch(error):await()

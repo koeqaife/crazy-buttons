@@ -36,23 +36,23 @@ end
 
 function Event.onEvent()
     local randomPlayers = GameState.pickPlayers(2)
+    local p1 = randomPlayers[1]
+    local p2 = randomPlayers[2]
 
     GameState.runPromisePerAll(function(player, protect, await)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You have been chosen for the Split or Steal", delay = 5, face = "shy" },
-                { text = "You will be paired with " .. (if randomPlayers[1] == player then randomPlayers[2] else randomPlayers[1]).DisplayName, delay = 5, face = "scared" },
-                { text = "If both split, nothing happens", delay = 5, face = "happy" },
-                { text = "If one steals, the other dies", delay = 5, face = "scared" },
-                { text = "If both steal, you both die", delay = 5, face = "laughing" },
+                { key = "intro_you_pair", delay = 7, data = { p2 = (p1 == player and p2 or p1) } },
+                { key = "rule_both_split", delay = 5 },
+                { key = "rule_one_steal", delay = 5 },
+                { key = "rule_both_steal", delay = 5 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Two players have been chosen for the Split or Steal", delay = 5, face = "shy" },
-                { text = "They are " .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName, delay = 5, face = "happy" },
-                { text = "If both split, nothing happens", delay = 5, face = "happy" },
-                { text = "If one steals, the other dies", delay = 5, face = "scared" },
-                { text = "If both steal, they both die", delay = 5, face = "laughing" },
+                { key = "intro_others_pair", delay = 7, data = { p1 = p1, p2 = p2 } },
+                { key = "rule_both_split", delay = 5 },
+                { key = "rule_one_steal", delay = 5 },
+                { key = "rule_both_steal_others", delay = 5 },
             }))
         end
     end):catch(error):await()
@@ -68,14 +68,11 @@ function Event.onEvent()
                 { idx = SPLIT_BTN, text = "Split" },
                 { idx = STEAL_BTN, text = "Steal" }
             }, nil, false)
-            TextModule.setText(player, "Choose wisely", "nerd")
+            TextModule.setText(player, "choose_wisely")
         else
-            TextModule.setText(player, "Waiting for the players to choose", "normal")
+            TextModule.setText(player, "waiting_for_players")
         end
     end)
-
-    local p1 = randomPlayers[1]
-    local p2 = randomPlayers[2]
 
     TimerModule.setTime(30)
     AmbienceModule.playEerieHorrorRising()
@@ -92,11 +89,7 @@ function Event.onEvent()
 
     if c1 == STEAL_BTN and c2 == STEAL_BTN then
         GameState.runFuncPerAll(function(player)
-            TextModule.setText(
-                player,
-                "Both players chose to steal, they both die",
-                "laughing"
-            )
+            TextModule.setText(player, "both_steal")
         end)
 
         GameState.addHighlightTo(randomPlayers, Color3.new(1, 0, 0), Color3.new(1, 0, 0))
@@ -109,14 +102,7 @@ function Event.onEvent()
         local victim = c1 == STEAL_BTN and p2 or p1
 
         GameState.runFuncPerAll(function(player)
-            TextModule.setText(
-                player,
-                stealer.Name
-                    .. " chose to steal, "
-                    .. victim.Name
-                    .. " is eliminated",
-                "unamused"
-            )
+            TextModule.setText(player, "stealer_chosen", { stealer = stealer, victim = victim })
         end)
 
         GameState.addHighlightToOne(victim, Color3.new(0.3, 1, 0))
@@ -128,11 +114,7 @@ function Event.onEvent()
     else
         GameState.addHighlightTo(randomPlayers, Color3.new(0.3, 1, 0))
         GameState.runFuncPerAll(function(player)
-            TextModule.setText(
-                player,
-                "Both players chose to split, they both survive",
-                "happy"
-            )
+            TextModule.setText(player, "both_split")
         end)
 
         GameState.addRewardTo(p1, 5)

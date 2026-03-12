@@ -26,11 +26,11 @@ end
 function Event.onEvent()
     local promise = GameState.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
-            { text = "Hey " .. player.DisplayName .. "!", delay = 4, face = "shy" },
-            { text = "This is a Button Experiment", delay = 5, face = "normal" },
-            { text = "You're gonna be tested in different scenarios", delay = 6, face = "scared" },
-            { text = "Some of them will be easy, some of them will be hard", delay = 7, face = "dead" },
-            { text = "Let's begin", delay = 3, face = "happy" },
+            { key = "intro_hey", data = { player = player }, delay = 4 },
+            { key = "intro_button_experiment", delay = 5 },
+            { key = "intro_tested", delay = 6 },
+            { key = "intro_easy_hard", delay = 7 },
+            { key = "intro_begin", delay = 3 },
         }))
     end):catch(error)
 

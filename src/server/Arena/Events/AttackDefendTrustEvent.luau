@@ -34,16 +34,16 @@ local beats = {
 
 local beatsText = {
     [1] = {
-        [2] = "They defended against your attack",
-        [3] = "They trusted too much and got attacked"
+        [2] = "att_def",
+        [3] = "att_trust"
     },
     [2] = {
-        [1] = "You defended against their attack",
-        [3] = "They trusted you and you tried to defend, you're eliminated"
+        [1] = "def_att",
+        [3] = "def_trust"
     },
     [3] = {
-        [1] = "You got attacked while trying to trust",
-        [2] = "They didn't seem to trust you and tried to defend, they're eliminated"
+        [1] = "trust_att",
+        [2] = "trust_def"
     }
 }
 
@@ -61,7 +61,7 @@ function Event.onEvent()
     local p2 = randomPlayers[2]
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, p1.DisplayName .. " and " .. p2.DisplayName .. " are playing Attack, Defend, Trust", "att_def_tru_icon")
+        TextModule.setText(player, "chosen_players", {p1 = p1, p2 = p2})
     end)
 
     GameState.addHighlightTo({p1, p2})
@@ -70,17 +70,17 @@ function Event.onEvent()
             local otherPlayer = if player == p1 then p2 else p1
 
             return protect(TextModule.showTextSequence(player, {
-                { text = "You and " .. otherPlayer.DisplayName .. " have been chosen to play Attack, Defend, Trust", delay = 5, face = "att_def_tru_icon" },
-                { text = "Rules are simple", delay = 4, face = "happy" },
-                { text = "Attack beats Trust, Defend beats Attack, Trust beats Defend", delay = 7, face = "nerd" },
-                { text = "The loser will be eliminated", delay = 5, face = "dead" },
+                { key = "chosen_players", delay = 5, data = {p1 = "You", p2 = otherPlayer} },
+                { key = "rules_are_simple", delay = 4, face = "happy" },
+                { key = "rules", delay = 7 },
+                { key = "loser_eliminate", delay = 5 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = p1.DisplayName .. " and " .. p2.DisplayName .. " have been chosen to play Attack, Defend, Trust", delay = 5, face = "att_def_tru_icon" },
-                { text = "Rules are simple", delay = 4, face = "happy" },
-                { text = "Attack beats Trust, Defend beats Attack, Trust beats Defend", delay = 7, face = "nerd" },
-                { text = "The loser will be eliminated", delay = 5, face = "dead" },
+                { key = "chosen_players", delay = 5, data = {p1 = p1, p2 = p2} },
+                { key = "rules_are_simple", delay = 4 },
+                { key = "rules", delay = 7 },
+                { key = "loser_eliminate", delay = 5 },
             }))
         end
     end):await()
@@ -99,12 +99,12 @@ function Event.onEvent()
             }, nil, false)
 
             if player == p1 or player == p2 then
-                TextModule.setText(player, "Choose your move", "normal")
+                TextModule.setText(player, "choose_your_move")
             end
         end)
         GameState.runFuncPerAll(function(player)
             if not (player == p1 or player == p2) then
-                TextModule.setText(player, "Waiting for " .. randomPlayers[1].DisplayName .. " and " .. randomPlayers[2].DisplayName .. " to choose their move...", "normal")
+                TextModule.setText(player, "waiting_for_move", {p1 = p1, p2 = p2})
             end
         end)
 
@@ -114,7 +114,7 @@ function Event.onEvent()
 
         if chosen[p1] == nil and chosen[p2] == nil then
             GameState.runFuncPerAll(function(player)
-                TextModule.setText(player, "Both players did not move", "dead")
+                TextModule.setText(player, "both_did_not_move")
             end)
             GameState.kill(p1)
             GameState.kill(p2)
@@ -134,13 +134,13 @@ function Event.onEvent()
             GameState.runPromisePerAll(function(player, protect)
                 if player == p1 or player == p2 then
                     return protect(TextModule.showTextSequence(player, {
-                        { text = "You both chose " .. buttons[chosen[player]].text, delay = 4, face = "laughing" },
-                        { text = "It's a tie, choose again", delay = 4, face = "shy" },
+                        { key = "you_both_chose", delay = 4, data = {btn = buttons[chosen[player]].text} },
+                        { key = "tie_choose_again", delay = 4 },
                     }))
                 else
                     return protect(TextModule.showTextSequence(player, {
-                        { text = p1.DisplayName .. " and " .. p2.DisplayName .. " both chose " .. buttons[chosen[p1]].text, delay = 4, face = "laughing" },
-                        { text = "It's a tie, they will choose again", delay = 4, face = "shy" },
+                        { key = "you_both_chose", delay = 4, data = {btn = buttons[chosen[player]].text} },
+                        { key = "tie_they_choose_again", delay = 4 },
                     }))
                 end
             end):await()
@@ -149,11 +149,11 @@ function Event.onEvent()
             local c2 = chosen[p2]
 
             if beats[c1] == c2 then
-                TextModule.setText(p1, beatsText[c1][c2], "happy")
-                TextModule.setText(p2, beatsText[c2][c1], "dead")
+                TextModule.setText(p1, beatsText[c1][c2])
+                TextModule.setText(p2, beatsText[c2][c1])
                 GameState.runFuncPerAll(function(player)
                     if player ~= p1 and player ~= p2 then
-                        TextModule.setText(player, p1.DisplayName .. " won against " .. p2.DisplayName, "happy")
+                        TextModule.setText(player, "won_against", {won = p1, lost = p2})
                     end
                 end)
                 task.wait(4)
@@ -161,11 +161,11 @@ function Event.onEvent()
                 GameState.kill(p2)
                 break
             else
-                TextModule.setText(p2, beatsText[c2][c1], "happy")
-                TextModule.setText(p1, beatsText[c1][c2], "dead")
+                TextModule.setText(p2, beatsText[c2][c1])
+                TextModule.setText(p1, beatsText[c1][c2])
                 GameState.runFuncPerAll(function(player)
                     if player ~= p1 and player ~= p2 then
-                        TextModule.setText(player, p2.DisplayName .. " won against " .. p1.DisplayName .. "!", "happy")
+                        TextModule.setText(player, "won_against", {lost = p1, won = p2})
                     end
                 end)
                 task.wait(4)

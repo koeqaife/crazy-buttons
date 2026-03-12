@@ -132,20 +132,20 @@ function Event.onEvent()
     Helpers.shuffleTable(answers)
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, randomPlayer.DisplayName .. " will do math quiz now", "nerd")
+        TextModule.setText(player, "dead_who_quiz", { player = randomPlayer })
     end)
 
     GameState.addHighlightTo({randomPlayer})
     GameState.runPromisePerAlive(function(player, protect)
         if player == randomPlayer then
             return protect(TextModule.showTextSequence(player, {
-                { text = "How good are you in math?", delay = 4, face = "nerd" },
-                { text = "Other people lives depend on you now", delay = 4, face = "scared" },
+                { key = "intro_self_q1", delay = 4 },
+                { key = "intro_self_q2", delay = 4 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "Do you think " .. randomPlayer.DisplayName .. "is good in math?", delay = 4, face = "nerd" },
-                { text = "You will have to find out", delay = 4, face = "shy" },
+                { key = "intro_others_q1", delay = 4, data = { player = randomPlayer } },
+                { key = "intro_others_q2", delay = 4 },
             }))
         end
     end):catch(error):await()
@@ -153,22 +153,16 @@ function Event.onEvent()
     TimerModule.setTime(45)
     GameState.runFuncPerAlive(function(player)
         if player == randomPlayer then
-            TextModule.setText(player, "Calculate this:\n" .. randomQuiz.exp, "nerd")
+            TextModule.setText(player, "calculate_this", { exp = randomQuiz.exp })
 
             local buttons: IndicesType.Indices = {}
-            for index, answer in answers do
+            for index, answer in ipairs(answers) do
                 table.insert(buttons, { idx = index, text = tostring(answer) })
             end
 
             ButtonsModule.setButtons(player, buttons)
         else
-            TextModule.setText(
-                player,
-                "Is " .. randomPlayer.DisplayName ..
-                " smart enough to calculate: \n" ..
-                randomQuiz.exp .. "\n?",
-                "nerd"
-            )
+            TextModule.setText(player, "is_player_smart", { player = randomPlayer, exp = randomQuiz.exp })
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "No" },
                 { idx = 2, text = "Yes" },
@@ -202,14 +196,14 @@ function Event.onEvent()
     GameState.runNewPromisePerAlive(function(player)
         if player == randomPlayer then
             if isRight then
-                TextModule.setText(player, "Your answer was right", "happy")
+                TextModule.setText(player, "you_answer_right")
                 GameState.addRewardTo(player, 5)
                 task.wait(5)
             else
-                TextModule.setText(player, "Your answer was wrong", "scared")
+                TextModule.setText(player, "you_answer_wrong")
                 if playerMustDie then
                     task.wait(2)
-                    TextModule.setText(player, "But no one even believed in you...", "dead")
+                    TextModule.setText(player, "you_not_believed")
                     GameState.kill(player)
                     task.wait(3)
                 else
@@ -221,19 +215,19 @@ function Event.onEvent()
             local choice = chosen[player]
             local isYes = choice == 2
             if choice == nil then
-                TextModule.setText(player, "You had to answer...", "dead")
+                TextModule.setText(player, "you_had_to_answer")
                 GameState.kill(player)
             elseif isYes ~= isRight then
                 GameState.addRewardTo(player, 3)
                 if playerMustDie then
-                    TextModule.setText(player, "You were wrong, but lucky this time", "happy")
+                    TextModule.setText(player, "you_wrong_lucky")
                 else
-                    TextModule.setText(player, "You were wrong", "dead")
+                    TextModule.setText(player, "you_wrong")
                     GameState.kill(player)
                 end
             else
                 GameState.addRewardTo(player, 6)
-                TextModule.setText(player, "You were right", "happy")
+                TextModule.setText(player, "you_right")
             end
             task.wait(5)
         end

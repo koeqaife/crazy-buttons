@@ -119,6 +119,7 @@ local function runEvent(event: Event?)
         return
     end
 
+    TextModule.setContext(event.name)
     TimerModule.setTime(-1)
     GameState.cancelAll()
     task.wait()
@@ -140,8 +141,9 @@ local function runEvent(event: Event?)
         warn("Event failed: ", result)
 
         GameState.cancelAll()
+        TextModule.setContext("misc")
         GameState.runFuncPerAlive(function(player)
-            TextModule.setText(player, "An error occurred...", "dead")
+            TextModule.setText(player, "error_occurred")
         end)
 
         task.wait(5)
@@ -241,21 +243,15 @@ function GameLoopModule.start()
             local nextEvent: Event? = nil
             if forcedNextEvent then
                 if forcedNextEvent.event == ReviveEvent and not GameState.forceReviveIsAllowed() then
-                    TextModule.setText(
-                        forcedNextEvent.by,
-                        "Your purchase has been processed, but it can't be used right now. Next time it's free",
-                        "nerd"
-                    )
+                    TextModule.setContext("misc")
+                    TextModule.setText(forcedNextEvent.by, "purchase_not_processed")
                     DataStoreModule.addPendingRevives(forcedNextEvent.by, 1):await()
                     forcedNextEvent = nil
                     nextEvent = chooseRandomEvent()
                     task.wait(4)
                 else
-                    TextModule.setText(
-                        forcedNextEvent.by,
-                        "Your purchase has been processed!",
-                        "happy"
-                    )
+                    TextModule.setContext("misc")
+                    TextModule.setText(forcedNextEvent.by, "purchase_processed")
                     nextEvent = forcedNextEvent.event
                     forcedNextEvent = nil
                     task.wait(4)
@@ -272,10 +268,8 @@ function GameLoopModule.start()
 
                 if #GameState.alivePlayers > 1 then
                     GameState.runFuncPerAll(function(player)
-                        TextModule.setText(
-                            player, #GameState.alivePlayers .. " players are left...",
-                            "normal"
-                        )
+                        TextModule.setContext("misc")
+                        TextModule.setText(player, "players_left", {count = #GameState.alivePlayers})
                     end)
 
                     task.wait(10)
@@ -286,11 +280,8 @@ function GameLoopModule.start()
         end
 
         if forcedNextEvent then
-            TextModule.setText(
-                forcedNextEvent.by,
-                "Your purchase has been processed, but the game ended before it could be used. Next time it's free",
-                "nerd"
-            )
+            TextModule.setContext("misc")
+            TextModule.setText(forcedNextEvent.by, "purchase_not_processed")
             if forcedNextEvent.event == ReviveEvent then
                 DataStoreModule.addPendingRevives(forcedNextEvent.by, 1):await()
             end

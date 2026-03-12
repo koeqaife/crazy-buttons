@@ -25,7 +25,7 @@ Event.minPlayers = 6
 Event.maxPerGame = 2
 
 local chosenColors: {[Player]: number} = {}
-local COLOR_NAMES = { "red", "blue", "pink", "yellow", "green" }
+local COLOR_NAMES = { "RED", "BLUE", "PINK", "YELLOW", "GREEN" }
 
 local counter = 0
 
@@ -38,23 +38,23 @@ end
 function Event.onEvent()
     if next(chosenColors) then
         GameState.runFuncPerDead(function(player)
-            TextModule.setText(player, "They're getting checked if they remember the color", "color_event_icon")
+            TextModule.setText(player, "for_dead_remember")
         end)
 
         GameState.runPromisePerAlive(function(player, protect)
             return protect(TextModule.showTextSequence(player, {
-                { text = "Do you remember the color you chose before?", delay = 5.5, face = "color_event_icon" },
-                { text = "Let's check your memory", delay = 4, face = "shy" },
+                { key = "you_remember_color", delay = 5.5 },
+                { key = "lets_check", delay = 4 },
             }))
         end):catch(error):await()
 
         TimerModule.setTime(15)
         GameState.runFuncPerAlive(function(player)
             if not chosenColors[player] then
-                TextModule.setText(player, "You didn't choose the color... You survive", "laughing")
+                TextModule.setText(player, "did_not_choose")
                 return
             end
-            TextModule.setText(player, "So, which one did you choose?", "nerd")
+            TextModule.setText(player, "which_one_you_chose")
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "Red" },
                 { idx = 2, text = "Blue" },
@@ -69,19 +69,19 @@ function Event.onEvent()
 
         GameState.runNewPromisePerAlive(function(player, protect, await)
             if not chosenColors[player] then
-                TextModule.setText(player, "So lucky", "laughing")
+                TextModule.setText(player, "so_lucky")
                 return
             end
 
             local color = chosen[player] or 0
             if color ~= chosenColors[player] then
-                TextModule.setText(player, "That was not the color you chose", "dead")
+                TextModule.setText(player, "wrong_color")
                 GameState.kill(player)
                 task.wait(5)
             else
                 await(TextModule.showTextSequence(player, {
-                    { text = "Woa, you actually remember!", delay = 4, face = "happy" },
-                    { text = "Good job", delay = 2, face = "shy" },
+                    { key = "correct_color", delay = 4 },
+                    { key = "good_job", delay = 2 },
                 }))
                 GameState.addRewardTo(player, 8)
             end
@@ -91,19 +91,19 @@ function Event.onEvent()
     end
 
     GameState.runFuncPerDead(function(player)
-        TextModule.setText(player, "They're asked to choose a color", "color_event_icon")
+        TextModule.setText(player, "for_dead_start")
     end)
 
     GameState.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
-            { text = "I'm about to show you some colors", delay = 4.5, face = "color_event_icon" },
-            { text = "Remember which one you pick, you'll need it later", delay = 4.5, face = "normal" },
+            { key = "about_to_show_colors", delay = 4.5 },
+            { key = "remember_color", delay = 4.5 },
         }))
     end):catch(error):await()
 
     TimerModule.setTime(25)
     GameState.runFuncPerAlive(function(player)
-        TextModule.setText(player, "Choose color you like the most now", "nerd")
+        TextModule.setText(player, "choose")
         local buttons = {
             { idx = 1, text = "Red" },
             { idx = 2, text = "Blue" },
@@ -125,19 +125,19 @@ function Event.onEvent()
     GameState.runFuncPerAlive(function(player)
         local color = chosen[player] or 0
         if color == 1 then
-            TextModule.setText(player, "Red? An interesting choice", "happy")
+            TextModule.setText(player, "red")
         elseif color == 2 then
-            TextModule.setText(player, "Blue, the color of the sky", "happy")
+            TextModule.setText(player, "blue")
         elseif color == 3 then
-            TextModule.setText(player, "Pink, sounds like a candy, yummy", "happy")
+            TextModule.setText(player, "pink")
         elseif color == 4 then
-            TextModule.setText(player, "Yellow!?!? Fine, that's your choice", "happy")
+            TextModule.setText(player, "yellow")
         elseif color == 5 then
-            TextModule.setText(player, "Green, the color of nature...", "happy")
+            TextModule.setText(player, "green")
         else
             color = math.random(1, 5)
             local colorName = COLOR_NAMES[color]
-            TextModule.setText(player, "Nothing? Let's go with " .. colorName .. " then", "laughing")
+            TextModule.setText(player, "nothing", {color = colorName})
         end
         toSave[player] = color
         GameState.addRewardTo(player, 2)

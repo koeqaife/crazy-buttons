@@ -41,21 +41,21 @@ function Event.onEvent()
     GameState.runPromisePerAll(function(player, protect, await)
         if player == playerKills then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You got a button that kills", delay = 5, face = "shy" },
-                { text = "Everybody who clicks it, dies", delay = 6, face = "scared" },
-                { text = "Try to convince others to click it for you (your kills)", face = "normal" },
+                { key = "intro_killer_1", delay = 5 },
+                { key = "intro_killer_2", delay = 6 },
+                { key = "intro_killer_3", delay = 6 },
             }))
-        elseif player == p2 or player == p1 then
+        elseif player == p1 or player == p2 then
             return protect(TextModule.showTextSequence(player, {
-                { text = "You got a button that saves", delay = 5, face = "shy" },
-                { text = "Everybody who clicks it, is saved", delay = 6, face = "happy" },
-                { text = "Try to convince others to click it for you (your saves)", face = "normal" },
+                { key = "intro_saver_1", delay = 5 },
+                { key = "intro_saver_2", delay = 6 },
+                { key = "intro_saver_3", delay = 6 },
             }))
         else
             return protect(TextModule.showTextSequence(player, {
-                { text = "You have to talk with " .. p1.DisplayName .. " and " .. p2.DisplayName, delay = 5, face = "shy" },
-                { text = "One of them has a button that kills you", delay = 6, face = "normal" },
-                { text = "So who do you believe?", face = "nerd" },
+                { key = "intro_others_1", delay = 5, data = { p1 = p1, p2 = p2 } },
+                { key = "intro_others_2", delay = 6 },
+                { key = "intro_others_3", delay = 6 },
             }))
         end
     end):catch(error):await()
@@ -94,26 +94,21 @@ function Event.onEvent()
     GameState.runNewPromisePerAlive(function(player, protect, await)
         GameState.addRewardTo(player, 5)
         if player == p1 or player == p2 then
-            return TextModule.setText(player, "Let's see who died...")
+            return TextModule.setText(player, "lets_see")
         end
 
-        local resultText
-        local kill
-        if chosen[player] == nil then
-            resultText = "You didn't choose a button, you died"
-            kill = true
-        elseif chosen[player] == kills then
-            resultText = "You chose " .. p1.DisplayName .. "'s button, you died"
-            kill = true
-        else
-            resultText = "You chose " .. p2.DisplayName .. "'s button, you are safe"
-            kill = false
-        end
-
-        TextModule.setText(player, resultText)
-
-        if kill then
+        local choice = chosen[player]
+        if choice == nil then
+            TextModule.setText(player, "result_no_choice")
             GameState.kill(player)
+        else
+            local chosenPlayer = if choice == 1 then p1 else p2
+            if choice == kills then
+                TextModule.setText(player, "result_chose_died", { p = chosenPlayer })
+                GameState.kill(player)
+            else
+                TextModule.setText(player, "result_chose_safe", { p = chosenPlayer })
+            end
         end
     end):catch(error):await()
     task.wait(6)

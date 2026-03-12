@@ -22,6 +22,7 @@ local UIModule = require(script.Parent.UIModule)
 local GameLoopModule = require(Arena.GameLoopModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
+local TextModule = require(Arena.TextModule)
 
 require(Arena.TextModule)
 
@@ -47,6 +48,7 @@ function ArenaModule.init()
     GameStateModule.connect()
     MusicModule.init()
     UIModule.init()
+    TextModule.init()
 
     mainText.Text = "Waiting for players..."
 

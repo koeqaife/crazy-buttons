@@ -13,6 +13,7 @@ local SyncDeadEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 SyncDeadEvent.Name = "SyncDeadEvent"
 
 local rewards: {[Player]: number} = {}
+local rewardMultipliers: {[Player]: number} = {}
 
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
@@ -31,14 +32,17 @@ local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
 
 local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
 local ForceRevive: BindableEvent = Instance.new("BindableEvent")
+local RewardChanged: BindableEvent = Instance.new("BindableEvent")
 
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.linkedPlayers = linkedPlayers
 GameState.playerRevivedTimes = playerRevivedTimes
 GameState.round = 0
+GameState.rewardMultipliers = rewardMultipliers
 GameState.OnPlayerDied = OnPlayerDied
 GameState.ForceRevive = ForceRevive
+GameState.RewardChanged = RewardChanged
 
 local LOBBY_PLACE_ID = 115379867051786
 
@@ -510,6 +514,38 @@ function GameState.connect()
     end)
 end
 
+local function getFriendsInServer(player: Player): number
+    local count = 0
+
+    for _, other: Player in Players:GetPlayers() do
+        if other ~= player and player:IsFriendsWithAsync(other.UserId) then
+            count += 1
+        end
+    end
+
+    return count
+end
+
+function GameState.getCashMultiplier(player: Player): number
+    local friends = getFriendsInServer(player)
+
+    if friends <= 0 then
+        return 1
+    elseif friends == 1 then
+        return 1.15
+    elseif friends == 2 then
+        return 1.3
+    else
+        return 1.5
+    end
+end
+
+function GameState.setupMultipliers()
+    for i, player in Players:GetPlayers() do
+        rewardMultipliers[player] = GameState.getCashMultiplier(player)
+    end
+end
+
 local function withJitter(baseDelay)
     return baseDelay + math.random() * 2.0
 end
@@ -535,11 +571,13 @@ function GameState.cancelAll()
 end
 
 function GameState.addRewardTo(player: Player, amount: number)
+    amount *= rewardMultipliers[player] or 1
     if rewards[player] == nil then
         rewards[player] = amount
     else
         rewards[player] += amount
     end
+    RewardChanged:Fire(player, rewards[player])
 end
 
 function GameState.flushReward(player: Player)

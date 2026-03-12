@@ -22,6 +22,7 @@ local TextModule = require(Arena.TextModule)
 local GameStateModule = require(Arena.GameStateModule)
 local KillToolModule = require(Arena.KillToolModule)
 local AmbienceModule = require(Arena.AmbienceModule)
+local UIModule = require(Arena.UIModule)
 
 function ArenaModule.init()
     TextModule.connect()
@@ -31,6 +32,7 @@ function ArenaModule.init()
     AmbienceModule.init()
     CustomPromptModule.onLoad()
     MusicModule.init()
+    UIModule.connect()
 
     ViewportFrame.CurrentCamera = workspace.CurrentCamera
 

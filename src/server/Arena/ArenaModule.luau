@@ -18,6 +18,7 @@ local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModul
 local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
 local GameStateModule = require(script.Parent.GameStateModule)
 local KillToolModule = require(script.Parent.KillToolModule)
+local UIModule = require(script.Parent.UIModule)
 local GameLoopModule = require(Arena.GameLoopModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
@@ -45,6 +46,7 @@ function ArenaModule.init()
     TimerModule.start()
     GameStateModule.connect()
     MusicModule.init()
+    UIModule.init()
 
     mainText.Text = "Waiting for players..."
 
@@ -101,9 +103,9 @@ function ArenaModule.init()
 
         TimerModule.setTime(5)
         task.wait(5)
-        mainText.Text = "..."
 
-        TimerModule.setTime(30)
+        GameStateModule.setupMultipliers()
+        UIModule.sendMultipliers()
 
         print("loaded")
         GameLoopModule.start()

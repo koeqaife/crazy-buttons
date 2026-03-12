@@ -139,7 +139,7 @@ function Event.onEvent()
                     }))
                 else
                     return protect(TextModule.showTextSequence(player, {
-                        { key = "you_both_chose", delay = 4, data = {btn = buttons[chosen[player]].text} },
+                        { key = "you_both_chose", delay = 4, data = {btn = buttons[chosen[p1]].text} },
                         { key = "tie_they_choose_again", delay = 4 },
                     }))
                 end

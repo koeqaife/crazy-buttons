@@ -124,7 +124,8 @@ local English: DictTemplate = {
         good_job = { text = "W.", face = "shy" },
         you_were_fast_enough = { text = "U were fast enough, nice", face = "happy" },
         you_are_slow = { text = "Learn to click faster", face = "laughing" },
-        won = { text = "{player} caught a massive W", face = "happy", requiredKeys = {"player"} }
+        won = { text = "{player} caught a massive W", face = "happy", requiredKeys = {"player"} },
+        wait_for_green = { text = "Wait until the button turns green", face = { text = "..." } }
     },
 
     --| EVEN ODD EVENT |--

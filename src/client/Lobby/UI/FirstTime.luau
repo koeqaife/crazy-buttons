@@ -20,13 +20,14 @@ local function onFirstTimeJoin()
     window.show()
 
     local text = (
-        "Hey " .. player.Name .. "!\n\n" ..
+        "Heyyyy " .. player.Name .. "!!\n\n" ..
         "Welcome to the Buttons Experiment!\n" ..
-        "The game was released 1 week ago, so you might encounter a few bugs.\n" ..
-        "Gathering new players can be tricky...\n" ..
-        "If the lobby looks empty, invite your friends!\n" ..
-        "We'd love to hear your feedback and see what you think.\n\n" ..
-        "Have fun and enjoy!!"
+        "I released this game about a week ago\n" ..
+        "And I keep improving it, I work everyday...\n\n" ..
+        "Before you start playing you may go check shop\n" ..
+        "Tap on the images to preview animations\n" ..
+        "To earn more money, you can invite your friends.\n\n" ..
+        "After you play don't forget to put like and leave constructive feedback!!"
     )
     textLabel.Text = text
 

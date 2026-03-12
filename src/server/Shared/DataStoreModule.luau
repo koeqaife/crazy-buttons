@@ -10,7 +10,7 @@ local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
 
 local SurvivesUpdated = Instance.new("BindableEvent")
 local StreakUpdated = Instance.new("BindableEvent")
-local NeverJoinedBeforeUpdated = Instance.new("BindableEvent")
+local NotJoinedBeforeUpdated = Instance.new("BindableEvent")
 local DeathAnimationUpdated = Instance.new("BindableEvent")
 local OwnsUpdated = Instance.new("BindableEvent")
 local CashUpdated = Instance.new("BindableEvent")
@@ -31,7 +31,7 @@ export type PlayerData = {
     topStreak: number,
     streakLastUpdated: number,
     pendingRevives: number,
-    neverJoinedBefore: boolean?,
+    notJoinedBefore: boolean?,
     currentDeathEffect: string?,
     owns: { string },
     cash: number,
@@ -44,7 +44,7 @@ local defaultData: PlayerData = {
     topStreak = 0,
     streakLastUpdated = 0,
     pendingRevives = 0,
-    neverJoinedBefore = true,
+    notJoinedBefore = true,
     currentDeathEffect = "default",
     owns = {},
     cash = 0,
@@ -59,7 +59,7 @@ local dataPerPlayer: { [Player]: PlayerData } = {}
 DataStoreModule.dataPerPlayer = dataPerPlayer
 DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
 DataStoreModule.StreakUpdatedEvent = StreakUpdated
-DataStoreModule.NeverJoinedBeforeUpdated = NeverJoinedBeforeUpdated
+DataStoreModule.NotJoinedBeforeUpdated = NotJoinedBeforeUpdated
 DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
 DataStoreModule.OwnsUpdated = OwnsUpdated
 DataStoreModule.CashUpdated = CashUpdated
@@ -72,7 +72,7 @@ type PendingChange = {
     topStreak: number?,
     streakLastUpdated: number?,
     pendingRevives: number?,
-    neverJoinedBefore: boolean?,
+    notJoinedBefore: boolean?,
     currentDeathEffect: string?,
     owns: { string }?,
     cash: number?,
@@ -161,8 +161,8 @@ local function flushPlayer(player: Player)
                     data.currentDeathEffect = changes.currentDeathEffect
                 end
 
-                if changes.neverJoinedBefore ~= nil then
-                    data.neverJoinedBefore = changes.neverJoinedBefore
+                if changes.notJoinedBefore ~= nil then
+                    data.notJoinedBefore = changes.notJoinedBefore
                 end
 
                 if changes.streak then
@@ -218,7 +218,7 @@ local function flushPlayer(player: Player)
 
         SurvivesUpdated:Fire(player, result.survives)
         StreakUpdated:Fire(player, result.streak)
-        NeverJoinedBeforeUpdated:Fire(player, result.neverJoinedBefore)
+        NotJoinedBeforeUpdated:Fire(player, result.NotJoinedBeforeUpdated)
         DeathAnimationUpdated:Fire(player, result.currentDeathEffect)
         OwnsUpdated:Fire(player, result.owns)
         CashUpdated:Fire(player, result.cash)
@@ -253,8 +253,8 @@ local function markDirty(player: Player, changeTable: PendingChange)
     if changeTable.currentDeathEffect then
         pendingChanges[player].currentDeathEffect = changeTable.currentDeathEffect
     end
-    if changeTable.neverJoinedBefore ~= nil then
-        pendingChanges[player].neverJoinedBefore = changeTable.neverJoinedBefore
+    if changeTable.notJoinedBefore ~= nil then
+        pendingChanges[player].notJoinedBefore = changeTable.notJoinedBefore
     end
     if changeTable.streak then
         pendingChanges[player].streak = changeTable.streak
@@ -288,9 +288,9 @@ local function markDirty(player: Player, changeTable: PendingChange)
         dataPerPlayer[player].currentDeathEffect = changeTable.currentDeathEffect
         DeathAnimationUpdated:Fire(player, dataPerPlayer[player].currentDeathEffect)
     end
-    if changeTable.neverJoinedBefore ~= nil then
-        dataPerPlayer[player].neverJoinedBefore = changeTable.neverJoinedBefore
-        NeverJoinedBeforeUpdated:Fire(player, dataPerPlayer[player].neverJoinedBefore)
+    if changeTable.notJoinedBefore ~= nil then
+        dataPerPlayer[player].notJoinedBefore = changeTable.notJoinedBefore
+        NotJoinedBeforeUpdated:Fire(player, dataPerPlayer[player].notJoinedBefore)
     end
     if changeTable.streak then
         dataPerPlayer[player].streak = changeTable.streak
@@ -375,12 +375,12 @@ function DataStoreModule.setDeathEffect(player: Player, value: string)
     end)
 end
 
-function DataStoreModule.setNeverJoinedBefore(player: Player, value: boolean)
+function DataStoreModule.setNotJoinedBefore(player: Player, value: boolean)
     return Promise.promisify(function()
-        markDirty(player, { neverJoinedBefore = value })
+        markDirty(player, { notJoinedBefore = value })
         return dataPerPlayer[player]
     end)():catch(function()
-        warn("Failed to mark neverJoinedBefore for", player.Name)
+        warn("Failed to mark notJoinedBefore for", player.Name)
     end)
 end
 
@@ -505,11 +505,11 @@ function DataStoreModule.getPendingRevives(player: Player): number
     return dataPerPlayer[player].pendingRevives or 0
 end
 
-function DataStoreModule.getNeverJoinedBefore(player: Player): boolean
+function DataStoreModule.getNotJoinedBefore(player: Player): boolean
     if not dataPerPlayer[player] then
         return true
     end
-    return dataPerPlayer[player].neverJoinedBefore or false
+    return dataPerPlayer[player].notJoinedBefore or false
 end
 
 function DataStoreModule.getDeathEffect(player: Player): string
@@ -584,7 +584,7 @@ function DataStoreModule.init()
 
             SurvivesUpdated:Fire(player, finalData.survives)
             StreakUpdated:Fire(player, finalData.streak)
-            NeverJoinedBeforeUpdated:Fire(player, finalData.neverJoinedBefore)
+            NotJoinedBeforeUpdated:Fire(player, finalData.notJoinedBefore)
             DeathAnimationUpdated:Fire(player, finalData.currentDeathEffect)
             OwnsUpdated:Fire(player, finalData.owns)
             CashUpdated:Fire(player, finalData.cash)

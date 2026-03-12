@@ -423,7 +423,7 @@ function LobbyModule.init()
 
     updatePadCount(0, MAX_PLAYERS)
 
-    DataStoreModule.NeverJoinedBeforeUpdated.Event:Connect(function(player, value)
+    DataStoreModule.NotJoinedBeforeUpdated.Event:Connect(function(player, value)
         if not value then
             return
         end
@@ -432,7 +432,7 @@ function LobbyModule.init()
     end)
 
     FirstTimeJoined.OnServerEvent:Connect(function(player)
-        DataStoreModule.setNeverJoinedBefore(player, false):await()
+        DataStoreModule.setNotJoinedBefore(player, false):await()
     end)
 
     LeaderboardModule.initFor("streak", workspace:WaitForChild("StreakLeaderboard"))

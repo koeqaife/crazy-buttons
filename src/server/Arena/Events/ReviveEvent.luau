@@ -51,7 +51,7 @@ local function onEventVariant()
         if player == randomPlayer then
             await(TextModule.showTextSequence(player, {
                 { key = "intro_random", delay = 6 },
-                { key = "you_were_revived", delay = 6 },
+                { key = "you_are_revived", delay = 6 },
             }))
             GameState.revive(player)
         else

@@ -128,7 +128,6 @@ end
 local function setText(
     current: string,
     new: string,
-    speed: number,
     generation: number,
     face: any?
 ): ()
@@ -137,6 +136,10 @@ local function setText(
         generationIsRunning = false
         return
     end
+
+    local baseSpeed = 0.035
+    local lengthFactor = math.clamp(#new / 40, 1, 3)
+    local speed = baseSpeed / lengthFactor
 
     local result = ""
     local maxLength = math.max(#current, #new)
@@ -214,7 +217,7 @@ function TextModule.connect(): ()
                 faceJumpAnimation()
             end
 
-            setText("", text, 0.04, myGeneration, face)
+            setText("", text, myGeneration, face)
         end
     )
 end

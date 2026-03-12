@@ -156,7 +156,7 @@ function Event.onEvent()
                         TextModule.setText(player, "won_against", {won = p1, lost = p2})
                     end
                 end)
-                task.wait(4)
+                task.wait(5)
                 GameState.addRewardTo(p1, 7)
                 GameState.kill(p2)
                 break
@@ -168,7 +168,7 @@ function Event.onEvent()
                         TextModule.setText(player, "won_against", {lost = p1, won = p2})
                     end
                 end)
-                task.wait(4)
+                task.wait(5)
                 GameState.addRewardTo(p2, 7)
                 GameState.kill(p1)
                 break

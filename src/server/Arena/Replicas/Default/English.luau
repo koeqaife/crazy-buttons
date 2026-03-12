@@ -2,8 +2,9 @@
 --!optimize 2
 
 local Format = require(script.Parent.Parent.Format)
+type DictTemplate = {[string]: {[string]: Format.Template}}
 
-local English: {[string]: {[string]: Format.Template}} = {
+local English: DictTemplate = {
     --| MISC |--
     misc = {
         error_occurred = { text = "An error occurred...", face = "dead" },
@@ -57,7 +58,7 @@ local English: {[string]: {[string]: Format.Template}} = {
         won_against = { text = "{won} won against {lost}!", requiredKeys = {"won", "lost"}, face = "happy" }
     },
 
-    --| CLICK |--
+    --| CLICK EVENT |--
     click = {
         reaction_test_for_dead = { text = "They have reaction test with a button", face = "click_button_icon" },
         reaction_test = { text = "Now you will have to read and press the button if it says so", face = "click_button_icon" },
@@ -75,7 +76,7 @@ local English: {[string]: {[string]: Format.Template}} = {
         you_survived = { text = "You survived", face = "happy" },
     },
 
-    --| CLICK FIRST |--
+    --| CLICK FIRST EVENT |--
     click_first = {
         they_have_to_click = { text = "Now they will have to click the button", face = "click_button_icon" },
         last_num_eliminate = { text = "The last {num} to click will be eliminated", requiredKeys = {"num"}, face = "dead" },
@@ -242,7 +243,6 @@ local English: {[string]: {[string]: Format.Template}} = {
     --| REVIVE EVENT |--
     revive = {
         intro_random = { text = "Someone random will be revived now", face = "shy" },
-        you_were_revived = { text = "You were revived!", face = "happy" },
         player_revived = { text = "{player} was revived", requiredKeys = {"player"}, face = "happy" },
 
         intro_vote_common = { text = "Someone will be revived now", face = "shy" },

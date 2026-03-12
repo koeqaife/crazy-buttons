@@ -229,7 +229,6 @@ function GameLoopModule.start()
     MarketplaceService.ProcessReceipt = processReceipt
 
     task.spawn(function()
-        runEvent(GodBtnEvent)
         runEvent(StartEvent)
 
         while #GameState.alivePlayers > 0 do

@@ -36,6 +36,7 @@ local DuelEvent = require(Arena.Events.DuelEvent)
 local LinkedEvent = require(Arena.Events.LinkedEvent)
 local TwoKnowsEvent = require(Arena.Events.TwoKnowsEvent)
 local MazeEvent = require(Arena.Events.MazeEvent)
+local ObbyEvent = require(Arena.Events.ObbyEvent)
 
 local EXPERIMENT_BADGE_ID = 4390814557028274
 
@@ -59,7 +60,8 @@ local events: {Event} = {
     DuelEvent,
     LinkedEvent,
     TwoKnowsEvent,
-    MazeEvent
+    MazeEvent,
+    ObbyEvent
 }
 
 local eventCounts: {[Event]: number} = {}

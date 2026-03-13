@@ -210,6 +210,15 @@ local English: DictTemplate = {
         no_one_awarded = { text = "Nobody won the prize today!", face = "no_mouth" },
     },
 
+    --| OBBY EVENT |--
+    obby = {
+        intro_part1 = { text = "I just dropped an epic parkour course!", face = "normal" },
+        intro_part2 = { text = "There's a shiny button at the finish line!", face = "normal" },
+        intro_part3 = { text = "First to smash it wins a grand prize!", face = "scared" },
+        intro_part4 = { text = "But the slowest runner goes home!", face = "happy" },
+        intro_part5 = { text = "Ready, set, RUN!", face = "dead" },
+    },
+
     --| REVIVE EVENT |--
     revive = {
         intro_random = { text = "It's time for a random second chance!", face = "shy" },

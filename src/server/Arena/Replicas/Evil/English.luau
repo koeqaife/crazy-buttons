@@ -210,6 +210,15 @@ local English: DictTemplate = {
         no_one_awarded = { text = "No rewards dispensed.", face = "no_mouth" },
     },
 
+    --| OBBY EVENT |--
+    obby = {
+        intro_part1 = { text = "Navigational hazard deployed.", face = "normal" },
+        intro_part2 = { text = "A terminal is located at the conclusion.", face = "normal" },
+        intro_part3 = { text = "Optimal speed will be rewarded.", face = "scared" },
+        intro_part4 = { text = "The slowest subject will be terminated.", face = "happy" },
+        intro_part5 = { text = "Commence physical exertion.", face = "dead" },
+    },
+
     --| REVIVE EVENT |--
     revive = {
         intro_random = { text = "Random reanimation protocol active.", face = "shy" },

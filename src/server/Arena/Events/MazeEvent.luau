@@ -91,10 +91,6 @@ function Event.onEvent()
         return protect(Promise.new(function(resolve, reject, onCancel)
             while task.wait(3) and not resolved do -- for debouncing
                 local clickPromise = ButtonsModule.waitForClick(player, 150)
-                onCancel(function()
-                    resolved = true
-                    clickPromise:cancel()
-                end)
 
                 local clicked = await(clickPromise)
 

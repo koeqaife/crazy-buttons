@@ -24,7 +24,7 @@ local BADGE_ID = 2055081105258413
 Event.name = "god_btn"
 Event.category = "rare"
 Event.chance = 0.08
-Event.minRound = 2
+Event.minRound = 3
 Event.maxPerGame = 2
 Event.minPlayers = 3
 

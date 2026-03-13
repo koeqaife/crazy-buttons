@@ -241,6 +241,15 @@ local English: DictTemplate = {
         no_one_awarded = { text = "No one was awarded", face = "no_mouth" },
     },
 
+    --| OBBY EVENT |--
+    obby = {
+        intro_part1 = { text = "I just spawned a parkour", face = "normal" },
+        intro_part2 = { text = "There is a button in the end", face = "normal" },
+        intro_part3 = { text = "First one to press it gets reward", face = "scared" },
+        intro_part4 = { text = "The last one to press it, gets eliminated", face = "happy" },
+        intro_part5 = { text = "Good luck", face = "dead" },
+    },
+
     --| REVIVE EVENT |--
     revive = {
         intro_random = { text = "Someone random will be revived now", face = "shy" },

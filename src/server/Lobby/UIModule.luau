@@ -32,6 +32,7 @@ local COINS_1000_PRODUCT = 3551875445
 
 local priceList: {[string]: PriceType} = {
     white = { currency = "cash", amount = 100 },
+    smoke = { currency = "cash", amount = 100 },
     purple = { currency = "cash", amount = 200 },
     green = { currency = "cash", amount = 200 },
     hearts = { currency = "cash", amount = 300 },

@@ -18,6 +18,7 @@ local deaths = {
     incognito = require(DeathsFolder.IncognitoDeath),
     magic = require(DeathsFolder.MagicDeath),
     hearts = require(DeathsFolder.HeartsDeath),
+    smoke = require(DeathsFolder.SmokeDeath),
 }
 
 return function(player: Player, reverse: boolean, localPlayerIsDead: boolean, reason: string?, force: string?, endHook: () -> ()?)

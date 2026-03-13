@@ -58,6 +58,10 @@ local deathsItems: {DeathsItem} = {
         id = "white",
     },
     {
+        image = "rbxassetid://139364940882309",
+        id = "smoke",
+    },
+    {
         image = "rbxassetid://121265139873257",
         id = "purple",
     },

@@ -117,7 +117,7 @@ local English: DictTemplate = {
 
     --| DUEL EVENT |--
     duel = {
-        to_play = { text = "1v1 {p1} vs {p2}", face = "click_button_icon", requiredKeys = {"p1", "p2"} },
+        to_play = { text = "Duel 1v1 with {p1} vs {p2}", face = "click_button_icon", requiredKeys = {"p1", "p2"} },
         first_one_survives = { text = "Fastest clicker survives", face = "normal" },
         you_did_not_click = { text = "Bro didn't even click", face = "angry" },
         you_are_eliminated = { text = "Packed up", face = "dead" },
@@ -282,8 +282,8 @@ local English: DictTemplate = {
         dead_intro = { text = "Vote to kick somebody", face = "shy" },
         intro_common_1 = { text = "Chat is voting who to kick", face = "normal" },
         intro_candidate_fate = { text = "Chat decides ur fate bro...", face = "scared" },
-        intro_choose_wise = { text = "Vote out the ops", face = "happy" },
-        candidate_line_1 = { text = "Boring wait rn fr?", face = "normal" },
+        intro_choose_wise = { text = "Vote who you wont to get cooked", face = "happy" },
+        candidate_line_1 = { text = "Boring there?", face = "normal" },
         candidate_line_2 = { text = "Bros are crazy", face = "shy" },
         candidate_line_3 = { text = "They voting based on ur avatar", face = "normal" },
         candidate_line_4 = { text = "Or cuz u were toxic before", face = "scared" },
@@ -300,7 +300,7 @@ local English: DictTemplate = {
         intro_button_experiment = { text = "Welcome to the Button Experiment", face = "normal" },
         intro_tested = { text = "Gonna put u in some crazy situations", face = "scared" },
         intro_easy_hard = { text = "Some are light, some gonna cook u", face = "dead" },
-        intro_begin = { text = "Let's goooo", face = "happy" },
+        intro_begin = { text = "Let's go!", face = "happy" },
     },
 
     --| YOU SURVIVED EVENT |--

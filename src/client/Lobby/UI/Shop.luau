@@ -5,6 +5,7 @@ local Shop = {}
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
+local Colors = require(script.Parent.Colors)
 local showDieEffect = require(localPlayer.PlayerScripts.Client.Shared.DieEffectModule)
 
 local Dialog = require(localPlayer.PlayerScripts.Client.Lobby.UI.Dialog)
@@ -51,6 +52,63 @@ type PageItem = {
     name: string,
     page: string
 }
+
+export type DeathsWidget = {
+    frame: Frame & {
+        TextButton: TextButton & {
+            TextLabel: TextLabel
+        }
+    },
+} & State.Widget
+
+export type HeaderButtonWidget = {
+    button: TextButton & {
+        TextLabel: TextLabel
+    },
+    page: string,
+} & State.Widget
+
+export type ShopViewWidget = {
+    frame: Frame,
+    page: string
+} & State.Widget
+
+
+local function updateHeaderBtn(id: string, widget: HeaderButtonWidget)
+    local label = widget.button.TextLabel
+
+    if widget.page == State.currentShopPage then
+        widget.button.BackgroundColor3 = Colors.containerHigh
+        label.FontFace = Font.new(label.FontFace.Family, Enum.FontWeight.Bold, label.FontFace.Style)
+    else
+        widget.button.BackgroundColor3 = Colors.container
+        label.FontFace = Font.new(label.FontFace.Family, Enum.FontWeight.Medium, label.FontFace.Style)
+    end
+end
+
+local function updateShopView(id: string, widget: ShopViewWidget)
+    widget.frame.Visible = State.currentShopPage == widget.page
+end
+
+local function updateDeaths(id: string, widget: DeathsWidget)
+    local button = widget.frame.TextButton
+    local buttonText = widget.frame.TextButton.TextLabel
+
+    if id == State.deathAnim then
+        button.BackgroundColor3 = Colors.greenContainerHigh
+        buttonText.TextColor3 = Colors.onGreenContainer
+        buttonText.Text = "Equipped"
+    elseif table.find(State.owns, id) then
+        button.BackgroundColor3 = Colors.redContainerHigh
+        buttonText.TextColor3 = Colors.onRedContainer
+        buttonText.Text = "Equip"
+    else
+        button.BackgroundColor3 = Colors.containerHigh
+        buttonText.TextColor3 = Colors.text
+        local price = State.prices[id] or { amount = "..." }
+        buttonText.Text = "Buy (" .. tostring(price.amount) .. ")"
+    end
+end
 
 local deathsItems: {DeathsItem} = {
     {
@@ -159,8 +217,8 @@ function Shop.initialize()
         buttonText.Text = "..."
 
         image.Image = item.image
-        local widget: State.DeathsWidget = {
-            itemType = "death" :: "death",
+        local widget: DeathsWidget = {
+            customHandler = updateDeaths,
             frame = clone :: any
         }
         State.addWidget(item.id, widget)
@@ -219,16 +277,16 @@ function Shop.initialize()
         local textLabel = categoryButton:WaitForChild("TextLabel") :: TextLabel
         textLabel.Text = item.name
 
-        local buttonWidget: State.HeaderButtonWidget = {
-            itemType = "header_button" :: "header_button",
+        local buttonWidget: HeaderButtonWidget = {
+            customHandler = updateHeaderBtn,
             button = categoryButton :: any,
             page = item.page
         }
         State.addWidget(buttonId, buttonWidget)
 
         if item.frame then
-            local viewWidget: State.ShopViewWidget = {
-                itemType = "shop_view" :: "shop_view",
+            local viewWidget: ShopViewWidget = {
+                customHandler = updateShopView,
                 frame = item.frame :: any,
                 page = item.page
             }

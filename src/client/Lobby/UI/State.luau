@@ -4,7 +4,6 @@
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Colors = require(localPlayer.PlayerScripts.Client.Lobby.UI.Colors)
 local Spring = require(ReplicatedStorage.Shared.spr)
 
 local State = {}
@@ -73,29 +72,6 @@ export type Widget = {
     customHandler: (id: string, widget: any) -> ()?
 }
 
-export type DeathsWidget = {
-    itemType: "death",
-    frame: Frame & {
-        TextButton: TextButton & {
-            TextLabel: TextLabel
-        }
-    },
-} & Widget
-
-export type HeaderButtonWidget = {
-    itemType: "header_button",
-    button: TextButton & {
-        TextLabel: TextLabel
-    },
-    page: string,
-} & Widget
-
-export type ShopViewWidget = {
-    itemType: "shop_view",
-    frame: Frame,
-    page: string
-} & Widget
-
 export type WindowWidget = {
     itemType: "window",
     hide: () -> (),
@@ -116,42 +92,6 @@ local itemsWidgets: {[string]: Widget} = {}
 
 local invalidatedItems: {string} = {}
 local scheduled = false
-
-local function updateDeaths(id: string, widget: DeathsWidget)
-    local button = widget.frame.TextButton
-    local buttonText = widget.frame.TextButton.TextLabel
-
-    if id == State.deathAnim then
-        button.BackgroundColor3 = Colors.greenContainerHigh
-        buttonText.TextColor3 = Colors.onGreenContainer
-        buttonText.Text = "Equipped"
-    elseif table.find(State.owns, id) then
-        button.BackgroundColor3 = Colors.redContainerHigh
-        buttonText.TextColor3 = Colors.onRedContainer
-        buttonText.Text = "Equip"
-    else
-        button.BackgroundColor3 = Colors.containerHigh
-        buttonText.TextColor3 = Colors.text
-        local price = State.prices[id] or { amount = "..." }
-        buttonText.Text = "Buy (" .. tostring(price.amount) .. ")"
-    end
-end
-
-local function updateHeaderBtn(id: string, widget: HeaderButtonWidget)
-    local label = widget.button.TextLabel
-
-    if widget.page == State.currentShopPage then
-        widget.button.BackgroundColor3 = Colors.containerHigh
-        label.FontFace = Font.new(label.FontFace.Family, Enum.FontWeight.Bold, label.FontFace.Style)
-    else
-        widget.button.BackgroundColor3 = Colors.container
-        label.FontFace = Font.new(label.FontFace.Family, Enum.FontWeight.Medium, label.FontFace.Style)
-    end
-end
-
-local function updateShopView(id: string, widget: ShopViewWidget)
-    widget.frame.Visible = State.currentShopPage == widget.page
-end
 
 local function updateWindow(id: string, widget: WindowWidget)
     local canvas = widget.canvas
@@ -193,9 +133,6 @@ local function updateWindow(id: string, widget: WindowWidget)
 end
 
 local invalidateMap = {
-    death = updateDeaths,
-    header_button = updateHeaderBtn,
-    shop_view = updateShopView,
     window = updateWindow
 }
 
@@ -290,10 +227,15 @@ function State.createWindow(id: string, canvas: CanvasGroup): WindowWidget
     return window
 end
 
--- WINDOW STACK / CLOSE ANY HANDLER --
+-- WINDOW STACK --
 local windowsStack: {WindowWidget} = {}
 local screenGui = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
-local overlayFrame = screenGui:WaitForChild("OverlayFrame") :: Frame
+local overlayFrame = Instance.new("Frame", screenGui)
+overlayFrame.Name = "OverlayFrame"
+overlayFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+overlayFrame.Position = UDim2.new(-1.5, 0, -1.5, 0)
+overlayFrame.Size = UDim2.new(3, 0, 3, 0)
+overlayFrame.Visible = false
 overlayFrame.BackgroundTransparency = 1
 
 local function rebuildStackIndexes()

@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Replicas = require(ServerScriptService.Server.Arena.Replicas.Module)
 local Format = require(ServerScriptService.Server.Arena.Replicas.Format)
+local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local TextModule = {}
 
@@ -16,6 +17,9 @@ local globalContext = "misc"
 local replicasPerPlayer: {[Player]: {[string]: {[string]: Format.Template}}} = {}
 
 local function loadReplicas(player: Player, type: string, language: string)
+    if (DataStoreModule.getCash(player) or 0) < 10 then
+        type = "default"
+    end
     local typeFolder = Replicas[type]()
     local languageLoad = typeFolder[language] or typeFolder["english"]
     replicasPerPlayer[player] = languageLoad()
@@ -85,6 +89,9 @@ function TextModule.init()
         if replicasPerPlayer[player] == nil then
             loadReplicas(player, globalType, "english")
         end
+    end)
+    DataStoreModule.CashUpdated.Event:Connect(function(player: Player)
+        loadReplicas(player, globalType, "english")
     end)
 
     Players.PlayerRemoving:Connect(function(player, reason)

@@ -13,5 +13,8 @@ return {
     redContainerHigh = Color3.fromRGB(141, 105, 105),
     onRedContainer = Color3.fromRGB(255, 229, 229),
 
+    grayContainerHigh = Color3.fromRGB(84, 83, 95),
+    onGrayContainer = Color3.fromRGB(211, 223, 244),
+
     accent = Color3.fromRGB(219, 154, 244)
 }

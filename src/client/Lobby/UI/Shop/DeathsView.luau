@@ -45,8 +45,8 @@ local function updateDeaths(id: string, widget: DeathsWidget)
         buttonText.TextColor3 = Colors.onRedContainer
         buttonText.Text = "Equip"
     elseif price["unlockMsg"] ~= nil then
-        button.BackgroundColor3 = Colors.containerHigh
-        buttonText.TextColor3 = Colors.text
+        button.BackgroundColor3 = Colors.grayContainerHigh
+        buttonText.TextColor3 = Colors.onGrayContainer
         buttonText.Text = "Unlock"
     else
         button.BackgroundColor3 = Colors.containerHigh
@@ -127,6 +127,10 @@ function DeathsView.initialize(window: State.WindowWidget)
         button.Activated:Connect(function(inputObject, clickCount)
             if table.find(State.owns, item.id) then
                 State.SyncEvent:FireServer("equip_death", item.id)
+            elseif State.prices[item.id].currency == "badge" then
+                Dialog.showDialog(State.prices[item.id].unlockMsg, {
+                    { text = "OK" }
+                })
             else
                 State.BuyEvent:FireServer(item.id)
             end

@@ -27,6 +27,14 @@ local auras = {
         folder = "Magic",
         applyTo = "Body"
     },
+    starsAura = {
+        folder = "Stars",
+        applyTo = "Body"
+    },
+    dangerousAura = {
+        folder = "Dangerous",
+        applyTo = "Head"
+    },
 }
 
 local appliedAuras: {[Player]: {ParticleEmitter}} = {}

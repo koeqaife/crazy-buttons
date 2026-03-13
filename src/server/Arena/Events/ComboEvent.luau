@@ -7,7 +7,9 @@
 -- Players with the most mistakes will be eliminated
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
@@ -208,7 +210,11 @@ function Event.onEvent()
             TextModule.setText(player, "you_eliminated")
             GameState.kill(player)
         else
-            if mistakes[player] == 0 then
+            if (mistakes[player] or 0) == 0 then
+                local owns = DataStoreModule.getOwns(player)
+                if owns ~= nil and not table.find(owns, "dangerousAura") then
+                    DataStoreModule.appendOwns(player, "dangerousAura")
+                end
                 GameState.rewardBadge(player, BADGE_ID):catch(warn)
             end
             TextModule.setText(player, "you_survived")

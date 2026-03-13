@@ -83,6 +83,14 @@ local auraItems: {AuraItem} = {
         image = "rbxassetid://131459982994900",
         id = "magicAura",
     },
+    {
+        image = "rbxassetid://97380349466623",
+        id = "starsAura"
+    },
+    {
+        image = "rbxassetid://100474595993615",
+        id = "dangerousAura"
+    }
 }
 
 local function testAura(id: string)

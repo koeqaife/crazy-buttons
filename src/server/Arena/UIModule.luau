@@ -12,7 +12,7 @@ SyncEvent.Name = "SyncEvent"
 
 function UIModule.sendMultipliers()
     for player, multiplier in GameStateModule.rewardMultipliers do
-        SyncEvent:FireClient(player, "multiplier", multiplier)
+        SyncEvent:FireClient(player, "multiplier", math.round(multiplier * 10) / 10)
     end
 end
 
@@ -23,7 +23,7 @@ function UIModule.init()
 
     GameStateModule.RewardChanged.Event:Connect(function(player: Player, amount: number?)
         if amount then
-            SyncEvent:FireClient(player, "reward", amount)
+            SyncEvent:FireClient(player, "reward", math.round(amount * 10) / 10)
         end
     end)
 end

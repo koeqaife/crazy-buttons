@@ -1,7 +1,9 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterPlayer = game:GetService("StarterPlayer")
 local TextChatService = game:GetService("TextChatService")
+local AuraModule = require(StarterPlayer.StarterPlayerScripts.Client.Shared.AuraModule)
 local KillToolModule = require(script.Parent.KillToolModule)
 local Spring = require(ReplicatedStorage.Shared.spr)
 local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent")
@@ -96,6 +98,11 @@ local function onSyncEvent(
     end
 
     -- reverse death effect when the player is resurrected (died == false)
+    if died then
+        AuraModule.disableAura(player)
+    else
+        AuraModule.enableAura(player)
+    end
     showDieEffect(player, not died, localPlayerIsDead, reason)
     if died then
         TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage(

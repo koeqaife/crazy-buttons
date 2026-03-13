@@ -21,6 +21,7 @@ local categoryTemplate = categories:WaitForChild("Template") :: TextButton
 categoryTemplate.Visible = false
 
 local initialized = false
+local currentShopPage = "deaths"
 
 type PageItem = {
     name: string,
@@ -46,7 +47,7 @@ export type ShopViewWidget = {
 local function updateHeaderBtn(id: string, widget: HeaderButtonWidget)
     local label = widget.button.TextLabel
 
-    if widget.page == State.currentShopPage then
+    if widget.page == currentShopPage then
         widget.button.BackgroundColor3 = Colors.containerHigh
         label.FontFace = Font.new(label.FontFace.Family, Enum.FontWeight.Bold, label.FontFace.Style)
     else
@@ -56,7 +57,7 @@ local function updateHeaderBtn(id: string, widget: HeaderButtonWidget)
 end
 
 local function updateShopView(id: string, widget: ShopViewWidget)
-    widget.frame.Visible = State.currentShopPage == widget.page
+    widget.frame.Visible = currentShopPage == widget.page
 end
 
 local pages: {PageItem} = {
@@ -66,6 +67,11 @@ local pages: {PageItem} = {
         module = require(UI.Shop.DeathsView)
     },
     {
+        name = "Auras",
+        page = "auras",
+        module = require(UI.Shop.AurasView)
+    },
+    {
         name = "Coins",
         page = "coins",
         module = require(UI.Shop.CoinsView)
@@ -73,14 +79,14 @@ local pages: {PageItem} = {
 }
 
 function Shop.setPage(page: string)
-    local oldPage = State.currentShopPage
+    local oldPage = currentShopPage
 
     local oldButtonId = "page_button_" .. oldPage
     local oldPageId = "page_" .. oldPage
     local buttonId = "page_button_" .. page
     local pageId = "page_" .. page
 
-    State.currentShopPage = page
+    currentShopPage = page
     State.invalidate(buttonId)
     State.invalidate(pageId)
     State.invalidate(oldButtonId)

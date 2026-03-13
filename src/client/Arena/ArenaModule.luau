@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local Arena = Players.LocalPlayer.PlayerScripts.Client.Arena
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
+local StarterPlayer = game:GetService("StarterPlayer")
 
 local player = Players.LocalPlayer
 local PlayerLoaded = ReplicatedStorage:WaitForChild("PlayerLoaded")
@@ -15,6 +16,7 @@ local ViewportFrame = ViewportGui:WaitForChild("ViewportFrame") :: ViewportFrame
 
 local SyncVolumes = ReplicatedStorage:WaitForChild("SyncVolumesEvent") :: RemoteEvent
 
+local AuraModule = require(StarterPlayer.StarterPlayerScripts.Client.Shared.AuraModule)
 local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
 local MusicModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.MusicModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -33,6 +35,7 @@ function ArenaModule.init()
     CustomPromptModule.onLoad()
     MusicModule.init()
     UIModule.connect()
+    AuraModule.connect()
 
     ViewportFrame.CurrentCamera = workspace.CurrentCamera
 

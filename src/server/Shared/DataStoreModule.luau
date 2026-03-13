@@ -12,6 +12,7 @@ local SurvivesUpdated = Instance.new("BindableEvent")
 local StreakUpdated = Instance.new("BindableEvent")
 local NotJoinedBeforeUpdated = Instance.new("BindableEvent")
 local DeathAnimationUpdated = Instance.new("BindableEvent")
+local AuraUpdated = Instance.new("BindableEvent")
 local OwnsUpdated = Instance.new("BindableEvent")
 local CashUpdated = Instance.new("BindableEvent")
 local VolumeUpdated = Instance.new("BindableEvent")
@@ -34,6 +35,7 @@ export type PlayerData = {
     pendingRevives: number,
     notJoinedBefore: boolean?,
     currentDeathEffect: string?,
+    currentAura: string?,
     owns: { string },
     cash: number,
     volume: Volume,
@@ -49,6 +51,7 @@ local defaultData: PlayerData = {
     pendingRevives = 0,
     notJoinedBefore = true,
     currentDeathEffect = "default",
+    currentAura = "default",
     owns = {},
     cash = 0,
     volume = {
@@ -68,6 +71,7 @@ DataStoreModule.OwnsUpdated = OwnsUpdated
 DataStoreModule.CashUpdated = CashUpdated
 DataStoreModule.VolumeUpdated = VolumeUpdated
 DataStoreModule.TimesPlayedUpdated = TimesPlayedUpdated
+DataStoreModule.AuraUpdated = AuraUpdated
 
 -- Pending changes (debounce / coalesce)
 type PendingChange = {
@@ -81,6 +85,7 @@ type PendingChange = {
     owns: { string }?,
     cash: number?,
     volume: Volume?,
+    currentAura: string?,
     timesPlayed: number?
 }
 local pendingChanges: { [Player]: PendingChange } = {}
@@ -166,6 +171,10 @@ local function flushPlayer(player: Player)
                     data.currentDeathEffect = changes.currentDeathEffect
                 end
 
+                if changes.currentAura then
+                    data.currentAura = changes.currentAura
+                end
+
                 if changes.notJoinedBefore ~= nil then
                     data.notJoinedBefore = changes.notJoinedBefore
                 end
@@ -221,6 +230,7 @@ local function flushPlayer(player: Player)
         StreakUpdated:Fire(player, result.streak)
         NotJoinedBeforeUpdated:Fire(player, result.notJoinedBefore)
         DeathAnimationUpdated:Fire(player, result.currentDeathEffect)
+        AuraUpdated:Fire(player, result.currentAura)
         OwnsUpdated:Fire(player, result.owns)
         CashUpdated:Fire(player, result.cash)
         VolumeUpdated:Fire(player, result.volume)
@@ -257,6 +267,9 @@ local function markDirty(player: Player, changeTable: PendingChange)
     end
     if changeTable.currentDeathEffect then
         pendingChanges[player].currentDeathEffect = changeTable.currentDeathEffect
+    end
+    if changeTable.currentAura then
+        pendingChanges[player].currentAura = changeTable.currentAura
     end
     if changeTable.notJoinedBefore ~= nil then
         pendingChanges[player].notJoinedBefore = changeTable.notJoinedBefore
@@ -296,6 +309,10 @@ local function markDirty(player: Player, changeTable: PendingChange)
     if changeTable.currentDeathEffect then
         dataPerPlayer[player].currentDeathEffect = changeTable.currentDeathEffect
         DeathAnimationUpdated:Fire(player, dataPerPlayer[player].currentDeathEffect)
+    end
+    if changeTable.currentAura then
+        dataPerPlayer[player].currentAura = changeTable.currentAura
+        AuraUpdated:Fire(player, dataPerPlayer[player].currentAura)
     end
     if changeTable.notJoinedBefore ~= nil then
         dataPerPlayer[player].notJoinedBefore = changeTable.notJoinedBefore
@@ -381,6 +398,15 @@ function DataStoreModule.setDeathEffect(player: Player, value: string)
         return dataPerPlayer[player]
     end)():catch(function()
         warn("Failed to mark set death effect for", player.Name)
+    end)
+end
+
+function DataStoreModule.setAura(player: Player, value: string)
+    return Promise.promisify(function()
+        markDirty(player, { currentAura = value })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark set aura for", player.Name)
     end)
 end
 
@@ -527,6 +553,13 @@ function DataStoreModule.getDeathEffect(player: Player): string
     return dataPerPlayer[player].currentDeathEffect or "default"
 end
 
+function DataStoreModule.getAura(player: Player): string
+    if not dataPerPlayer[player] then
+        return "default"
+    end
+    return dataPerPlayer[player].currentAura or "default"
+end
+
 function DataStoreModule.getVolume(player: Player): Volume?
     if not dataPerPlayer[player] then
         return nil
@@ -601,6 +634,7 @@ function DataStoreModule.init()
             StreakUpdated:Fire(player, finalData.streak)
             NotJoinedBeforeUpdated:Fire(player, finalData.notJoinedBefore)
             DeathAnimationUpdated:Fire(player, finalData.currentDeathEffect)
+            AuraUpdated:Fire(player, finalData.currentAura)
             OwnsUpdated:Fire(player, finalData.owns)
             CashUpdated:Fire(player, finalData.cash)
             VolumeUpdated:Fire(player, finalData.volume)

@@ -1,27 +1,30 @@
 --!strict
 --!optimize 2
-local DeathsView = {}
+local AurasView = {}
 
 local Players = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
 local localPlayer = Players.LocalPlayer
 
-local showDieEffect = require(localPlayer.PlayerScripts.Client.Shared.DieEffectModule)
+local AuraModule = require(StarterPlayer.StarterPlayerScripts.Client.Shared.AuraModule)
 
 local Dialog = require(localPlayer.PlayerScripts.Client.Lobby.UI.Dialog)
 local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
 local Colors = require(localPlayer.PlayerScripts.Client.Lobby.UI.Colors)
 local stateInvalidate = State.invalidate
 
+local testCounter = 0
+
 local function invalidate(id: string)
-    return stateInvalidate("deaths_" .. id)
+    return stateInvalidate("auras_" .. id)
 end
 
-type DeathsItem = {
+type AuraItem = {
     image: string,
     id: string,
 }
 
-export type DeathsWidget = {
+export type AuraWidget = {
     item_id: string,
     frame: Frame & {
         TextButton: TextButton & {
@@ -30,13 +33,13 @@ export type DeathsWidget = {
     },
 } & State.Widget
 
-local function updateDeaths(id: string, widget: DeathsWidget)
+local function updateAuras(id: string, widget: AuraWidget)
     local button = widget.frame.TextButton
     local buttonText = widget.frame.TextButton.TextLabel
     local item_id = widget.item_id
     local price = State.prices[item_id] or { amount = "..." }
 
-    if item_id == (State.deathAnim or "default") then
+    if item_id == (State.aura or "default") then
         button.BackgroundColor3 = Colors.greenContainerHigh
         buttonText.TextColor3 = Colors.onGreenContainer
         buttonText.Text = "Equipped"
@@ -55,62 +58,55 @@ local function updateDeaths(id: string, widget: DeathsWidget)
     end
 end
 
-local deathsItems: {DeathsItem} = {
+local auraItems: {AuraItem} = {
     {
-        image = "rbxassetid://135810070973055",
+        image = "rbxassetid://115117619730575",
         id = "default"
     },
     {
-        image = "rbxassetid://139098299189373",
-        id = "white",
+        image = "rbxassetid://98821392682951",
+        id = "bubblesAura",
     },
     {
-        image = "rbxassetid://139364940882309",
-        id = "smoke",
+        image = "rbxassetid://109775822265749",
+        id = "purpleAura",
     },
     {
-        image = "rbxassetid://121265139873257",
-        id = "purple",
+        image = "rbxassetid://80662372384936",
+        id = "greenAura",
     },
     {
-        image = "rbxassetid://104809033146354",
-        id = "green",
+        image = "rbxassetid://120310251799900",
+        id = "incognitoFace",
     },
     {
-        image = "rbxassetid://140523309655719",
-        id = "hearts",
-    },
-    {
-        image = "rbxassetid://88691291915491",
-        id = "incognito",
-    },
-    {
-        image = "rbxassetid://116357703440514",
-        id = "magic",
-    },
-    {
-        image = "rbxassetid://110065419392232",
-        id = "explosion",
+        image = "rbxassetid://131459982994900",
+        id = "magicAura",
     },
 }
 
-local function testDeathAnimation(id: string)
-    showDieEffect(localPlayer, false, false, "test", id, function()
-        showDieEffect(localPlayer, true, false, "test", id)
-    end)
+local function testAura(id: string)
+    testCounter += 1
+    local counter = testCounter
+    AuraModule.loadAura(localPlayer, id)
+    task.wait(30)
+    if counter ~= testCounter then
+        return
+    end
+    AuraModule.loadAura(localPlayer, nil)
 end
 
-function DeathsView.initialize(window: State.WindowWidget)
-    local deaths = window.canvas:WaitForChild("Deaths") :: Frame
-    local itemsDeaths = deaths:WaitForChild("Items") :: ScrollingFrame
-    local gridDeaths = itemsDeaths:WaitForChild("Grid") :: Frame
-    local deathsItemTemplate = gridDeaths:WaitForChild("Template") :: Frame
-    deathsItemTemplate.Visible = false
+function AurasView.initialize(window: State.WindowWidget)
+    local auras = window.canvas:WaitForChild("Auras") :: Frame
+    local items = auras:WaitForChild("Items") :: ScrollingFrame
+    local grid = items:WaitForChild("Grid") :: Frame
+    local itemTemplate = grid:WaitForChild("Template") :: Frame
+    itemTemplate.Visible = false
 
-    for _, item in ipairs(deathsItems) do
-        local clone = deathsItemTemplate:Clone()
+    for _, item in ipairs(auraItems) do
+        local clone = itemTemplate:Clone()
         clone.Name = item.id
-        clone.Parent = gridDeaths
+        clone.Parent = grid
         clone.Visible = true
 
         local image = clone:WaitForChild("ImageButton") :: ImageButton
@@ -120,17 +116,17 @@ function DeathsView.initialize(window: State.WindowWidget)
         buttonText.Text = "..."
 
         image.Image = item.image
-        local widget: DeathsWidget = {
-            customHandler = updateDeaths,
+        local widget: AuraWidget = {
+            customHandler = updateAuras,
             item_id = item.id,
             frame = clone :: any
         }
-        State.addWidget("deaths_" .. item.id, widget)
+        State.addWidget("auras_" .. item.id, widget)
 
         -- If I'm right, connection will be automatically destroyed when item destroys
         button.Activated:Connect(function(inputObject, clickCount)
             if table.find(State.owns, item.id) then
-                State.SyncEvent:FireServer("equip_death", item.id)
+                State.SyncEvent:FireServer("equip_aura", item.id)
             elseif State.prices[item.id].currency == "badge" then
                 Dialog.showDialog(State.prices[item.id].unlockMsg, {
                     { text = "OK" }
@@ -141,21 +137,21 @@ function DeathsView.initialize(window: State.WindowWidget)
         end)
 
         image.Activated:Connect(function(inputObject, clickCount)
-            Dialog.showDialog("Do you want to test this animation? (not visible to others in lobby)", {
+            Dialog.showDialog("Do you want to test this aura? (not visible to others in lobby)", {
                 { text = "No" },
                 {
                     text = "Yes",
                     func = function()
                         State.hideAllWindows()
                         task.wait(0.3)
-                        testDeathAnimation(item.id)
+                        testAura(item.id)
                     end
                 },
             })
         end)
     end
 
-    State.DeathAnimUpdated.Event:Connect(function(oldValue: string?, newValue: string)
+    State.AuraUpdated.Event:Connect(function(oldValue: string?, newValue: string)
         if oldValue ~= nil then
             invalidate(oldValue)
         end
@@ -195,7 +191,7 @@ function DeathsView.initialize(window: State.WindowWidget)
         end
     end)
 
-    return deaths
+    return auras
 end
 
-return DeathsView
+return AurasView

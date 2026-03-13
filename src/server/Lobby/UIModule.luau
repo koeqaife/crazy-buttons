@@ -43,6 +43,12 @@ local priceList: {[string]: PriceType} = {
     magic = { currency = "cash", amount = 400 },
     explosion = { currency = "cash", amount = 3000 },
 
+    bubblesAura = { currency = "cash", amount = 50 },
+    purpleAura = { currency = "cash", amount = 150 },
+    greenAura = { currency = "cash", amount = 150 },
+    incognitoFace = { currency = "cash", amount = 350 },
+    magicAura = { currency = "cash", amount = 600 },
+
     coins_100 = { currency = "robux", productId = COINS_100_PRODUCT },
     coins_250 = { currency = "robux", productId = COINS_250_PRODUCT },
     coins_500 = { currency = "robux", productId = COINS_500_PRODUCT },
@@ -106,6 +112,9 @@ function UIModule.init()
     DataStoreModule.VolumeUpdated.Event:Connect(function(player: Player, value: any)
         SyncEvent:FireClient(player, "volume", value)
     end)
+    DataStoreModule.AuraUpdated.Event:Connect(function(player: Player, value: string)
+        SyncEvent:FireClient(player, "aura", value)
+    end)
     Players.PlayerAdded:Connect(function(player)
         SyncEvent:FireClient(player, "prices", priceList)
     end)
@@ -141,9 +150,14 @@ function UIModule.init()
         end
 
         if action == "equip_death" then
-            if table.find(owns, value) then
+            if value == "default" or table.find(owns, value) then
                 local newValue = if value == DataStoreModule.getDeathEffect(player) then "default" else value
                 DataStoreModule.setDeathEffect(player, newValue):catch(warn):await()
+            end
+        elseif action == "equip_aura" then
+            if value == "default" or table.find(owns, value) then
+                local newValue = if value == DataStoreModule.getAura(player) then "default" else value
+                DataStoreModule.setAura(player, newValue):catch(warn):await()
             end
         elseif action == "set_volume" then
             local copy = {

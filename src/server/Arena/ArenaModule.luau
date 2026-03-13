@@ -65,21 +65,17 @@ function ArenaModule.init()
         loadingLabel.Visible = false
 
         player:SetAttribute("death", DataStoreModule.getDeathEffect(player) or "default")
+        player:SetAttribute("aura", DataStoreModule.getAura(player) or "default")
+    end)
 
-        local removingConnection: RBXScriptConnection
-        local animationConnection = DataStoreModule.DeathAnimationUpdated.Event:Connect(function(p: Player, value: string)
-            if player == p then
-                print("Death animation set for", player, "to", value)
-                player:SetAttribute("death", value)
-            end
-        end)
+    DataStoreModule.DeathAnimationUpdated.Event:Connect(function(player: Player, value: string)
+        print("Death animation set for", player.DisplayName, "to", value)
+        player:SetAttribute("death", value)
+    end)
 
-        removingConnection = Players.PlayerRemoving:Connect(function(playerRemoved: Player)
-            if playerRemoved == player then
-                removingConnection:Disconnect()
-                animationConnection:Disconnect()
-            end
-        end)
+    DataStoreModule.AuraUpdated.Event:Connect(function(player: Player, value: string)
+        print("Aura set for", player.DisplayName, "to", value)
+        player:SetAttribute("aura", value)
     end)
 
     Players.PlayerRemoving:Connect(function(player)

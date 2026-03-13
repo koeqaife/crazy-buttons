@@ -23,6 +23,9 @@ type PriceType = {
 } | {
     currency: "robux",
     productId: number
+} | {
+    currency: "badge",
+    unlockMsg: string
 }
 
 local COINS_100_PRODUCT = 3551873361
@@ -116,7 +119,9 @@ function UIModule.init()
         end
 
         local price = priceList[id]
-        if price.currency == "cash" then
+        if price.currency == "badge" then
+            return
+        elseif price.currency == "cash" then
             if playerBalance >= price.amount then
                 DataStoreModule.appendOwns(player, id):catch(error):await()
                 DataStoreModule.addCash(player, -price.amount):catch(error):await()

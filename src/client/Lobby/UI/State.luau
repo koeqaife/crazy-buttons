@@ -22,7 +22,8 @@ State.VolumeUpdated = Instance.new("BindableEvent")
 
 type PriceType = {
     currency: "cash" | "robux",
-    amount: number
+    amount: number,
+    unlockMsg: string?
 }
 
 State.owns = {} :: {string}

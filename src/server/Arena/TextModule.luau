@@ -83,7 +83,7 @@ function TextModule.init()
         if typesPerPlayer[player] ~= nil then
             return
         end
-        print("Loading", player.Name, typesPerPlayer[player], value)
+        print("Loading replicas", player.Name, typesPerPlayer[player], value)
         local bag = Replicas.bag
         typesPerPlayer[player] = bag[(value % #bag) + 1]
         loadReplicas(player)

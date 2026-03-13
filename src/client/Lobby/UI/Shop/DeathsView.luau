@@ -133,7 +133,7 @@ function DeathsView.initialize(window: State.WindowWidget)
         end)
 
         image.Activated:Connect(function(inputObject, clickCount)
-            Dialog.showDialog("Do you want to test this animation?", {
+            Dialog.showDialog("Do you want to test this animation? (not visible to others)", {
                 { text = "No" },
                 {
                     text = "Yes",

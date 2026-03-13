@@ -219,6 +219,9 @@ end
 function GameLoopModule.start()
     _G.dumpState = dumpState
     _G.dumpPlayers = dumpPlayers
+    _G.cancelAll = GameState.cancelAll
+    _G.kill = GameState.kill
+    _G.revive = GameState.revive
 
     for _, player in ipairs(Players:GetPlayers()) do
         table.insert(GameState.alivePlayers, player)

@@ -80,12 +80,12 @@ function TextModule.init()
         end
     end)
     DataStoreModule.TimesPlayedUpdated.Event:Connect(function(player: Player, value: number)
-        print(typesPerPlayer[player], value)
         if typesPerPlayer[player] ~= nil then
             return
         end
+        print("Loading", player.Name, typesPerPlayer[player], value)
         local bag = Replicas.bag
-        typesPerPlayer[player] = bag[value + 1 % #bag]
+        typesPerPlayer[player] = bag[(value % #bag) + 1]
         loadReplicas(player)
     end)
 

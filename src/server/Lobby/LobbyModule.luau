@@ -16,6 +16,11 @@ local playerBoardText: TextLabel = workspace
     :WaitForChild("SurfaceGui")
     :WaitForChild("mainText")
 
+local specialPlayerBoardText: TextLabel = workspace
+    :WaitForChild("SpecialTerminalScreen")
+    :WaitForChild("SurfaceGui")
+    :WaitForChild("mainText")
+
 local boardText = {
     players = "",
     countdown = ""
@@ -372,6 +377,8 @@ function LobbyModule.init()
     DataStoreModule.init()
     MusicModule.init()
     UIModule.init()
+
+    specialPlayerBoardText.Text = "Special rounds\nComing soon..."
 
     game.Players.PlayerAdded:Connect(function(player: Player)
         local leaderstats = Instance.new("Folder")

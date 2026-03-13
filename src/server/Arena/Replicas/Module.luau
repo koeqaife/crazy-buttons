@@ -7,5 +7,6 @@ return {
     default = function() return require(ServerScriptService.Server.Arena.Replicas.Default.Module) end,
     evil = function() return require(ServerScriptService.Server.Arena.Replicas.Evil.Module) end,
     show = function() return require(ServerScriptService.Server.Arena.Replicas.Show.Module) end,
-    slang = function() return require(ServerScriptService.Server.Arena.Replicas.Slang.Module) end
+    slang = function() return require(ServerScriptService.Server.Arena.Replicas.Slang.Module) end,
+    bag = { "default", "evil", "show", "slang" }
 }

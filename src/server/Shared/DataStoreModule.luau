@@ -15,6 +15,7 @@ local DeathAnimationUpdated = Instance.new("BindableEvent")
 local OwnsUpdated = Instance.new("BindableEvent")
 local CashUpdated = Instance.new("BindableEvent")
 local VolumeUpdated = Instance.new("BindableEvent")
+local TimesPlayedUpdated = Instance.new("BindableEvent")
 
 local survivesStore = DataStoreService:GetOrderedDataStore("Survives")
 local streakStore = DataStoreService:GetOrderedDataStore("Streak")
@@ -35,13 +36,15 @@ export type PlayerData = {
     currentDeathEffect: string?,
     owns: { string },
     cash: number,
-    volume: Volume
+    volume: Volume,
+    timesPlayed: number
 }
 
 local defaultData: PlayerData = {
     survives = 0,
     streak = 0,
     topStreak = 0,
+    timesPlayed = 0,
     streakLastUpdated = 0,
     pendingRevives = 0,
     notJoinedBefore = true,
@@ -64,6 +67,7 @@ DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
 DataStoreModule.OwnsUpdated = OwnsUpdated
 DataStoreModule.CashUpdated = CashUpdated
 DataStoreModule.VolumeUpdated = VolumeUpdated
+DataStoreModule.TimesPlayedUpdated = TimesPlayedUpdated
 
 -- Pending changes (debounce / coalesce)
 type PendingChange = {
@@ -76,7 +80,8 @@ type PendingChange = {
     currentDeathEffect: string?,
     owns: { string }?,
     cash: number?,
-    volume: Volume?
+    volume: Volume?,
+    timesPlayed: number?
 }
 local pendingChanges: { [Player]: PendingChange } = {}
 local dirtyTimers: { [Player]: boolean } = {}
@@ -173,6 +178,10 @@ local function flushPlayer(player: Player)
                     data.streakLastUpdated = changes.streakLastUpdated
                 end
 
+                if changes.timesPlayed then
+                    data.timesPlayed = (data.timesPlayed or 0) + changes.timesPlayed
+                end
+
                 for key, value in pairs(defaultData) do
                     if data[key] == nil then
                         data[key] = value
@@ -210,11 +219,12 @@ local function flushPlayer(player: Player)
 
         SurvivesUpdated:Fire(player, result.survives)
         StreakUpdated:Fire(player, result.streak)
-        NotJoinedBeforeUpdated:Fire(player, result.NotJoinedBeforeUpdated)
+        NotJoinedBeforeUpdated:Fire(player, result.notJoinedBefore)
         DeathAnimationUpdated:Fire(player, result.currentDeathEffect)
         OwnsUpdated:Fire(player, result.owns)
         CashUpdated:Fire(player, result.cash)
         VolumeUpdated:Fire(player, result.volume)
+        TimesPlayedUpdated:Fire(player, result.timesPlayed)
     end)
 end
 
@@ -229,6 +239,9 @@ local function markDirty(player: Player, changeTable: PendingChange)
     end
     if changeTable.pendingRevives then
         pendingChanges[player].pendingRevives = (pendingChanges[player].pendingRevives or 0) + changeTable.pendingRevives
+    end
+    if changeTable.timesPlayed then
+        pendingChanges[player].timesPlayed = (pendingChanges[player].timesPlayed or 0) + changeTable.timesPlayed
     end
 
     if changeTable.owns then
@@ -261,6 +274,10 @@ local function markDirty(player: Player, changeTable: PendingChange)
     if changeTable.cash then
         dataPerPlayer[player].cash = math.max(0, (dataPerPlayer[player].cash or 0) + changeTable.cash)
         CashUpdated:Fire(player, dataPerPlayer[player].cash)
+    end
+    if changeTable.timesPlayed then
+        dataPerPlayer[player].timesPlayed = math.max(0, (dataPerPlayer[player].timesPlayed or 0) + (changeTable.timesPlayed or 0))
+        TimesPlayedUpdated:Fire(player, dataPerPlayer[player].timesPlayed)
     end
     if changeTable.pendingRevives then
         dataPerPlayer[player].pendingRevives = math.max(0, (dataPerPlayer[player].pendingRevives or 0) + changeTable.pendingRevives)
@@ -382,6 +399,15 @@ function DataStoreModule.addPendingRevives(player: Player, amount: number)
         return dataPerPlayer[player]
     end)():catch(function()
         warn("Failed to mark add pending revives for", player.Name)
+    end)
+end
+
+function DataStoreModule.increaseTimesPlayed(player: Player, amount: number)
+    return Promise.promisify(function()
+        markDirty(player, { timesPlayed = amount })
+        return dataPerPlayer[player]
+    end)():catch(function()
+        warn("Failed to mark add times played for", player.Name)
     end)
 end
 
@@ -508,6 +534,13 @@ function DataStoreModule.getVolume(player: Player): Volume?
     return dataPerPlayer[player].volume
 end
 
+function DataStoreModule.getTimesPlayed(player: Player): number
+    if not dataPerPlayer[player] then
+        return 0
+    end
+    return dataPerPlayer[player].timesPlayed or 0
+end
+
 local function getTop(from: OrderedDataStore)
     return Promise.promisify(function(): {{ name: string, value: number }}?
         local pages = from:GetSortedAsync(false, 100, 1)
@@ -571,6 +604,7 @@ function DataStoreModule.init()
             OwnsUpdated:Fire(player, finalData.owns)
             CashUpdated:Fire(player, finalData.cash)
             VolumeUpdated:Fire(player, finalData.volume)
+            TimesPlayedUpdated:Fire(player, finalData.timesPlayed)
         else
             warn("Failed to load data for", player.Name, data)
         end

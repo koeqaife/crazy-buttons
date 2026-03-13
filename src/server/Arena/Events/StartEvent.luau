@@ -1,11 +1,13 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Event that is always first
 -- Kills those who didn't click the button
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
@@ -43,6 +45,10 @@ function Event.onEvent()
     ButtonsModule.initiateButtonChoice(25, nil, nil, nil, true, GameState.alivePlayers):catch(error):await()
     GameState.cancelAll()
     promise:cancel()
+
+    GameState.runFuncPerAlive(function(player)
+        DataStoreModule.increaseTimesPlayed(player, 1)
+    end)
 
     return
 end

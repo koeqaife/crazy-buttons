@@ -12,16 +12,14 @@ local TextModule = {}
 local UpdateTextEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 UpdateTextEvent.Name = "UpdateTextEvent"
 
-local globalType = "default"
 local globalContext = "misc"
 local replicasPerPlayer: {[Player]: {[string]: {[string]: Format.Template}}} = {}
+local typesPerPlayer: {[Player]: string} = {}
+local languagesPerPlayer: {[Player]: string} = {}
 
-local function loadReplicas(player: Player, type: string, language: string)
-    if (DataStoreModule.getCash(player) or 0) < 10 then
-        type = "default"
-    end
-    local typeFolder = Replicas[type]()
-    local languageLoad = typeFolder[language] or typeFolder["english"]
+local function loadReplicas(player: Player)
+    local typeFolder = Replicas[typesPerPlayer[player] or "default"]()
+    local languageLoad = typeFolder[languagesPerPlayer[player] or "english"] or typeFolder["english"]
     replicasPerPlayer[player] = languageLoad()
 end
 
@@ -63,35 +61,32 @@ function TextModule.setContext(value: string)
 end
 
 function TextModule.init()
-    UpdateTextEvent.OnServerEvent:Connect(function(player, action: string, value: string)
+    UpdateTextEvent.OnServerEvent:Connect(function(player: Player, action: string, value: string)
         if action == "set_language" then
-            loadReplicas(player, globalType, value)
+            loadReplicas(player)
         end
     end)
-
-    -- Set random type
-    local keys = {}
-    for k in pairs(Replicas) do
-        table.insert(keys, k)
-    end
-
-    local randomKey = keys[math.random(1, #keys)]
-    globalType = randomKey
 
     -- Load english by default
     for i, player in Players:GetPlayers() do
         if replicasPerPlayer[player] == nil then  -- I don't trust roblox
-            loadReplicas(player, globalType, "english")
+            loadReplicas(player)
         end
     end
 
     Players.PlayerAdded:Connect(function(player)
         if replicasPerPlayer[player] == nil then
-            loadReplicas(player, globalType, "english")
+            loadReplicas(player)
         end
     end)
-    DataStoreModule.CashUpdated.Event:Connect(function(player: Player)
-        loadReplicas(player, globalType, "english")
+    DataStoreModule.TimesPlayedUpdated.Event:Connect(function(player: Player, value: number)
+        print(typesPerPlayer[player], value)
+        if typesPerPlayer[player] ~= nil then
+            return
+        end
+        local bag = Replicas.bag
+        typesPerPlayer[player] = bag[value + 1 % #bag]
+        loadReplicas(player)
     end)
 
     Players.PlayerRemoving:Connect(function(player, reason)

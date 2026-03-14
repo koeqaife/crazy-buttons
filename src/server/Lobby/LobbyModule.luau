@@ -394,26 +394,23 @@ function LobbyModule.init()
         leaderstats.Name = "leaderstats"
         leaderstats.Parent = player
 
-        local survives = Instance.new("StringValue")
+        local survives = Instance.new("IntValue")
         survives.Name = "Survives"
-        survives.Value = "—"
         survives.Parent = leaderstats
 
-        local streak = Instance.new("StringValue")
-        streak.Name = "Day Streak"
-        streak.Value = "—"
+        local streak = Instance.new("IntValue")
+        streak.Name = "Streak"
         streak.Parent = leaderstats
+    end)
 
-        if DataStoreModule.getSurvives(player) == nil then
-            DataStoreModule.SurvivesUpdatedEvent.Event:Wait()
-        end
+    DataStoreModule.getSignal("survives").Event:Connect(function(player: Player, value: number)
+        local survives = player:WaitForChild("leaderstats"):WaitForChild("Survives") :: IntValue
+        survives.Value = value
+    end)
 
-        if DataStoreModule.getStreak(player) == nil then
-            DataStoreModule.StreakUpdatedEvent.Event:Wait()
-        end
-
-        survives.Value = tostring(DataStoreModule.getSurvives(player) or "—")
-        streak.Value = tostring(DataStoreModule.getStreak(player) or "—")
+    DataStoreModule.getSignal("streak").Event:Connect(function(player: Player, value: number)
+        local streak = player:WaitForChild("leaderstats"):WaitForChild("Streak") :: IntValue
+        streak.Value = value
     end)
 
     -- On touched
@@ -441,7 +438,7 @@ function LobbyModule.init()
 
     updatePadCount(0, MAX_PLAYERS)
 
-    DataStoreModule.NotJoinedBeforeUpdated.Event:Connect(function(player, value)
+    DataStoreModule.getSignal("notJoinedBefore").Event:Connect(function(player, value)
         if not value then
             return
         end
@@ -450,7 +447,7 @@ function LobbyModule.init()
     end)
 
     FirstTimeJoined.OnServerEvent:Connect(function(player)
-        DataStoreModule.setNotJoinedBefore(player, false):await()
+        DataStoreModule.rewriteKey(player, "notJoinedBefore", false)
     end)
 
     LeaderboardModule.initFor("streak", workspace:WaitForChild("StreakLeaderboard"))

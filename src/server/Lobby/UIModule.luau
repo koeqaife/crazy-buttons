@@ -76,44 +76,38 @@ local function processReceipt(receiptInfo: {PlayerId: number, ProductId: number}
     local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
     if player then
         if receiptInfo.ProductId == COINS_100_PRODUCT then
-            DataStoreModule.addCash(player, 100):catch(error):await()
+            DataStoreModule.increaseKey(player, "cash", 100)
             return Enum.ProductPurchaseDecision.PurchaseGranted
         elseif receiptInfo.ProductId == COINS_250_PRODUCT then
-            DataStoreModule.addCash(player, 250):catch(error):await()
+            DataStoreModule.increaseKey(player, "cash", 250)
             return Enum.ProductPurchaseDecision.PurchaseGranted
         elseif receiptInfo.ProductId == COINS_500_PRODUCT then
-            DataStoreModule.addCash(player, 500):catch(error):await()
+            DataStoreModule.increaseKey(player, "cash", 500)
             return Enum.ProductPurchaseDecision.PurchaseGranted
         elseif receiptInfo.ProductId == COINS_1000_PRODUCT then
-            DataStoreModule.addCash(player, 1000):catch(error):await()
+            DataStoreModule.increaseKey(player, "cash", 1000)
             return Enum.ProductPurchaseDecision.PurchaseGranted
         end
     end
     return Enum.ProductPurchaseDecision.NotProcessedYet
 end
 
+local publicFields = {
+    owns = "owns",
+    cash = "cash",
+    currentDeathEffect = "death",
+    streak = "streak",
+    survives = "survives",
+    volume = "volume",
+    currentAura = "aura",
+}
+
 function UIModule.init()
-    DataStoreModule.OwnsUpdated.Event:Connect(function(player: Player, owns: {string})
-        SyncEvent:FireClient(player, "owns", owns)
-    end)
-    DataStoreModule.CashUpdated.Event:Connect(function(player: Player, newAmount: number)
-        SyncEvent:FireClient(player, "cash", newAmount)
-    end)
-    DataStoreModule.DeathAnimationUpdated.Event:Connect(function(player: Player, value: string)
-        SyncEvent:FireClient(player, "death", value)
-    end)
-    DataStoreModule.StreakUpdatedEvent.Event:Connect(function(player: Player, value: number)
-        SyncEvent:FireClient(player, "streak", value)
-    end)
-    DataStoreModule.SurvivesUpdatedEvent.Event:Connect(function(player: Player, value: number)
-        SyncEvent:FireClient(player, "survives", value)
-    end)
-    DataStoreModule.VolumeUpdated.Event:Connect(function(player: Player, value: any)
-        SyncEvent:FireClient(player, "volume", value)
-    end)
-    DataStoreModule.AuraUpdated.Event:Connect(function(player: Player, value: string)
-        SyncEvent:FireClient(player, "aura", value)
-    end)
+    for dataStoreKey, syncKey in pairs(publicFields) do
+        DataStoreModule.getSignal(dataStoreKey).Event:Connect(function(player: Player, value: any)
+            SyncEvent:FireClient(player, syncKey, value)
+        end)
+    end
     Players.PlayerAdded:Connect(function(player)
         SyncEvent:FireClient(player, "prices", priceList)
     end)
@@ -121,29 +115,29 @@ function UIModule.init()
     SyncEvent.OnServerEvent:Connect(function(player: Player, action: string, value: any)
         if debounced(player) then return end
 
-        local owns = DataStoreModule.getOwns(player)
+        local owns = DataStoreModule.getTable(player, "owns")
         if not owns then
             return
         end
 
         if action == "equip_death" then
             if value == "default" or table.find(owns, value) then
-                local newValue = if value == DataStoreModule.getDeathEffect(player) then "default" else value
-                DataStoreModule.setDeathEffect(player, newValue):catch(warn):await()
+                local newValue = if value == DataStoreModule.getString(player, "currentDeathEffect") then "default" else value
+                DataStoreModule.rewriteKey(player, "currentDeathEffect", newValue)
             end
         elseif action == "equip_aura" then
             if value == "default" or table.find(owns, value) then
-                local newValue = if value == DataStoreModule.getAura(player) then "default" else value
-                DataStoreModule.setAura(player, newValue):catch(warn):await()
+                local newValue = if value == DataStoreModule.getString(player, "currentAura") then "default" else value
+                DataStoreModule.rewriteKey(player, "currentAura", newValue)
             end
         elseif action == "set_volume" then
             local copy = {
                 music = value.music,
                 ambient = value.ambient
             }
-            DataStoreModule.setVolume(player, copy)
+            DataStoreModule.rewriteKey(player, "volume", copy)
         elseif action == "buy" then
-            local playerBalance = DataStoreModule.getCash(player)
+            local playerBalance = DataStoreModule.getNumber(player, "cash")
             if playerBalance == nil then
                 return
             end
@@ -156,8 +150,8 @@ function UIModule.init()
                 return
             elseif price.currency == "cash" then
                 if playerBalance >= price.amount then
-                    DataStoreModule.appendOwns(player, value):catch(error):await()
-                    DataStoreModule.addCash(player, -price.amount):catch(error):await()
+                    DataStoreModule.mergeKey(player, "owns", {value})
+                    DataStoreModule.increaseKey(player, "cash", -price.amount)
                 end
             elseif price.currency == "robux" then
                 MarketplaceService:PromptProductPurchase(player, price.productId)

@@ -43,9 +43,9 @@ function Event.onEvent()
         TextModule.setText(player, "survivor_made_it", { survivor = survivor })
     end)
 
-    DataStoreModule.increaseSurvives(survivor):await()
+    DataStoreModule.increaseKey(survivor, "survives", 1)
 
-    local survives = DataStoreModule.getSurvives(survivor)
+    local survives = DataStoreModule.getNumber(survivor, "survives")
     for surviveCount, badgeId in pairs(badges) do
         if survives >= surviveCount then
             GameState.rewardBadge(survivor, badgeId):catch(warn):await()

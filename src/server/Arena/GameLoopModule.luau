@@ -162,7 +162,7 @@ local function processReceipt(receiptInfo: {PlayerId: number, ProductId: number}
         if GameState.forceReviveIsAllowed(player) then
             forcedNextEvent = { event = ReviveEvent, by = player }
         else
-            DataStoreModule.addPendingRevives(player, 1):await()
+            DataStoreModule.increaseKey(player, "pendingRevives", 1)
         end
         return Enum.ProductPurchaseDecision.PurchaseGranted
     end
@@ -183,8 +183,8 @@ local function onForceReviveButton(player: Player)
         return
     end
 
-    if DataStoreModule.getPendingRevives(player) > 0 then
-        DataStoreModule.addPendingRevives(player, -1):await()
+    if DataStoreModule.getNumber(player, "pendingRevives") > 0 then
+        DataStoreModule.increaseKey(player, "pendingRevives", -1)
         forcedNextEvent = { event = ReviveEvent, by = player }
     else
         MarketplaceService:PromptProductPurchase(player, 3546841437)
@@ -250,7 +250,7 @@ function GameLoopModule.start()
                 if forcedNextEvent.event == ReviveEvent and not GameState.forceReviveIsAllowed() then
                     TextModule.setContext("misc")
                     TextModule.setText(forcedNextEvent.by, "purchase_not_processed")
-                    DataStoreModule.addPendingRevives(forcedNextEvent.by, 1):await()
+                    DataStoreModule.increaseKey(forcedNextEvent.by, "pendingRevives", 1)
                     forcedNextEvent = nil
                     nextEvent = chooseRandomEvent()
                     task.wait(4)
@@ -277,7 +277,7 @@ function GameLoopModule.start()
                         TextModule.setText(player, "players_left", {count = #GameState.alivePlayers})
                     end)
 
-                    task.wait(10)
+                    task.wait(5)
                 end
             else
                 lastEventCategory = nil
@@ -288,7 +288,7 @@ function GameLoopModule.start()
             TextModule.setContext("misc")
             TextModule.setText(forcedNextEvent.by, "purchase_not_processed")
             if forcedNextEvent.event == ReviveEvent then
-                DataStoreModule.addPendingRevives(forcedNextEvent.by, 1):await()
+                DataStoreModule.increaseKey(forcedNextEvent.by, "pendingRevives", 1)
             end
         end
     end)

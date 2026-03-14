@@ -79,7 +79,7 @@ function TextModule.init()
             loadReplicas(player)
         end
     end)
-    DataStoreModule.TimesPlayedUpdated.Event:Connect(function(player: Player, value: number)
+    DataStoreModule.getSignal("timesPlayed").Event:Connect(function(player: Player, value: number)
         if typesPerPlayer[player] ~= nil then
             return
         end

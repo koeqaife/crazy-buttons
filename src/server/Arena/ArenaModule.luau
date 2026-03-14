@@ -52,7 +52,7 @@ function ArenaModule.init()
 
     mainText.Text = "Waiting for players..."
 
-    DataStoreModule.VolumeUpdated.Event:Connect(function(player: Player, value: any)
+    DataStoreModule.getSignal("volume").Event:Connect(function(player: Player, value: any)
         SyncVolumesEvent:FireClient(player, value)
     end)
 
@@ -64,16 +64,16 @@ function ArenaModule.init()
         local loadingLabel = gui:WaitForChild("loadingLabel") :: TextLabel
         loadingLabel.Visible = false
 
-        player:SetAttribute("death", DataStoreModule.getDeathEffect(player) or "default")
-        player:SetAttribute("aura", DataStoreModule.getAura(player) or "default")
+        player:SetAttribute("death", DataStoreModule.getString(player, "currentDeathEffect") or "default")
+        player:SetAttribute("aura", DataStoreModule.getString(player, "currentAura") or "default")
     end)
 
-    DataStoreModule.DeathAnimationUpdated.Event:Connect(function(player: Player, value: string)
+    DataStoreModule.getSignal("currentDeathEffect").Event:Connect(function(player: Player, value: string)
         print("Death animation set for", player.DisplayName, "to", value)
         player:SetAttribute("death", value)
     end)
 
-    DataStoreModule.AuraUpdated.Event:Connect(function(player: Player, value: string)
+    DataStoreModule.getSignal("currentAura").Event:Connect(function(player: Player, value: string)
         print("Aura set for", player.DisplayName, "to", value)
         player:SetAttribute("aura", value)
     end)

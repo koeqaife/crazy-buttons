@@ -17,7 +17,7 @@ function UIModule.sendMultipliers()
 end
 
 function UIModule.init()
-    DataStoreModule.CashUpdated.Event:Connect(function(player: Player, newAmount: number)
+    DataStoreModule.getSignal("cash").Event:Connect(function(player: Player, newAmount: number)
         SyncEvent:FireClient(player, "cash", newAmount)
     end)
 

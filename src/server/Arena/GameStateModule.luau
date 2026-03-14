@@ -138,7 +138,7 @@ function GameState.runButtonsForDead()
         GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
             if GameState.forceReviveIsAllowed(player) then
                 local forceReviveText = "Force Random Revive"
-                if DataStoreModule.getPendingRevives(player) > 0 then
+                if DataStoreModule.getNumber(player, "pendingRevives") > 0 then
                     forceReviveText = "Force Random Revive (Bought)"
                 end
 
@@ -587,7 +587,7 @@ function GameState.flushReward(player: Player)
     end
     local cash = rewards[player]
     rewards[player] = nil
-    DataStoreModule.addCash(player, math.ceil(cash)):catch(warn)
+    DataStoreModule.increaseKey(player, "cash", math.ceil(cash))
     RewardChanged:Fire(player, 0)
 end
 

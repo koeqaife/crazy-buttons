@@ -16,4 +16,5 @@ return function()
     require(UI.LeftButtons).initialize()
     require(UI.Stats).initialize()
     require(UI.FirstTime).initialize()
+    require(UI.Quests).initialize()
 end

@@ -4,19 +4,9 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local NameService = require(script.Parent.NameService)
+local UserService = game:GetService("UserService")
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
-
-local SurvivesUpdated = Instance.new("BindableEvent")
-local StreakUpdated = Instance.new("BindableEvent")
-local NotJoinedBeforeUpdated = Instance.new("BindableEvent")
-local DeathAnimationUpdated = Instance.new("BindableEvent")
-local AuraUpdated = Instance.new("BindableEvent")
-local OwnsUpdated = Instance.new("BindableEvent")
-local CashUpdated = Instance.new("BindableEvent")
-local VolumeUpdated = Instance.new("BindableEvent")
-local TimesPlayedUpdated = Instance.new("BindableEvent")
 
 local survivesStore = DataStoreService:GetOrderedDataStore("Survives")
 local streakStore = DataStoreService:GetOrderedDataStore("Streak")
@@ -42,6 +32,10 @@ export type PlayerData = {
     timesPlayed: number
 }
 
+export type PendingChanges = PlayerData & {
+    toReset: {string}?
+}
+
 local defaultData: PlayerData = {
     survives = 0,
     streak = 0,
@@ -61,34 +55,12 @@ local defaultData: PlayerData = {
 }
 
 local dataPerPlayer: { [Player]: PlayerData } = {}
+local updatedSignals: { [string]: BindableEvent } = {}
+local usersDisplayName: {[number]: string} = {}
 
 DataStoreModule.dataPerPlayer = dataPerPlayer
-DataStoreModule.SurvivesUpdatedEvent = SurvivesUpdated
-DataStoreModule.StreakUpdatedEvent = StreakUpdated
-DataStoreModule.NotJoinedBeforeUpdated = NotJoinedBeforeUpdated
-DataStoreModule.DeathAnimationUpdated = DeathAnimationUpdated
-DataStoreModule.OwnsUpdated = OwnsUpdated
-DataStoreModule.CashUpdated = CashUpdated
-DataStoreModule.VolumeUpdated = VolumeUpdated
-DataStoreModule.TimesPlayedUpdated = TimesPlayedUpdated
-DataStoreModule.AuraUpdated = AuraUpdated
 
--- Pending changes (debounce / coalesce)
-type PendingChange = {
-    survives: number?,
-    streak: number?,
-    topStreak: number?,
-    streakLastUpdated: number?,
-    pendingRevives: number?,
-    notJoinedBefore: boolean?,
-    currentDeathEffect: string?,
-    owns: { string }?,
-    cash: number?,
-    volume: Volume?,
-    currentAura: string?,
-    timesPlayed: number?
-}
-local pendingChanges: { [Player]: PendingChange } = {}
+local pendingChanges: { [Player]: PendingChanges } = {}
 local dirtyTimers: { [Player]: boolean } = {}
 
 local FLUSH_DELAY = 5
@@ -122,14 +94,169 @@ local function enqueueUpdate(fn: () -> ())
     processQueue()
 end
 
-local function mergeOwns(target: { string }?, toAdd: { string }?)
-    target = target or {}
-    if toAdd and target ~= nil then
-        for _, v in ipairs(toAdd) do
-            table.insert(target, v)
+local scheduledSignal = false
+local scheduledKeys: {[Player]: {string}} = {}
+
+local function flushSignals()
+    for player, keys in pairs(scheduledKeys) do
+        local data = dataPerPlayer[player]
+        for _, key in ipairs(keys) do
+            local signal2: BindableEvent? = updatedSignals[key]
+            if signal2 then
+                signal2:Fire(player, data[key])
+            end
+        end
+        scheduledKeys[player] = {}
+    end
+end
+
+local function ensureSignal(key: string)
+    local signal: BindableEvent? = updatedSignals[key]
+    if signal == nil then
+        local newSignal = Instance.new("BindableEvent")
+        updatedSignals[key] = newSignal
+        return newSignal
+    end
+    return signal
+end
+
+local function onChangedSignal(player: Player, key: string, immediate: boolean?)
+    local signal = ensureSignal(key)
+
+    if immediate then
+        signal:Fire(player, dataPerPlayer[player][key])
+        return
+    end
+
+    if scheduledKeys[player] == nil then
+        scheduledKeys[player] = {}
+    end
+
+    table.insert(scheduledKeys[player], key)
+    if scheduledSignal then
+        return
+    else
+        scheduledSignal = true
+    end
+
+    task.defer(function()
+        flushSignals()
+        scheduledSignal = false
+    end)
+end
+
+local function mergeTables(original: { any }?, toMerge: { any }?)
+    local new = table.clone(original or {})
+    local set = {}
+
+    if toMerge then
+        for _, v in ipairs(new) do
+            set[v] = true
+        end
+        for _, v in ipairs(toMerge) do
+            if not set[v] then
+                set[v] = true
+                table.insert(new, v)
+            end
         end
     end
-    return target
+
+    return new
+end
+
+type IncreaseKey = "survives" | "cash" | "pendingRevives" | "timesPlayed"
+type SetMaxKey = "topStreak"
+type RewriteKey = "volume" | "currentDeathEffect" | "currentAura" | "notJoinedBefore" | "streak" | "streakLastUpdated"
+type MergeKey = "owns"
+type Key = IncreaseKey | SetMaxKey | RewriteKey | MergeKey
+
+local INCREASE_KEYS = {
+    "survives",
+    "cash",
+    "pendingRevives",
+    "timesPlayed",
+}
+
+local SET_MAX_KEYS = {
+    "topStreak"
+}
+
+local REWRITE_KEYS = {
+    "volume",
+    "currentDeathEffect",
+    "currentAura",
+    "notJoinedBefore",
+    "streak",
+    "streakLastUpdated",
+}
+
+local MERGE_TABLE_KEYS = {
+    "owns"
+}
+
+local function mergeChanges(old: {[string]: any}?, new: {[string]: any}?): {[string]: any}
+    if not old then
+        return new and table.clone(new) or {}
+    end
+    if not new then
+        return table.clone(old)
+    end
+
+    local out = table.clone(old)
+    local newCopy = table.clone(new)
+
+    -- INCREASE_KEYS
+    for _, key in ipairs(INCREASE_KEYS) do
+        local v = newCopy[key]
+        if v ~= nil then
+            out[key] = (out[key] or 0) + v
+            newCopy[key] = nil
+        end
+    end
+
+    -- MERGE_TABLE_KEYS
+    for _, key in ipairs(MERGE_TABLE_KEYS) do
+        local v = newCopy[key]
+        if v ~= nil then
+            out[key] = out[key] and table.clone(out[key]) or {}
+            out[key] = mergeTables(out[key], v)
+            newCopy[key] = nil
+        end
+    end
+
+    -- REWRITE_KEYS
+    for _, key in ipairs(REWRITE_KEYS) do
+        local v = newCopy[key]
+        if v ~= nil then
+            out[key] = v
+            newCopy[key] = nil
+        end
+    end
+
+    -- SET_MAX_KEYS
+    for _, key in ipairs(SET_MAX_KEYS) do
+        local v = newCopy[key]
+        if v ~= nil then
+            local outValue = (out[key] or 0)
+            if v > outValue then
+                out[key] = v
+            end
+            newCopy[key] = nil
+        end
+    end
+
+    for k, v in pairs(newCopy) do
+        if type(v) == "number" then
+            out[k] = (out[k] or 0) + v
+        elseif type(v) == "table" then
+            out[k] = out[k] and table.clone(out[k]) or {}
+            out[k] = mergeTables(out[k], v)
+        else
+            out[k] = v
+        end
+    end
+
+    return out
 end
 
 local function flushPlayer(player: Player)
@@ -147,49 +274,14 @@ local function flushPlayer(player: Player)
                     data = table.clone(defaultData)
                 end
 
-                if changes.survives then
-                    data.survives = (data.survives or 0) + changes.survives
+                data = mergeChanges(data, changes)
+                local toReset = changes["toReset"]
+                if toReset ~= nil then
+                    for _, key in ipairs(toReset) do
+                        data[key] = defaultData[key]
+                    end
                 end
-
-                if changes.cash then
-                    data.cash = math.max(0, (data.cash or 0) + changes.cash)
-                end
-
-                if changes.pendingRevives then
-                    data.pendingRevives = math.max(0, (data.pendingRevives or 0) + changes.pendingRevives)
-                end
-
-                if changes.owns then
-                    data.owns = mergeOwns(data.owns, changes.owns) or {}
-                end
-
-                if changes.volume then
-                    data.volume = changes.volume
-                end
-
-                if changes.currentDeathEffect then
-                    data.currentDeathEffect = changes.currentDeathEffect
-                end
-
-                if changes.currentAura then
-                    data.currentAura = changes.currentAura
-                end
-
-                if changes.notJoinedBefore ~= nil then
-                    data.notJoinedBefore = changes.notJoinedBefore
-                end
-
-                if changes.streak then
-                    data.streak = changes.streak
-                end
-
-                if changes.streakLastUpdated then
-                    data.streakLastUpdated = changes.streakLastUpdated
-                end
-
-                if changes.timesPlayed then
-                    data.timesPlayed = (data.timesPlayed or 0) + changes.timesPlayed
-                end
+                data["toReset"] = nil
 
                 for key, value in pairs(defaultData) do
                     if data[key] == nil then
@@ -204,124 +296,34 @@ local function flushPlayer(player: Player)
         if not ok then
             warn("Failed flush for", player.Name, result)
 
-            pendingChanges[player] = pendingChanges[player] or {}
-            pendingChanges[player] = pendingChanges[player] or changes
-
-            if pendingChanges[player] and changes then
-                for k, v in pairs(changes) do
-                    if type(v) == "number" then
-                        pendingChanges[player][k] = (pendingChanges[player][k] or 0) + v
-                    elseif k == "owns_add" then
-                        pendingChanges[player][k] = pendingChanges[player][k] or {}
-                        for _, vv in ipairs(v) do
-                            table.insert(pendingChanges[player][k], vv)
-                        end
-                    else
-                        pendingChanges[player][k] = v
-                    end
-                end
-            end
+            pendingChanges[player] = mergeChanges(pendingChanges[player], changes)
             return
         end
 
-        dataPerPlayer[player] = result
+        for k, v in pairs(changes) do
+            if v ~= dataPerPlayer[player][k] then
+                onChangedSignal(player, k)
+            end
+        end
 
-        SurvivesUpdated:Fire(player, result.survives)
-        StreakUpdated:Fire(player, result.streak)
-        NotJoinedBeforeUpdated:Fire(player, result.notJoinedBefore)
-        DeathAnimationUpdated:Fire(player, result.currentDeathEffect)
-        AuraUpdated:Fire(player, result.currentAura)
-        OwnsUpdated:Fire(player, result.owns)
-        CashUpdated:Fire(player, result.cash)
-        VolumeUpdated:Fire(player, result.volume)
-        TimesPlayedUpdated:Fire(player, result.timesPlayed)
+        local toReset = changes["toReset"]
+        if toReset ~= nil then
+            for _, k in pairs(toReset) do
+                onChangedSignal(player, k)
+            end
+        end
+
+        dataPerPlayer[player] = result
     end)
 end
 
-local function markDirty(player: Player, changeTable: PendingChange)
-    pendingChanges[player] = pendingChanges[player] or {}
+local function markDirty(player: Player, changeTable: PendingChanges)
+    pendingChanges[player] = mergeChanges(pendingChanges[player] or {}, changeTable)
+    dataPerPlayer[player] = mergeChanges(dataPerPlayer[player], changeTable)
+    dataPerPlayer[player]["toReset"] = nil
 
-    if changeTable.survives then
-        pendingChanges[player].survives = (pendingChanges[player].survives or 0) + changeTable.survives
-    end
-    if changeTable.cash then
-        pendingChanges[player].cash = (pendingChanges[player].cash or 0) + changeTable.cash
-    end
-    if changeTable.pendingRevives then
-        pendingChanges[player].pendingRevives = (pendingChanges[player].pendingRevives or 0) + changeTable.pendingRevives
-    end
-    if changeTable.timesPlayed then
-        pendingChanges[player].timesPlayed = (pendingChanges[player].timesPlayed or 0) + changeTable.timesPlayed
-    end
-
-    if changeTable.owns then
-        pendingChanges[player].owns = pendingChanges[player].owns or {}
-        for _, v in ipairs(changeTable.owns) do
-            table.insert(pendingChanges[player].owns or {}, v)
-        end
-    end
-
-    -- replace/overwrite fields
-    if changeTable.volume then
-        pendingChanges[player].volume = changeTable.volume
-    end
-    if changeTable.currentDeathEffect then
-        pendingChanges[player].currentDeathEffect = changeTable.currentDeathEffect
-    end
-    if changeTable.currentAura then
-        pendingChanges[player].currentAura = changeTable.currentAura
-    end
-    if changeTable.notJoinedBefore ~= nil then
-        pendingChanges[player].notJoinedBefore = changeTable.notJoinedBefore
-    end
-    if changeTable.streak then
-        pendingChanges[player].streak = changeTable.streak
-        pendingChanges[player].streakLastUpdated = changeTable.streakLastUpdated or os.time()
-    end
-
-    dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
-    if changeTable.survives then
-        dataPerPlayer[player].survives = (dataPerPlayer[player].survives or 0) + changeTable.survives
-        SurvivesUpdated:Fire(player, dataPerPlayer[player].survives)
-    end
-    if changeTable.cash then
-        dataPerPlayer[player].cash = math.max(0, (dataPerPlayer[player].cash or 0) + changeTable.cash)
-        CashUpdated:Fire(player, dataPerPlayer[player].cash)
-    end
-    if changeTable.timesPlayed then
-        dataPerPlayer[player].timesPlayed = math.max(0, (dataPerPlayer[player].timesPlayed or 0) + (changeTable.timesPlayed or 0))
-        TimesPlayedUpdated:Fire(player, dataPerPlayer[player].timesPlayed)
-    end
-    if changeTable.pendingRevives then
-        dataPerPlayer[player].pendingRevives = math.max(0, (dataPerPlayer[player].pendingRevives or 0) + changeTable.pendingRevives)
-    end
-    if changeTable.owns then
-        dataPerPlayer[player].owns = dataPerPlayer[player].owns or {}
-        for _, v in ipairs(changeTable.owns) do
-            table.insert(dataPerPlayer[player].owns, v)
-        end
-        OwnsUpdated:Fire(player, dataPerPlayer[player].owns)
-    end
-    if changeTable.volume then
-        dataPerPlayer[player].volume = changeTable.volume
-        VolumeUpdated:Fire(player, dataPerPlayer[player].volume)
-    end
-    if changeTable.currentDeathEffect then
-        dataPerPlayer[player].currentDeathEffect = changeTable.currentDeathEffect
-        DeathAnimationUpdated:Fire(player, dataPerPlayer[player].currentDeathEffect)
-    end
-    if changeTable.currentAura then
-        dataPerPlayer[player].currentAura = changeTable.currentAura
-        AuraUpdated:Fire(player, dataPerPlayer[player].currentAura)
-    end
-    if changeTable.notJoinedBefore ~= nil then
-        dataPerPlayer[player].notJoinedBefore = changeTable.notJoinedBefore
-        NotJoinedBeforeUpdated:Fire(player, dataPerPlayer[player].notJoinedBefore)
-    end
-    if changeTable.streak then
-        dataPerPlayer[player].streak = changeTable.streak
-        dataPerPlayer[player].streakLastUpdated = changeTable.streakLastUpdated or os.time()
-        StreakUpdated:Fire(player, dataPerPlayer[player].streak)
+    for k, v in pairs(changeTable) do
+        onChangedSignal(player, k)
     end
 
     if dirtyTimers[player] then
@@ -356,115 +358,46 @@ local function setData(player: Player, data: PlayerData?)
     return finalData
 end
 
-function DataStoreModule.increaseSurvives(player: Player)
-    return Promise.promisify(function()
-        markDirty(player, { survives = 1 })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark increase survives for", player.Name)
-    end)
+-- generate hash table --
+-- for O(1) on type checks
+
+local typeHashTable: {[string]: string} = {}
+for _, key in INCREASE_KEYS do
+    typeHashTable[key] = "increase"
 end
 
-function DataStoreModule.addCash(player: Player, amount: number)
-    return Promise.promisify(function()
-        markDirty(player, { cash = amount })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark add cash for", player.Name)
-    end)
+for _, key in SET_MAX_KEYS do
+    typeHashTable[key] = "set_max"
 end
 
-function DataStoreModule.appendOwns(player: Player, value: string)
-    return Promise.promisify(function()
-        markDirty(player, { owns = { value } })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark append owns for", player.Name)
-    end)
+for _, key in REWRITE_KEYS do
+    typeHashTable[key] = "rewrite"
 end
 
-function DataStoreModule.setVolume(player: Player, value: Volume)
-    return Promise.promisify(function()
-        markDirty(player, { volume = value })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark set volume for", player.Name)
-    end)
+for _, key in MERGE_TABLE_KEYS do
+    typeHashTable[key] = "merge"
 end
 
-function DataStoreModule.setDeathEffect(player: Player, value: string)
-    return Promise.promisify(function()
-        markDirty(player, { currentDeathEffect = value })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark set death effect for", player.Name)
-    end)
-end
+-------------------------
 
-function DataStoreModule.setAura(player: Player, value: string)
-    return Promise.promisify(function()
-        markDirty(player, { currentAura = value })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark set aura for", player.Name)
-    end)
-end
-
-function DataStoreModule.setNotJoinedBefore(player: Player, value: boolean)
-    return Promise.promisify(function()
-        markDirty(player, { notJoinedBefore = value })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark notJoinedBefore for", player.Name)
-    end)
-end
-
-function DataStoreModule.addPendingRevives(player: Player, amount: number)
-    return Promise.promisify(function()
-        markDirty(player, { pendingRevives = amount })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark add pending revives for", player.Name)
-    end)
-end
-
-function DataStoreModule.increaseTimesPlayed(player: Player, amount: number)
-    return Promise.promisify(function()
-        markDirty(player, { timesPlayed = amount })
-        return dataPerPlayer[player]
-    end)():catch(function()
-        warn("Failed to mark add times played for", player.Name)
-    end)
-end
-
-function DataStoreModule.setNewTopStreak(player: Player)
-    return Promise.promisify(function()
-        return PlayerDataStore:UpdateAsync(tostring(player.UserId), function(data: PlayerData?)
-            local finalData: PlayerData
-
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            if finalData.streak and finalData.streak > (finalData.topStreak or 0) then
-                finalData.topStreak = finalData.streak
-            end
-
-            dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
-            dataPerPlayer[player].topStreak = finalData.topStreak
-            print("Changed top streak counter for", player.Name, "to", finalData.topStreak)
-
-            return finalData
-        end)
-    end)():catch(function()
-        warn("Failed to set new top streak for", player.Name)
-    end)
+local function checkKey(player: Player, key: string, value: any, writeType: string)
+    if type(defaultData[key]) ~= type(value) then
+        error(
+            "Failed to check key for " .. player.Name .. ". Key -> '"
+            .. key .. "' | Value -> '" .. value .. "'. Due to VARIABLE type difference. "
+            .. "Type " .. type(defaultData[key]) .. " != " .. type(value)
+        )
+    elseif typeHashTable[key] ~= writeType then
+        error(
+            "Failed to check key for " .. player.Name .. ". Key -> '"
+            .. key .. "' | Value -> '" .. value .. "'. Due to WRITE type difference. "
+            .. "Write type " .. type(typeHashTable[key]) .. " != " .. writeType
+        )
+    end
 end
 
 function DataStoreModule.continueStreak(player: Player)
-    return Promise.promisify(function()
+    local ok, result = pcall(function()
         return PlayerDataStore:UpdateAsync(tostring(player.UserId), function(data: PlayerData?)
             local finalData: PlayerData
 
@@ -483,7 +416,6 @@ function DataStoreModule.continueStreak(player: Player)
             if timePassed <= 24 * 60 * 60 then
                 dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
                 dataPerPlayer[player].streak = finalData.streak
-                StreakUpdated:Fire(player, finalData.streak)
                 return finalData
             elseif timePassed <= 48 * 60 * 60 then
                 finalData.streak += 1
@@ -492,108 +424,124 @@ function DataStoreModule.continueStreak(player: Player)
             end
 
             finalData.streakLastUpdated = currentTime
-            dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
-            dataPerPlayer[player].streak = finalData.streak
             print("Changed streak counter for", player.Name, "to", finalData.streak)
-            StreakUpdated:Fire(player, finalData.streak)
 
             return finalData
         end)
-    end)():catch(function()
-        warn("Failed to continue streak for", player.Name)
     end)
+
+    if not ok then
+        warn(result)
+    end
+
+    if result then
+        dataPerPlayer[player].streak = result.streak
+    end
 end
 
-function DataStoreModule.getOwns(player: Player): { string }?
-    if not dataPerPlayer[player] then
-        return nil
-    end
-    return dataPerPlayer[player].owns
+function DataStoreModule.rewriteKey(player: Player, key: RewriteKey, value: any)
+    checkKey(player, key, value, "rewrite")
+    markDirty(player, { [key :: string] = value })
 end
 
-function DataStoreModule.getSurvives(player: Player): number?
-    if not dataPerPlayer[player] then
-        return nil
-    end
-    return dataPerPlayer[player].survives
+function DataStoreModule.increaseKey(player: Player, key: IncreaseKey, value: number)
+    checkKey(player, key, value, "increase")
+    markDirty(player, { [key :: string] = value :: any })
 end
 
-function DataStoreModule.getStreak(player: Player): number?
-    if not dataPerPlayer[player] then
-        return nil
-    end
-    return dataPerPlayer[player].streak
+function DataStoreModule.setMaxKey(player: Player, key: SetMaxKey, value: number)
+    checkKey(player, key, value, "set_max")
+    markDirty(player, { [key :: string] = value :: any })
 end
 
-function DataStoreModule.getCash(player: Player): number?
-    if not dataPerPlayer[player] then
-        return nil
-    end
-    return dataPerPlayer[player].cash or 0
+function DataStoreModule.mergeKey(player: Player, key: MergeKey, value: {any})
+    checkKey(player, key, value, "merge")
+    markDirty(player, { [key :: string] = value :: any })
 end
 
-function DataStoreModule.getPendingRevives(player: Player): number
-    if not dataPerPlayer[player] then
-        return 0
+local function expectType(player: Player, key: string, expectedType: string): any
+    local value = dataPerPlayer[player][key]
+    if type(value) ~= expectedType then
+        error("Couldn't get value with key " .. key .. " as " .. expectedType .. ". Original type: " .. type(value))
     end
-    return dataPerPlayer[player].pendingRevives or 0
+    return value
 end
 
-function DataStoreModule.getNotJoinedBefore(player: Player): boolean
-    if not dataPerPlayer[player] then
-        return true
-    end
-    return dataPerPlayer[player].notJoinedBefore or false
+function DataStoreModule.getNumber(player: Player, key: Key): number
+    return expectType(player, key, "number")
 end
 
-function DataStoreModule.getDeathEffect(player: Player): string
-    if not dataPerPlayer[player] then
-        return "default"
-    end
-    return dataPerPlayer[player].currentDeathEffect or "default"
+function DataStoreModule.getString(player: Player, key: Key): string
+    return expectType(player, key, "string")
 end
 
-function DataStoreModule.getAura(player: Player): string
-    if not dataPerPlayer[player] then
-        return "default"
-    end
-    return dataPerPlayer[player].currentAura or "default"
+function DataStoreModule.getTable(player: Player, key: Key): {any}
+    return expectType(player, key, "table")
 end
 
-function DataStoreModule.getVolume(player: Player): Volume?
-    if not dataPerPlayer[player] then
-        return nil
-    end
-    return dataPerPlayer[player].volume
+function DataStoreModule.getBoolean(player: Player, key: Key): boolean
+    return expectType(player, key, "boolean")
 end
 
-function DataStoreModule.getTimesPlayed(player: Player): number
-    if not dataPerPlayer[player] then
-        return 0
-    end
-    return dataPerPlayer[player].timesPlayed or 0
+function DataStoreModule.getAny(player: Player, key: Key): any
+    return dataPerPlayer[player][key]
+end
+
+function DataStoreModule.resetKey(player: Player, key: Key)
+    markDirty(player, { toReset = {key} } :: any)
+end
+
+function DataStoreModule.getSignal(key: Key): BindableEvent
+    return ensureSignal(key)
 end
 
 local function getTop(from: OrderedDataStore)
     return Promise.promisify(function(): {{ name: string, value: number }}?
-        local pages = from:GetSortedAsync(false, 100, 1)
+        local pages = from:GetSortedAsync(false, 50, 1)
         local top = pages:GetCurrentPage()[1]
         if top then
             local result: {{ name: string, value: number }} = {}
 
-            for rank, entry in ipairs(pages:GetCurrentPage()) do
-                if tonumber(entry.key) < 0 then
+            local currentPage = pages:GetCurrentPage()
+            local userIds: {number} = {}
+            for rank, entry in ipairs(currentPage) do
+                local id = tonumber(entry.key)
+                if id == nil or id < 0 or usersDisplayName[id] ~= nil then
+                    continue
+                end
+                table.insert(userIds, id)
+            end
+
+            local ok, users = Promise.retryWithDelay(function()
+                return Promise.promisify(function()
+                    return UserService:GetUserInfosByUserIdsAsync(userIds)
+                end)()
+            end, 5, 30):await()
+            if not ok then
+                error(users)
+            end
+
+            for _, userInfo in ipairs(users) do
+                local username = userInfo.Username
+                local displayName = userInfo.DisplayName or username
+                if username:lower() == displayName:lower() then
+                    usersDisplayName[userInfo.Id] = displayName
+                else
+                    usersDisplayName[userInfo.Id] = displayName .. " (" .. username .. ")"
+                end
+            end
+
+            for rank, entry in ipairs(currentPage) do
+                local id = tonumber(entry.key)
+                if id == nil or id < 0 then
+                    continue
+                end
+                local name = usersDisplayName[id]
+                if not name then
                     continue
                 end
 
-                local ok, name = pcall(function()
-                    return NameService.getName(entry.key)
-                end)
-                if ok and name then
-                    table.insert(result, { name = name, value = entry.value })
-                else
-                    warn("Failed to get name for userId", entry.key, name)
-                end
+                table.insert(result, { name = name, value = entry.value })
             end
 
             return result
@@ -611,6 +559,8 @@ function DataStoreModule.getTopSurvives()
 end
 
 function DataStoreModule.init()
+    _G.DataStore = DataStoreModule  -- For debugging
+
     game.Players.PlayerAdded:Connect(function(player: Player)
         local success, data: PlayerData? = Promise.retryWithDelay(function()
             return Promise.promisify(function()
@@ -621,7 +571,7 @@ function DataStoreModule.init()
         if success then
             local finalData = setData(player, data)
 
-            DataStoreModule.setNewTopStreak(player):await()
+            DataStoreModule.setMaxKey(player, "topStreak", DataStoreModule.getNumber(player, "streak"))
             local ok, err = pcall(function()
                 survivesStore:SetAsync(tostring(player.UserId), finalData.survives)
                 streakStore:SetAsync(tostring(player.UserId), finalData.topStreak)
@@ -630,15 +580,9 @@ function DataStoreModule.init()
                 warn(err)
             end
 
-            SurvivesUpdated:Fire(player, finalData.survives)
-            StreakUpdated:Fire(player, finalData.streak)
-            NotJoinedBeforeUpdated:Fire(player, finalData.notJoinedBefore)
-            DeathAnimationUpdated:Fire(player, finalData.currentDeathEffect)
-            AuraUpdated:Fire(player, finalData.currentAura)
-            OwnsUpdated:Fire(player, finalData.owns)
-            CashUpdated:Fire(player, finalData.cash)
-            VolumeUpdated:Fire(player, finalData.volume)
-            TimesPlayedUpdated:Fire(player, finalData.timesPlayed)
+            for key, value in pairs(finalData) do
+                onChangedSignal(player, key)
+            end
         else
             warn("Failed to load data for", player.Name, data)
         end
@@ -657,6 +601,28 @@ function DataStoreModule.init()
         dataPerPlayer[player] = nil
         pendingChanges[player] = nil
         dirtyTimers[player] = nil
+    end)
+
+    game:BindToClose(function()
+        print("Saving datastore")
+        local snapshot = {}
+        for k, v in pairs(pendingChanges) do
+            snapshot[k] = v
+        end
+        for player, _ in pairs(snapshot) do
+            if pendingChanges[player] then
+                flushPlayer(player)
+
+                local waited = 0
+                while pendingChanges[player] and waited < 5 do
+                    task.wait(0.25)
+                    waited = waited + 0.25
+                end
+            end
+            dataPerPlayer[player] = nil
+            pendingChanges[player] = nil
+            dirtyTimers[player] = nil
+        end
     end)
 end
 

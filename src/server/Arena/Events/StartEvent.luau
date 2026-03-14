@@ -47,7 +47,7 @@ function Event.onEvent()
     promise:cancel()
 
     GameState.runFuncPerAlive(function(player)
-        DataStoreModule.increaseTimesPlayed(player, 1)
+        DataStoreModule.increaseKey(player, "timesPlayed", 1)
     end)
 
     return

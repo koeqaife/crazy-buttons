@@ -211,9 +211,9 @@ function Event.onEvent()
             GameState.kill(player)
         else
             if (mistakes[player] or 0) == 0 then
-                local owns = DataStoreModule.getOwns(player)
+                local owns = DataStoreModule.getTable(player, "owns")
                 if owns ~= nil and not table.find(owns, "dangerousAura") then
-                    DataStoreModule.appendOwns(player, "dangerousAura")
+                    DataStoreModule.mergeKey(player, "owns", {"dangerousAura"})
                 end
                 GameState.rewardBadge(player, BADGE_ID):catch(warn)
             end

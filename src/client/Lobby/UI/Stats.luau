@@ -7,7 +7,7 @@ local localPlayer = Players.LocalPlayer
 
 local window = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):WaitForChild("StatsFrame") :: Frame
 
-local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
+local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
 
 function LeftButtons.initialize()
     local survives = window:WaitForChild("Survives"):WaitForChild("TextLabel") :: TextLabel

@@ -9,7 +9,6 @@ local Spring = require(ReplicatedStorage.Shared.spr)
 local State = {}
 
 State.SyncEvent = ReplicatedStorage:WaitForChild("SyncEvent") :: RemoteEvent
-State.BuyEvent = ReplicatedStorage:WaitForChild("BuyEvent") :: RemoteEvent
 
 -- SERVER VARIABLES --
 State.CashUpdated = Instance.new("BindableEvent")

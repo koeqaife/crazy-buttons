@@ -5,6 +5,7 @@ local Scripts = Players.LocalPlayer.PlayerScripts.Client
 
 local LOBBY_PLACE_ID = 115379867051786
 local ARENA_PLACE_ID = 137127365503309
+local SPECIAL_ARENA_PLACE_ID = 88840033000591
 
 local function spawnCoolPlatforms()
     local Platform: Model = ReplicatedStorage:WaitForChild("Platform")
@@ -63,7 +64,7 @@ end
 if game.PlaceId == LOBBY_PLACE_ID then
     local LobbyModule = require(Scripts.Lobby.LobbyModule)
     LobbyModule.init()
-elseif game.PlaceId == ARENA_PLACE_ID then
+elseif game.PlaceId == ARENA_PLACE_ID or game.PlaceId == SPECIAL_ARENA_PLACE_ID then
     local ArenaModule = require(Scripts.Arena.ArenaModule)
     ArenaModule.init()
 else

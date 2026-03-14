@@ -5,7 +5,7 @@ local CoinsView = {}
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
-local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
+local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
 
 type CoinsItem = {
     value: number,
@@ -48,7 +48,7 @@ function CoinsView.initialize(window: State.WindowWidget)
         text.Text = tostring(item.value) .. "$"
 
         clone.Activated:Connect(function(inputObject, clickCount)
-            State.BuyEvent:FireServer(item.id)
+            State.SyncEvent:FireServer("buy", item.id)
         end)
     end
 

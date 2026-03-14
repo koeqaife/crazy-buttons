@@ -5,7 +5,7 @@ local Dialog = {}
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
-local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
+local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
 
 local canvas = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):WaitForChild("DialogCanvas") :: CanvasGroup
 local window = State.createWindow("dialog_window", canvas)

@@ -6,7 +6,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local State = require(player.PlayerScripts.Client.Lobby.UI.State)
+local State = require(player.PlayerScripts.Client.Shared.UI.State)
 
 local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
 local canvas = gui:WaitForChild("FirstTimeCanvas") :: CanvasGroup

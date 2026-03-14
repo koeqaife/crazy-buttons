@@ -9,9 +9,6 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local PurchaseProcessor = require(ServerScriptService.Server.Shared.PurchaseProcessor)
 
-local BuyEvent = Instance.new("RemoteEvent", ReplicatedStorage)
-BuyEvent.Name = "BuyEvent"
-
 local SyncEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 SyncEvent.Name = "SyncEvent"
 
@@ -64,7 +61,7 @@ local function debounced(player: Player)
 
     table.insert(debounceFor, player)
 
-    task.delay(1, function()
+    task.delay(0.3, function()
         local index = table.find(debounceFor, player)
         if index then
             table.remove(debounceFor, index)
@@ -121,28 +118,6 @@ function UIModule.init()
         SyncEvent:FireClient(player, "prices", priceList)
     end)
 
-    BuyEvent.OnServerEvent:Connect(function(player: Player, id: string)
-        if debounced(player) then return end
-
-        local playerBalance = DataStoreModule.getCash(player)
-        if playerBalance == nil then
-            return
-        end
-
-        local price = priceList[id]
-        if price.currency == "badge" then
-            return
-        elseif price.currency == "cash" then
-            if playerBalance >= price.amount then
-                DataStoreModule.appendOwns(player, id):catch(error):await()
-                DataStoreModule.addCash(player, -price.amount):catch(error):await()
-            end
-        elseif price.currency == "robux" then
-            MarketplaceService:PromptProductPurchase(player, price.productId)
-            -- TODO
-        end
-    end)
-
     SyncEvent.OnServerEvent:Connect(function(player: Player, action: string, value: any)
         if debounced(player) then return end
 
@@ -167,6 +142,27 @@ function UIModule.init()
                 ambient = value.ambient
             }
             DataStoreModule.setVolume(player, copy)
+        elseif action == "buy" then
+            local playerBalance = DataStoreModule.getCash(player)
+            if playerBalance == nil then
+                return
+            end
+
+            local price = priceList[value]
+            if price == nil then
+                return
+            end
+            if price.currency == "badge" then
+                return
+            elseif price.currency == "cash" then
+                if playerBalance >= price.amount then
+                    DataStoreModule.appendOwns(player, value):catch(error):await()
+                    DataStoreModule.addCash(player, -price.amount):catch(error):await()
+                end
+            elseif price.currency == "robux" then
+                MarketplaceService:PromptProductPurchase(player, price.productId)
+                -- TODO
+            end
         end
     end)
 

@@ -5,10 +5,11 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 local MusicModule = require(localPlayer.PlayerScripts.Client.Shared.MusicModule)
 
+local SharedUI = localPlayer.PlayerScripts.Client.Shared.UI
 local UI = localPlayer.PlayerScripts.Client.Lobby.UI
 
 return function()
-    require(UI.State).VolumeUpdated.Event:Once(function(_, value: { music: number })
+    require(SharedUI.State).VolumeUpdated.Event:Once(function(_, value: { music: number })
         MusicModule.setMultiplier(value.music)
     end)
 

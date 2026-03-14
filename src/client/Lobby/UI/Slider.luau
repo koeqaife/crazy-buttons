@@ -7,7 +7,8 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local localPlayer = Players.LocalPlayer
 
-local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
+local SharedUI = localPlayer.PlayerScripts.Client.Shared.UI
+local State = require(SharedUI.State)
 local Colors = require(localPlayer.PlayerScripts.Client.Lobby.UI.Colors)
 
 local clamp = math.clamp

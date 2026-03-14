@@ -5,8 +5,9 @@ local Volume = {}
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+local SharedUI = player.PlayerScripts.Client.Shared.UI
 local MusicModule = require(player.PlayerScripts.Client.Shared.MusicModule)
-local State = require(player.PlayerScripts.Client.Lobby.UI.State)
+local State = require(SharedUI.State)
 local Slider = require(player.PlayerScripts.Client.Lobby.UI.Slider)
 
 local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")

@@ -5,8 +5,9 @@ local Shop = {}
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
+local SharedUI = localPlayer.PlayerScripts.Client.Shared.UI
 local UI = localPlayer.PlayerScripts.Client.Lobby.UI
-local State = require(UI.State)
+local State = require(SharedUI.State)
 local Colors = require(UI.Colors)
 
 local canvas = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"):WaitForChild("ShopCanvas") :: CanvasGroup

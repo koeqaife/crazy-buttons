@@ -378,6 +378,15 @@ function LobbyModule.init()
     MusicModule.init()
     UIModule.init()
 
+    _G.forceStart = function()
+        timerActive = false
+        updatePadCountdown("finished")
+        startGame()
+        if countActive() >= MIN_PLAYERS then
+            startCountdown()
+        end
+    end
+
     specialPlayerBoardText.Text = "Special rounds\nComing soon..."
 
     game.Players.PlayerAdded:Connect(function(player: Player)

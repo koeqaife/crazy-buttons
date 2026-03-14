@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 
 local LOBBY_PLACE_ID = 115379867051786
 local ARENA_PLACE_ID = 137127365503309
+local SPECIAL_ARENA_PLACE_ID = 88840033000591
 
 local function disablePlayerCollisions()
     PhysicsService:RegisterCollisionGroup("PlayersNoCollide")
@@ -27,7 +28,7 @@ if game.PlaceId == LOBBY_PLACE_ID then
     local LobbyModule = require(ServerScriptService.Server.Lobby.LobbyModule)
     LobbyModule.init()
     disablePlayerCollisions()
-elseif game.PlaceId == ARENA_PLACE_ID then
+elseif game.PlaceId == ARENA_PLACE_ID or game.PlaceId == SPECIAL_ARENA_PLACE_ID then
     local ArenaModule = require(ServerScriptService.Server.Arena.ArenaModule)
     ArenaModule.init()
     disablePlayerCollisions()

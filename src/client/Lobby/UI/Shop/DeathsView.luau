@@ -7,8 +7,8 @@ local localPlayer = Players.LocalPlayer
 
 local showDieEffect = require(localPlayer.PlayerScripts.Client.Shared.DieEffectModule)
 
-local Dialog = require(localPlayer.PlayerScripts.Client.Lobby.UI.Dialog)
-local State = require(localPlayer.PlayerScripts.Client.Lobby.UI.State)
+local Dialog = require(localPlayer.PlayerScripts.Client.Shared.UI.Dialog)
+local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
 local Colors = require(localPlayer.PlayerScripts.Client.Lobby.UI.Colors)
 local stateInvalidate = State.invalidate
 
@@ -129,14 +129,14 @@ function DeathsView.initialize(window: State.WindowWidget)
 
         -- If I'm right, connection will be automatically destroyed when item destroys
         button.Activated:Connect(function(inputObject, clickCount)
-            if table.find(State.owns, item.id) then
+            if item.id == "default" or table.find(State.owns, item.id) then
                 State.SyncEvent:FireServer("equip_death", item.id)
-            elseif State.prices[item.id].currency == "badge" then
+            elseif State.prices[item.id] ~= nil and State.prices[item.id].currency == "badge" then
                 Dialog.showDialog(State.prices[item.id].unlockMsg, {
                     { text = "OK" }
                 })
             else
-                State.BuyEvent:FireServer(item.id)
+                State.SyncEvent:FireServer("buy", item.id)
             end
         end)
 

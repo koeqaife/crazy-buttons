@@ -588,6 +588,7 @@ function GameState.flushReward(player: Player)
     local cash = rewards[player]
     rewards[player] = nil
     DataStoreModule.addCash(player, math.ceil(cash)):catch(warn)
+    RewardChanged:Fire(player, 0)
 end
 
 function GameState.registerInstance(instance: Instance)

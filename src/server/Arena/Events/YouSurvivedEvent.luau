@@ -52,6 +52,7 @@ function Event.onEvent()
         end
     end
     GameState.addRewardTo(survivor, 5)
+    GameState.flushReward(survivor)
 
     task.spawn(function()
         ButtonsModule.setButtons(survivor, {

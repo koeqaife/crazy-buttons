@@ -24,7 +24,7 @@ function UIModule.connect()
     SyncDeadEvent.OnClientEvent:Connect(function(died: boolean, player: Player)
         task.wait(3)
         if died and player == localPlayer then
-            Dialog.showDialog("O looks like you died.\nYou earned " .. rewardCounter .. "$ this game.", {{ text = "OK" }})
+            Dialog.showDialog("Oh looks like you died.\nYou earned " .. rewardCounter .. "$ this game.", {{ text = "OK" }})
         end
     end)
     State.SyncEvent.OnClientEvent:Connect(function(key: string, value: any)

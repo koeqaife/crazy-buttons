@@ -2,6 +2,7 @@
 --!optimize 2
 
 local UIModule = {}
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local GameStateModule = require(script.Parent.GameStateModule)
@@ -33,6 +34,12 @@ function UIModule.init()
         if amount then
             SyncEvent:FireClient(player, "reward", math.round(amount * 10) / 10)
         end
+    end)
+
+    Players.PlayerAdded:Connect(function(player)
+        SyncEvent:FireClient(player, "cash", DataStoreModule.getNumber(player, "cash"))
+        SyncEvent:FireClient(player, "cookies", DataStoreModule.getNumber(player, "cookies"))
+        SyncEvent:FireClient(player, "quests", DataStoreModule.getAny(player, "quests"))
     end)
 end
 

@@ -99,7 +99,6 @@ for key, value in pairs(hardQuests) do allQuests[key] = value end
 for key, value in pairs(allQuests) do
     local action = value.action :: any
     if indexes[action] == nil then
-        print(action)
         indexes[action] = {key}
     else
         table.insert(indexes[action], key)

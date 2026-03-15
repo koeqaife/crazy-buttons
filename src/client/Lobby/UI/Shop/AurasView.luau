@@ -28,16 +28,21 @@ export type AuraWidget = {
     item_id: string,
     frame: Frame & {
         TextButton: TextButton & {
-            TextLabel: TextLabel
+            TextLabel: TextLabel,
+            IconLabel: ImageLabel
         }
     },
 } & State.Widget
+
+local COOKIES = "rbxassetid://104197406570613"
+local CASH = "rbxassetid://87558364184922"
 
 local function updateAuras(id: string, widget: AuraWidget)
     local button = widget.frame.TextButton
     local buttonText = widget.frame.TextButton.TextLabel
     local item_id = widget.item_id
-    local price = State.prices[item_id] or { amount = "..." }
+    local price = State.prices[item_id] or { currency = "", amount = "..." }
+    button.IconLabel.Visible = false
 
     if item_id == (State.aura or "default") then
         button.BackgroundColor3 = Colors.greenContainerHigh
@@ -55,6 +60,12 @@ local function updateAuras(id: string, widget: AuraWidget)
         button.BackgroundColor3 = Colors.containerHigh
         buttonText.TextColor3 = Colors.text
         buttonText.Text = "Buy (" .. tostring(price.amount) .. ")"
+        button.IconLabel.Visible = true
+        if price.currency == "cookies" then
+            button.IconLabel.Image = COOKIES
+        else
+            button.IconLabel.Image = CASH
+        end
     end
 end
 

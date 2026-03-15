@@ -17,6 +17,7 @@ local SyncQuestsEvent = ReplicatedStorage:WaitForChild("SyncQuestsEvent") :: Rem
 
 local QUESTS_COUNT = 3
 template.Visible = false
+window.Visible = true
 
 type Quest = {
     description: string,

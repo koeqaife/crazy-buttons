@@ -38,7 +38,7 @@ local priceList: {[string]: PriceType} = {
     hearts = { currency = "cash", amount = 300 },
     incognito = { currency = "cash", amount = 300 },
     magic = { currency = "cash", amount = 400 },
-    explosion = { currency = "cookies", amount = 350 },
+    explosion = { currency = "cookies", amount = 400 },
 
     bubblesAura = { currency = "cash", amount = 50 },
     purpleAura = { currency = "cash", amount = 150 },
@@ -54,6 +54,7 @@ local priceList: {[string]: PriceType} = {
     blueAura = { currency = "cookies", amount = 135 },
     voxelAura = { currency = "cookies", amount = 200 },
     duckAura = { currency = "cookies", amount = 350 },
+    cookiesAura = { currency = "cookies", amount = 750 },
 
     coins_100 = { currency = "robux", productId = COINS_100_PRODUCT },
     coins_250 = { currency = "robux", productId = COINS_250_PRODUCT },

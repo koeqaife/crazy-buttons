@@ -60,6 +60,10 @@ local auras = {
         folder = "Duck",
         applyTo = "Body"
     },
+    cookiesAura = {
+        folder = "Cookies",
+        applyTo = "Body"
+    },
 }
 
 local appliedAuras: {[Player]: {ParticleEmitter}} = {}

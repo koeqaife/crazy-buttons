@@ -126,6 +126,10 @@ local auraItems: {AuraItem} = {
     {
         image = "rbxassetid://129459268131154",
         id = "duckAura"
+    },
+    {
+        image = "rbxassetid://133383622439437",
+        id = "cookiesAura"
     }
 }
 

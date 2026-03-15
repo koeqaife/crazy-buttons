@@ -101,6 +101,31 @@ local auraItems: {AuraItem} = {
     {
         image = "rbxassetid://100474595993615",
         id = "dangerousAura"
+    },
+
+    {
+        image = "rbxassetid://100515484899899",
+        id = "radioactiveAura"
+    },
+    {
+        image = "rbxassetid://99988556397796",
+        id = "luckyAura"
+    },
+    {
+        image = "rbxassetid://103775047867911",
+        id = "redAura"
+    },
+    {
+        image = "rbxassetid://121608675615538",
+        id = "blueAura"
+    },
+    {
+        image = "rbxassetid://104256416864776",
+        id = "voxelAura"
+    },
+    {
+        image = "rbxassetid://129459268131154",
+        id = "duckAura"
     }
 }
 

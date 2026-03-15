@@ -35,6 +35,31 @@ local auras = {
         folder = "Dangerous",
         applyTo = "Head"
     },
+
+    luckyAura = {
+        folder = "Lucky",
+        applyTo = "Body"
+    },
+    radioactiveAura = {
+        folder = "Radioactive",
+        applyTo = "Body"
+    },
+    redAura = {
+        folder = "RedAura",
+        applyTo = "Body"
+    },
+    blueAura = {
+        folder = "BlueAura",
+        applyTo = "Body"
+    },
+    voxelAura = {
+        folder = "Voxel",
+        applyTo = "Body"
+    },
+    duckAura = {
+        folder = "Duck",
+        applyTo = "Body"
+    },
 }
 
 local appliedAuras: {[Player]: {ParticleEmitter}} = {}
@@ -51,7 +76,6 @@ function AuraModule.loadAura(player: Player, name: string?)
     end
 
     local character = player.Character
-    print(character)
 
     if character and name ~= "default" and name and auras[name] ~= nil then
         if enabledAuras[player] == nil then
@@ -74,7 +98,17 @@ function AuraModule.loadAura(player: Player, name: string?)
             elseif applyTo == "Head" then
                 emitter.Parent = character:WaitForChild("Head")
             end
-            emitter.Enabled = enabledAuras[player]
+
+            emitter.Enabled = false
+            local interval = 1 / emitter.Rate
+            local enabledBefore = enabledAuras[player]
+            task.delay((i - 1) * interval, function()
+                if enabledBefore ~= enabledAuras[player] then
+                    return
+                end
+                emitter.Enabled = enabledAuras[player]
+            end)
+
             table.insert(appliedAuras[player], emitter)
         end
     end
@@ -83,8 +117,16 @@ end
 function AuraModule.enableAura(player: Player)
     enabledAuras[player] = true
     if appliedAuras[player] ~= nil then
-        for i, aura in appliedAuras[player] do
-            aura.Enabled = true
+        for i, emitter in appliedAuras[player] do
+            emitter.Enabled = false
+            local interval = 1 / emitter.Rate
+            local enabledBefore = enabledAuras[player]
+            task.delay((i - 1) * interval, function()
+                if enabledBefore ~= enabledAuras[player] then
+                    return
+                end
+                emitter.Enabled = enabledAuras[player]
+            end)
         end
     end
 end

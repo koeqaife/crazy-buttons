@@ -410,43 +410,33 @@ end
 function DataStoreModule.continueStreak(player: Player)
     local ok, result = pcall(function()
         return PlayerDataStore:UpdateAsync(tostring(player.UserId), function(data: PlayerData?)
-            local finalData: PlayerData
+            local finalData: PlayerData = data and table.clone(data) or table.clone(defaultData)
 
-            if data == nil then
-                finalData = table.clone(defaultData)
-            else
-                finalData = data
-            end
-
-            if finalData.streak == nil then
-                finalData.streak = 0
-            end
+            finalData.streak = finalData.streak or 0
 
             local currentTime = os.time()
-            local timePassed = currentTime - (finalData.streakLastUpdated or 0)
+            local lastUpdated = finalData.streakLastUpdated or 0
+            local timePassed = currentTime - lastUpdated
+
             if timePassed <= 24 * 60 * 60 then
-                dataPerPlayer[player] = dataPerPlayer[player] or table.clone(defaultData)
-                dataPerPlayer[player].streak = finalData.streak
-                return finalData
+                -- ignore
             elseif timePassed <= 48 * 60 * 60 then
                 finalData.streak += 1
+                finalData.streakLastUpdated = currentTime
             else
                 finalData.streak = 1
+                finalData.streakLastUpdated = currentTime
             end
 
-            finalData.streakLastUpdated = currentTime
             print("Changed streak counter for", player.Name, "to", finalData.streak)
 
+            dataPerPlayer[player] = table.clone(finalData)
             return finalData
         end)
     end)
 
     if not ok then
         warn(result)
-    end
-
-    if result then
-        dataPerPlayer[player].streak = result.streak
     end
 end
 

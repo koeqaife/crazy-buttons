@@ -45,7 +45,7 @@ local priceList: {[string]: PriceType} = {
     greenAura = { currency = "cash", amount = 150 },
     incognitoFace = { currency = "cash", amount = 350 },
     magicAura = { currency = "cash", amount = 600 },
-    starsAura = { currency = "cash", amount = 600 },
+    starsAura = { currency = "cookies", amount = 150 },
     dangerousAura = { currency = "badge", unlockMsg = "Do the sequence with no mistakes on the combo minigame" },
 
     coins_100 = { currency = "robux", productId = COINS_100_PRODUCT },

@@ -9,6 +9,7 @@
 -- Time to wait is random so timer is hidden
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
@@ -17,6 +18,9 @@ local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
 local AmbienceModule = require(Arena.AmbienceModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+local resetAction = require(ServerScriptService.Server.Shared.QuestsModule).resetAction
 
 type EventType = EventTypeModule.Event
 
@@ -173,12 +177,15 @@ function Event.onEvent()
 
         if player == firstClicked then
             GameState.addRewardTo(player, 7)
+            logAction(player, "duel_win")
+            logAction(player, "duel_win_streak")
             await(TextModule.showTextSequence(player, {
                 { key = "you_were_fast_enough", delay = 3 },
                 { key = "good_job", delay = 3 },
             }))
         elseif player == lost then
             GameState.addRewardTo(player, 3)
+            resetAction(player, "duel_win_streak")
             await(TextModule.showTextSequence(player, {
                 { key = "you_are_slow", delay = 3 },
                 { key = "you_are_eliminated", delay = 3 },

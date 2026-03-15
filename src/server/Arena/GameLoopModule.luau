@@ -226,8 +226,6 @@ function GameLoopModule.start()
     _G.revive = GameState.revive
 
     for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(GameState.alivePlayers, player)
-
         -- TODO: Remove after beta/alpha test ended
         GameState.rewardBadge(player, EXPERIMENT_BADGE_ID):catch(warn):await()
     end

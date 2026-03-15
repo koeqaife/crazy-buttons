@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local TimerModule = require(Arena.TimerModule)
@@ -7,6 +8,8 @@ local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 type EventType = EventTypeModule.Event
 
@@ -156,8 +159,9 @@ function Event.onEvent()
                         TextModule.setText(player, "won_against", {won = p1, lost = p2})
                     end
                 end)
-                task.wait(5)
                 GameState.addRewardTo(p1, 7)
+                logAction(p1, "att_def_trust_win")
+                task.wait(5)
                 GameState.kill(p2)
                 break
             else
@@ -168,8 +172,9 @@ function Event.onEvent()
                         TextModule.setText(player, "won_against", {lost = p1, won = p2})
                     end
                 end)
-                task.wait(5)
+                logAction(p2, "att_def_trust_win")
                 GameState.addRewardTo(p2, 7)
+                task.wait(5)
                 GameState.kill(p1)
                 break
             end

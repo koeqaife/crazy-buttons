@@ -12,13 +12,21 @@ SyncEvent.Name = "SyncEvent"
 
 function UIModule.sendMultipliers()
     for player, multiplier in GameStateModule.rewardMultipliers do
-        SyncEvent:FireClient(player, "multiplier", math.round(multiplier * 10) / 10)
+        SyncEvent:FireClient(player, "multiplier", math.round(multiplier * 100) / 100)
     end
 end
 
 function UIModule.init()
     DataStoreModule.getSignal("cash").Event:Connect(function(player: Player, newAmount: number)
         SyncEvent:FireClient(player, "cash", newAmount)
+    end)
+
+    DataStoreModule.getSignal("cookies").Event:Connect(function(player: Player, new: any)
+        SyncEvent:FireClient(player, "cookies", new)
+    end)
+
+    DataStoreModule.getSignal("quests").Event:Connect(function(player: Player, new: any)
+        SyncEvent:FireClient(player, "quests", new)
     end)
 
     GameStateModule.RewardChanged.Event:Connect(function(player: Player, amount: number?)

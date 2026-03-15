@@ -9,6 +9,9 @@ local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local GameState = {}
 
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+local resetAction = require(ServerScriptService.Server.Shared.QuestsModule).resetAction
+
 local SyncDeadEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 SyncDeadEvent.Name = "SyncDeadEvent"
 
@@ -43,6 +46,7 @@ GameState.rewardMultipliers = rewardMultipliers
 GameState.OnPlayerDied = OnPlayerDied
 GameState.ForceRevive = ForceRevive
 GameState.RewardChanged = RewardChanged
+GameState.wasLinked = {} :: {[Player]: boolean}
 
 local LOBBY_PLACE_ID = 115379867051786
 
@@ -200,6 +204,9 @@ function GameState.kill(player: Player, reason: string?)
         end)
     end
 
+    logAction(player, "die")
+    resetAction(player, "press_streak")
+    resetAction(player, "survive_streak")
     cancelPlayerPromises(player)
 
     Promise.defer(function(resolve)
@@ -290,6 +297,8 @@ end
 function GameState.linkTogether(player1: Player, player2: Player)
     linkedPlayers[player1] = player2
     linkedPlayers[player2] = player1
+    GameState.wasLinked[player1] = true
+    GameState.wasLinked[player2] = true
 
     createLink(player1, player2)
 end
@@ -527,9 +536,7 @@ local function getFriendsInServer(player: Player): number
     return count
 end
 
-function GameState.getCashMultiplier(player: Player): number
-    local friends = getFriendsInServer(player)
-
+local function getCashMultiplier(friends: number): number
     if friends <= 0 then
         return 1
     elseif friends == 1 then
@@ -541,9 +548,16 @@ function GameState.getCashMultiplier(player: Player): number
     end
 end
 
-function GameState.setupMultipliers()
+function GameState.setupMultipliersAndFriendQuest()
     for i, player in Players:GetPlayers() do
-        rewardMultipliers[player] = GameState.getCashMultiplier(player)
+        local friends = getFriendsInServer(player)
+        rewardMultipliers[player] = getCashMultiplier(friends)
+        if friends > 0 then
+            logAction(player, "play_with_friends")
+        end
+        if friends >= 2 then
+            logAction(player, "play_with_2_friends")
+        end
     end
 end
 

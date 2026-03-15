@@ -16,6 +16,8 @@ local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+
 type EventType = EventTypeModule.Event
 
 local BADGE_ID = 3143538501927930
@@ -155,6 +157,7 @@ function Event.onEvent()
                 if clicked ~= idx then
                     local mistakeCount = mistakes[player] or 0
                     mistakes[player] = mistakeCount + 1
+                    logAction(player, "combo_mistake")
                 else
                     -- If all 27 are without mistakes gonna be 14 (ceil of 13.5)
                     GameState.addRewardTo(player, 0.5)
@@ -180,23 +183,7 @@ function Event.onEvent()
         return a.mistakes > b.mistakes
     end)
 
-    local toKill = {}
-    local toKillCount: number
-
-    if #GameState.alivePlayers >= 15 then
-        toKillCount = 3
-    elseif #GameState.alivePlayers >= 5 then
-        toKillCount = 2
-    else
-        toKillCount = 1
-    end
-
-    for i, info in ipairs(toCount) do
-        if i > toKillCount then
-            break
-        end
-        table.insert(toKill, info.player)
-    end
+    local toKill = toCount[1].player
 
     GameState.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
@@ -206,11 +193,12 @@ function Event.onEvent()
         -- For everyone who played, even if they died
         GameState.addRewardTo(player, 3)
 
-        if table.find(toKill, player) then
+        if player == toKill then
             TextModule.setText(player, "you_eliminated")
             GameState.kill(player)
         else
             if (mistakes[player] or 0) == 0 then
+                logAction(player, "perfect_combo")
                 local owns = DataStoreModule.getTable(player, "owns")
                 if owns ~= nil and not table.find(owns, "dangerousAura") then
                     DataStoreModule.mergeKey(player, "owns", {"dangerousAura"})

@@ -34,6 +34,7 @@ local UIModule = require(script.Parent.UIModule)
 local LeaderboardModule = require(script.Parent.LeaderboardModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
+local QuestsModule = require(ServerScriptService.Server.Shared.QuestsModule)
 
 local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
 local active: {[Player]: boolean} = {}
@@ -377,6 +378,7 @@ function LobbyModule.init()
     DataStoreModule.init()
     MusicModule.init()
     UIModule.init()
+    QuestsModule.init()
 
     _G.forceStart = function()
         timerActive = false

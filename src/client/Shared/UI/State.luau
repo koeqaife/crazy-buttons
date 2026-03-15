@@ -19,6 +19,8 @@ State.AuraUpdated = Instance.new("BindableEvent")
 State.SurvivesUpdated = Instance.new("BindableEvent")
 State.StreakUpdated = Instance.new("BindableEvent")
 State.VolumeUpdated = Instance.new("BindableEvent")
+State.QuestsUpdated = Instance.new("BindableEvent")
+State.CookiesUpdated = Instance.new("BindableEvent")
 
 type PriceType = {
     currency: "cash" | "robux" | "badge",
@@ -32,11 +34,13 @@ State.aura = nil :: string?
 State.deathAnim = nil :: string?
 State.prices = {} :: {[string]: PriceType}
 State.streak = 0
+State.cookies = 0
 State.survives = 0
 State.volume = {
     music = 0.75,
     ambient = 1.0
 }
+State.quests = {} :: {[string]: number}
 
 type StateEvent = {
     [string]: {
@@ -54,6 +58,8 @@ local events: StateEvent = {
     survives = { stateKey = "survives", event = State.SurvivesUpdated },
     volume = { stateKey = "volume", event = State.VolumeUpdated },
     aura = { stateKey = "aura", event = State.AuraUpdated },
+    quests = { stateKey = "quests", event = State.QuestsUpdated },
+    cookies = { stateKey = "cookies", event = State.CookiesUpdated },
 }
 
 State.SyncEvent.OnClientEvent:Connect(function(key: string, value: any)

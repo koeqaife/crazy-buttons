@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Event with "Simon says"
@@ -13,6 +14,8 @@ local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 type EventType = EventTypeModule.Event
 type Text = { opposite: boolean, text: string, idx: number?, custom: number? }
@@ -101,6 +104,7 @@ function Event.onEvent()
     end):catch(error):await()
 
     GameState.runFuncPerAlive(function(player)
+        logAction(player, "simon_says")
         ButtonsModule.setButtons(player, {
             { idx = 1, text = "Red" },
             { idx = 2, text = "Blue" },

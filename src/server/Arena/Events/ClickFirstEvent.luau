@@ -40,22 +40,10 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local toKill
-
-    if #GameState.alivePlayers >= 15 then
-        toKill = 4
-    elseif #GameState.alivePlayers >= 10 then
-        toKill = 3
-    elseif #GameState.alivePlayers >= 5 then
-        toKill = 2
-    else
-        toKill = 1
-    end
-
     GameState.runPromisePerDead(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "they_have_to_click", delay = 5 },
-            { key = "last_num_eliminate", delay = 7, data = {num = toKill} },
+            { key = "last_num_eliminate", delay = 7, data = {num = 1} },
         }))
     end):andThen(function() end)
 
@@ -63,7 +51,7 @@ function Event.onEvent()
         return protect(TextModule.showTextSequence(player, {
             { key = "you_have_to_click", delay = 6 },
             { key = "click_faster", delay = 5 },
-            { key = "last_num_eliminate", delay = 7, data = {num = toKill} },
+            { key = "last_num_eliminate", delay = 7, data = {num = 1} },
         }))
     end):await()
 
@@ -74,7 +62,7 @@ function Event.onEvent()
         TextModule.setText(player, "wait_for_green")
     end)
 
-    local counter = #GameState.alivePlayers - toKill
+    local counter = #GameState.alivePlayers - 1
 
     local toWait = math.random(25, 60)
     local lastClickPerPlayer: {[Player]: number} = {}

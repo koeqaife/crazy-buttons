@@ -15,7 +15,7 @@ SyncEvent.Name = "SyncEvent"
 local debounceFor: {Player} = {}
 
 type PriceType = {
-    currency: "cash",
+    currency: "cash" | "cookies",
     amount: number
 } | {
     currency: "robux",
@@ -100,6 +100,8 @@ local publicFields = {
     survives = "survives",
     volume = "volume",
     currentAura = "aura",
+    cookies = "cookies",
+    quests = "quests"
 }
 
 function UIModule.init()
@@ -137,10 +139,6 @@ function UIModule.init()
             }
             DataStoreModule.rewriteKey(player, "volume", copy)
         elseif action == "buy" then
-            local playerBalance = DataStoreModule.getNumber(player, "cash")
-            if playerBalance == nil then
-                return
-            end
 
             local price = priceList[value]
             if price == nil then
@@ -149,9 +147,16 @@ function UIModule.init()
             if price.currency == "badge" then
                 return
             elseif price.currency == "cash" then
-                if playerBalance >= price.amount then
+                local playerBalance = DataStoreModule.getNumber(player, "cash")
+                if playerBalance ~= nil and playerBalance >= price.amount then
                     DataStoreModule.mergeKey(player, "owns", {value})
                     DataStoreModule.increaseKey(player, "cash", -price.amount)
+                end
+            elseif price.currency == "cookies" then
+                local playerCookies = DataStoreModule.getNumber(player, "cookies")
+                if playerCookies ~= nil and playerCookies >= price.amount then
+                    DataStoreModule.mergeKey(player, "owns", {value})
+                    DataStoreModule.increaseKey(player, "cookies", -price.amount)
                 end
             elseif price.currency == "robux" then
                 MarketplaceService:PromptProductPurchase(player, price.productId)

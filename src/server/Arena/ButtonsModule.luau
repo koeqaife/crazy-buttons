@@ -1,6 +1,7 @@
 --!strict
 --!optimize 2
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
@@ -8,6 +9,8 @@ local SideEffectType = require(Arena.SideEffectType)
 local IndicesModule = require(ReplicatedStorage.Shared.IndicesType)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 type Indices = IndicesModule.Indices
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 local ButtonClickedEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 ButtonClickedEvent.Name = "ButtonClickedEvent"
@@ -42,6 +45,14 @@ local function waitForButton(player: Player, timeout: number, filter: ((Player, 
             end
 
             if playerWhoClicked == player and (not filter or filter(playerWhoClicked, idx)) then
+                logAction(player, "press")
+                logAction(player, "press_streak")
+                if idx == 1 then
+                    logAction(player, "press_red")
+                elseif idx == 2 then
+                    logAction(player, "press_blue")
+                end
+
                 resolve(idx :: number?)
                 conn:Disconnect()
             end

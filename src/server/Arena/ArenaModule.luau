@@ -16,6 +16,7 @@ SyncVolumesEvent.Name = "SyncVolumesEvent"
 
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
+local QuestsModule = require(ServerScriptService.Server.Shared.QuestsModule)
 local GameStateModule = require(script.Parent.GameStateModule)
 local KillToolModule = require(script.Parent.KillToolModule)
 local UIModule = require(script.Parent.UIModule)
@@ -23,6 +24,8 @@ local GameLoopModule = require(Arena.GameLoopModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
 local TextModule = require(Arena.TextModule)
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 require(Arena.TextModule)
 
@@ -49,6 +52,7 @@ function ArenaModule.init()
     MusicModule.init()
     UIModule.init()
     TextModule.init()
+    QuestsModule.init()
 
     mainText.Text = "Waiting for players..."
 
@@ -57,7 +61,14 @@ function ArenaModule.init()
     end)
 
     PlayerLoaded.OnServerEvent:Connect(function(player)
+        if loadedPlayers[player] == true then
+            -- To make sure nobody will abuse this event
+            return
+        end
+
+        logAction(player, "play")
         DataStoreModule.continueStreak(player)
+        table.insert(GameStateModule.alivePlayers, player)
         loadedPlayers[player] = true
 
         local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
@@ -102,7 +113,7 @@ function ArenaModule.init()
         TimerModule.setTime(5)
         task.wait(5)
 
-        GameStateModule.setupMultipliers()
+        GameStateModule.setupMultipliersAndFriendQuest()
         UIModule.sendMultipliers()
 
         print("loaded")

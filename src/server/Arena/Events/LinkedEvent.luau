@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Two people are linked together
@@ -9,6 +10,8 @@ local Arena = game:GetService("ServerScriptService").Server.Arena
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 type EventType = EventTypeModule.Event
 
@@ -45,6 +48,7 @@ function Event.onEvent()
         TextModule.setText(player, "player", { player = p1 })
     end)
     GameState.addHighlightToOne(p1, COLOR, COLOR)
+    logAction(p1, "linked")
     task.wait(5)
 
     GameState.runFuncPerAll(function(player)
@@ -56,6 +60,7 @@ function Event.onEvent()
         TextModule.setText(player, "player", { player = p2 })
     end)
     GameState.addHighlightToOne(p2, COLOR, COLOR)
+    logAction(p2, "linked")
     task.wait(5)
 
     GameState.linkTogether(p1, p2)

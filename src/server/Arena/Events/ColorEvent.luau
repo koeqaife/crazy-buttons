@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Event where you choose color in the beginning
@@ -13,6 +14,8 @@ local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 type EventType = EventTypeModule.Event
 
@@ -79,11 +82,12 @@ function Event.onEvent()
                 GameState.kill(player)
                 task.wait(5)
             else
+                GameState.addRewardTo(player, 8)
+                logAction(player, "remember_color")
                 await(TextModule.showTextSequence(player, {
                     { key = "correct_color", delay = 4 },
                     { key = "good_job", delay = 2 },
                 }))
-                GameState.addRewardTo(player, 8)
             end
         end):catch(error):await()
 

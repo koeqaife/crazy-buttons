@@ -18,6 +18,8 @@ type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
 
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+
 Event.chance = 0.1
 Event.minRound = 3
 Event.minPlayers = 3
@@ -73,6 +75,7 @@ function Event.onEvent()
                 return resolve()
             end
 
+            logAction(player, "complete_obby")
             table.insert(clicked, player)
             GameState.addRewardTo(player, 10)
             counter -= 1

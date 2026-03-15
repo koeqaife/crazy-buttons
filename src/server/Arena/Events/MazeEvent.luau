@@ -16,6 +16,8 @@ local TextModule = require(Arena.TextModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+
 type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
@@ -95,6 +97,8 @@ function Event.onEvent()
                 local clicked = await(clickPromise)
 
                 GameState.addRewardTo(player, 0.25)
+                logAction(player, "press_maze")
+
                 GameState.runFuncPerAlive(function(player2)
                     ButtonsModule.updateButtons(player2, {{ idx = clicked, disabled = true }})
                 end)

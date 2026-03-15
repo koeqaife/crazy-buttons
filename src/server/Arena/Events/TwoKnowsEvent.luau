@@ -13,6 +13,8 @@ local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+
 type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
@@ -37,6 +39,7 @@ function Event.onEvent()
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
     local playerKills = if kills == 1 then p1 else p2
+    local playerSaves = if kills == 1 then p2 else p1
 
     GameState.runPromisePerAll(function(player, protect, await)
         if player == playerKills then
@@ -106,8 +109,10 @@ function Event.onEvent()
             if choice == kills then
                 TextModule.setText(player, "result_chose_died", { p = chosenPlayer })
                 GameState.kill(player)
+                logAction(playerKills, "two_knows_kills")
             else
                 TextModule.setText(player, "result_chose_safe", { p = chosenPlayer })
+                logAction(playerSaves, "two_knows_save")
             end
         end
     end):catch(error):await()

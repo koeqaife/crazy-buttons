@@ -1,6 +1,7 @@
 --!strict
 --!optimize 2
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local GameState = require(script.Parent.GameStateModule)
 
 -- To add or remove tool from player
@@ -10,6 +11,8 @@ ActivateKillTool.Name = "ActivateKillTool"
 -- When player does action
 local KillToolAction = Instance.new("RemoteEvent", ReplicatedStorage)
 KillToolAction.Name = "KillToolAction"
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 local SKULL_ICON_WITH_CURSOR = "rbxassetid://138006806112694"
 local SKULL_ICON = "rbxassetid://124245040180153"
@@ -182,6 +185,16 @@ local function onAction(player: Player, action: ActionType)
             updateIcon(meta.lastSelected)
         end
     elseif action.name == "killPlayer" and action.killPlayer then
+        logAction(player, "kill")
+        local ok, err = pcall(function()
+            if player:IsFriendsWithAsync(action.killPlayer.UserId) then
+                logAction(player, "kill_friend")
+            end
+        end)
+        if not ok then
+            warn(err)
+        end
+
         GameState.kill(action.killPlayer, "byKillTool")
         KillToolModule.removeTool(player)
 

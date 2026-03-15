@@ -13,6 +13,8 @@ local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+
 type EventType = EventTypeModule.Event
 
 local LOBBY_PLACE_ID = 115379867051786
@@ -53,6 +55,11 @@ function Event.onEvent()
     end
     GameState.addRewardTo(survivor, 5)
     GameState.flushReward(survivor)
+    logAction(survivor, "survive_streak")
+    logAction(survivor, "survive")
+    if GameState.wasLinked[survivor] then
+        logAction(survivor, "linked_win")
+    end
 
     task.spawn(function()
         ButtonsModule.setButtons(survivor, {

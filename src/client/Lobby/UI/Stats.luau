@@ -13,10 +13,12 @@ function LeftButtons.initialize()
     local survives = window:WaitForChild("Survives"):WaitForChild("TextLabel") :: TextLabel
     local streak = window:WaitForChild("Streak"):WaitForChild("TextLabel") :: TextLabel
     local money = window:WaitForChild("Money"):WaitForChild("TextLabel") :: TextLabel
+    local cookies = window:WaitForChild("Cookies"):WaitForChild("TextLabel") :: TextLabel
 
     survives.Text = tostring(State.survives)
     money.Text = tostring(State.cash)
     streak.Text = tostring(State.streak)
+    cookies.Text = tostring(State.cookies)
 
     State.CashUpdated.Event:Connect(function(oldValue: number, newValue: number)
         money.Text = tostring(newValue)
@@ -26,6 +28,9 @@ function LeftButtons.initialize()
     end)
     State.StreakUpdated.Event:Connect(function(oldValue: number, newValue: number)
         streak.Text = tostring(newValue)
+    end)
+    State.CookiesUpdated.Event:Connect(function(oldValue: number, newValue: number)
+        cookies.Text = tostring(newValue)
     end)
 end
 

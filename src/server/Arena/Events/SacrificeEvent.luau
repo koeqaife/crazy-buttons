@@ -49,7 +49,7 @@ function Event.onEvent()
         end
     end):catch(error):await()
 
-    local toKill: { Player } = {}
+    local toKill: Player? = nil
 
     GameState.addHighlightTo(randomPlayers)
 
@@ -67,15 +67,17 @@ function Event.onEvent()
 
         ButtonsModule.setButtons(player, {})
 
-        if clicked then
+        if clicked and toKill ~= nil then
             GameState.addRewardTo(player, 8)
             TextModule.setText(player, "choice_cannot_be_undone")
-            table.insert(toKill, player)
+            toKill = player
             task.wait(3)
+            GameState.cancelAll()
         end
     end):catch(error):await()
+    TimerModule.setTime(-1)
 
-    local playerMustBeKilled = #toKill == 0
+    local playerMustBeKilled = toKill ~= nil
 
     GameState.runFuncPerAll(function(player)
         GameState.addRewardTo(player, 1)
@@ -89,7 +91,7 @@ function Event.onEvent()
         else
             if table.find(randomPlayers, player) then
                 TextModule.setText(player, "you_are_saved")
-            elseif table.find(toKill, player) then
+            elseif player == toKill then
                 TextModule.setText(player, "you_saved_them")
                 GameState.kill(player)
             else

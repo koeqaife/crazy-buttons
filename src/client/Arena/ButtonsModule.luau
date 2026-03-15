@@ -223,6 +223,10 @@ end
 
 function ButtonsModule.updateButtons(indices: Indices)
     for _, obj in ipairs(indices) do
+        if obj.idx == nil then
+            return
+        end
+
         local button = spawnedButtonsMap[obj.idx]
         local original = spawnedButtonsIndicesMap[obj.idx] or obj
         local buttonData = BUTTONS[((obj.showAs or original.showAs or obj.idx) - 1) % #BUTTONS + 1]

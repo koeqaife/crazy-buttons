@@ -10,6 +10,7 @@
 -- Pretty interesting game
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
@@ -18,6 +19,8 @@ local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 type EventType = EventTypeModule.Event
 
@@ -198,6 +201,7 @@ function Event.onEvent()
             if isRight then
                 TextModule.setText(player, "you_answer_right")
                 GameState.addRewardTo(player, 5)
+                logAction(player, "math_correct")
                 task.wait(5)
             else
                 TextModule.setText(player, "you_answer_wrong")

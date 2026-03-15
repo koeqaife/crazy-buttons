@@ -15,6 +15,8 @@ local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
 local AmbienceModule = require(Arena.AmbienceModule)
 
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+
 type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
@@ -107,9 +109,11 @@ function Event.onEvent()
 
         GameState.addHighlightToOne(victim, Color3.new(0.3, 1, 0))
         GameState.addHighlightToOne(stealer, Color3.new(1, 0, 0), Color3.new(1, 0, 0))
-        task.wait(10)
-
         GameState.addRewardTo(stealer, 10)
+        logAction(stealer, "steal_survive")
+
+        task.wait(7)
+
         GameState.kill(victim)
     else
         GameState.addHighlightTo(randomPlayers, Color3.new(0.3, 1, 0))
@@ -119,8 +123,10 @@ function Event.onEvent()
 
         GameState.addRewardTo(p1, 5)
         GameState.addRewardTo(p2, 5)
+        logAction(p1, "split_survive")
+        logAction(p2, "split_survive")
 
-        task.wait(10)
+        task.wait(7)
     end
 
     return

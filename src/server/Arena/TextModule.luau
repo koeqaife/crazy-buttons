@@ -51,6 +51,9 @@ function TextModule.showTextSequence(player: Player, sequence: {{key: string, da
 end
 
 function TextModule.setText(player: Player, key: string, data: {[string]: any}?)
+    if replicasPerPlayer[player] == nil then
+        loadReplicas(player)
+    end
     local replica = replicasPerPlayer[player][globalContext][key]
     local formatted = Format(replica, data)
     fire(player, formatted.text, formatted.face)

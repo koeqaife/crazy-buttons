@@ -13,6 +13,7 @@ local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent
 
 local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
 local Dialog = require(localPlayer.PlayerScripts.Client.Shared.UI.Dialog)
+local Quests = require(localPlayer.PlayerScripts.Client.Shared.UI.Quests)
 
 local cash = 0
 local reward = 0
@@ -21,6 +22,7 @@ local rewardCounter = 0
 local UIModule = {}
 
 function UIModule.connect()
+    Quests.initialize()
     SyncDeadEvent.OnClientEvent:Connect(function(died: boolean, player: Player)
         task.wait(3)
         if died and player == localPlayer then

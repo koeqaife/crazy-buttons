@@ -28,8 +28,11 @@ export type PlayerData = {
     currentAura: string?,
     owns: { string },
     cash: number,
+    cookies: number,
     volume: Volume,
-    timesPlayed: number
+    timesPlayed: number,
+    questsDay: number,
+    quests: {[string]: number}
 }
 
 export type PendingChanges = PlayerData & {
@@ -48,10 +51,13 @@ local defaultData: PlayerData = {
     currentAura = "default",
     owns = {},
     cash = 0,
+    cookies = 0,
     volume = {
         music = 0.5,
         ambient = 1
-    }
+    },
+    questsDay = 0,
+    quests = {},
 }
 
 local dataPerPlayer: { [Player]: PlayerData } = {}
@@ -63,7 +69,7 @@ DataStoreModule.dataPerPlayer = dataPerPlayer
 local pendingChanges: { [Player]: PendingChanges } = {}
 local dirtyTimers: { [Player]: boolean } = {}
 
-local FLUSH_DELAY = 5
+local FLUSH_DELAY = 15
 local MAX_CONCURRENT_UPDATES = 3
 local currentUpdates = 0
 local updateQueue: { [number]: () -> any } = {}
@@ -164,9 +170,10 @@ local function mergeTables(original: { any }?, toMerge: { any }?)
     return new
 end
 
-type IncreaseKey = "survives" | "cash" | "pendingRevives" | "timesPlayed"
+type IncreaseKey = "survives" | "cash" | "pendingRevives" | "timesPlayed" | "cookies"
 type SetMaxKey = "topStreak"
-type RewriteKey = "volume" | "currentDeathEffect" | "currentAura" | "notJoinedBefore" | "streak" | "streakLastUpdated"
+type RewriteKey = "volume" | "currentDeathEffect" | "currentAura" | "notJoinedBefore"
+                  | "streak" | "streakLastUpdated" | "questsDay" | "quests"
 type MergeKey = "owns"
 type Key = IncreaseKey | SetMaxKey | RewriteKey | MergeKey
 
@@ -175,6 +182,7 @@ local INCREASE_KEYS = {
     "cash",
     "pendingRevives",
     "timesPlayed",
+    "cookies"
 }
 
 local SET_MAX_KEYS = {
@@ -188,6 +196,9 @@ local REWRITE_KEYS = {
     "notJoinedBefore",
     "streak",
     "streakLastUpdated",
+    "lastQuestsReset",
+    "quests",
+    "questsDay"
 }
 
 local MERGE_TABLE_KEYS = {
@@ -561,7 +572,7 @@ end
 function DataStoreModule.init()
     _G.DataStore = DataStoreModule  -- For debugging
 
-    game.Players.PlayerAdded:Connect(function(player: Player)
+    Players.PlayerAdded:Connect(function(player: Player)
         local success, data: PlayerData? = Promise.retryWithDelay(function()
             return Promise.promisify(function()
                 return PlayerDataStore:GetAsync(tostring(player.UserId))

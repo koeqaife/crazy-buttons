@@ -37,6 +37,9 @@ function UIModule.init()
     end)
 
     Players.PlayerAdded:Connect(function(player)
+        if not DataStoreModule.dataLoaded(player) then
+            return
+        end
         SyncEvent:FireClient(player, "cash", DataStoreModule.getNumber(player, "cash"))
         SyncEvent:FireClient(player, "cookies", DataStoreModule.getNumber(player, "cookies"))
         SyncEvent:FireClient(player, "quests", DataStoreModule.getAny(player, "quests"))

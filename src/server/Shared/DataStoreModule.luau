@@ -478,6 +478,10 @@ local function expectType(player: Player, key: string, expectedType: string): an
     return value
 end
 
+function DataStoreModule.dataLoaded(player: Player): boolean
+    return dataPerPlayer[player] ~= nil
+end
+
 function DataStoreModule.getNumber(player: Player, key: Key): number
     return expectType(player, key, "number")
 end

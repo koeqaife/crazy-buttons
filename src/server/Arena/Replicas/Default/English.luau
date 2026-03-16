@@ -7,10 +7,10 @@ type DictTemplate = {[string]: {[string]: Format.Template}}
 local English: DictTemplate = {
     --| MISC |--
     misc = {
-        error_occurred = { text = "An error occurred...", face = "dead" },
+        error_occurred = { text = "We cannot continue this round, sorry for that", face = "dead" },
         purchase_not_processed = { text = "Your purchase has been processed, but it can't be used right now. Next time it's free", face = "nerd" },
         purchase_processed = { text = "Your purchase has been processed!", face = "nerd" },
-        players_left = { text = "{count} players are left", requiredKeys = {"count"}, face = "normal" }
+        players_left = { text = "{count} subjects are left", requiredKeys = {"count"}, face = "normal" }
     },
 
     --| ALIEN EVENT |--
@@ -27,7 +27,7 @@ local English: DictTemplate = {
     --| ATTACK DEFEND TRUST EVENT |--
     att_def_trust = {
         chosen_players = {
-            text = "{p1} and {p2} have been chosen to play Attack, Defend, Trust",
+            text = "{p1} and {p2} will play Attack, Defend, Trust",
             requiredKeys = {"p1", "p2"},
             face = "att_def_tru_icon"
         },
@@ -40,7 +40,7 @@ local English: DictTemplate = {
             requiredKeys = {"p1", "p2"},
             face = "normal"
         },
-        both_did_not_move = { text = "Both players did not move", face = "dead" },
+        both_did_not_move = { text = "Both subjects did not move", face = "dead" },
         you_both_chose = { text = "You both chose {btn}", requiredKeys = {"btn"}, face = "laughing" },
         they_both_chose = { text = "They both chose {btn}", requiredKeys = {"btn"}, face = "laughing" },
         tie_choose_again = { text = "It's a tie, choose again", face = "shy" },
@@ -60,9 +60,9 @@ local English: DictTemplate = {
 
     --| CLICK EVENT |--
     click = {
-        reaction_test_for_dead = { text = "They have reaction test with a button", face = "click_button_icon" },
-        reaction_test = { text = "Now you will have to read and press the button if it says so", face = "click_button_icon" },
-        not_much_time = { text = "But you will have only two seconds to react", face = "no_mouth" },
+        reaction_test_for_dead = { text = "They have a tricky test with a button", face = "click_button_icon" },
+        reaction_test = { text = "Now you have to read and press the button if it says so", face = "click_button_icon" },
+        not_much_time = { text = "But you have only two seconds to react", face = "no_mouth" },
         be_ready = { text = "Be ready", face = "shy" },
         seconds_3 = { text = "3...", face = { text = "3"} },
         seconds_2 = { text = "2...", face = { text = "2"} },
@@ -78,17 +78,17 @@ local English: DictTemplate = {
 
     --| CLICK FIRST EVENT |--
     click_first = {
-        they_have_to_click = { text = "Now they will have to click the button", face = "click_button_icon" },
-        last_num_eliminate = { text = "The last {num} to click will be eliminated", requiredKeys = {"num"}, face = "dead" },
+        they_have_to_click = { text = "They will have to click the button first", face = "click_button_icon" },
+        last_num_eliminate = { text = "The last one to click will be eliminated", face = "dead" },
         click_faster = { text = "Click faster than the others", face = "scared" },
-        you_have_to_click = { text = "Now you have to click the button", face = "click_button_icon" },
+        you_have_to_click = { text = "Prepare to press the button as fast as possible", face = "click_button_icon" },
 
-        you_did_not_click = { text = "You didn't click the button", face = "angry" },
-        you_clicked_too_slow = { text = "You clicked too slow", face = "scared" },
+        you_did_not_click = { text = "You didn't press", face = "angry" },
+        you_clicked_too_slow = { text = "That was slow", face = "scared" },
 
         you_survived = { text = "You survived", face = "happy" },
         you_are_eliminated = { text = "You are eliminated", face = "dead" },
-        wait_for_others = { text = "Wait for the others to click", face = "dead" },
+        wait_for_others = { text = "Wait for others to click", face = "dead" },
         wait_for_green = { text = "Wait until the button turns green", face = { text = "..." } }
     },
 
@@ -102,28 +102,28 @@ local English: DictTemplate = {
         did_not_choose = { text = "Looks like you didn't get too choose color...", face = "laughing" },
         so_lucky = { text = "So lucky!", face = "angry" },
 
-        which_one_you_chose = { text = "So, which one did you choose?", face = "nerd" },
-        wrong_color = { text = "That was not the color you chose", face = "dead" },
-        correct_color = { text = "Woa, you actually remember!", face = "happy" },
+        which_one_you_chose = { text = "Remember which one you chose before?", face = "nerd" },
+        wrong_color = { text = "You are wrong.", face = "dead" },
+        correct_color = { text = "Smart head, you remember!", face = "happy" },
         good_job = { text = "Good job", face = "shy" },
 
-        about_to_show_colors = { text = "I'm about to show you some colors", face = "color_event_icon" },
-        remember_color = { text = "Remember which one you pick, you'll need it later", face = "normal" },
-        choose = { text = "Choose color you like the most", face = "nerd" },
+        about_to_show_colors = { text = "I will show you 3 colors", face = "color_event_icon" },
+        remember_color = { text = "Pick the color and remember it", face = "normal" },
+        choose = { text = "Pick now", face = "nerd" },
 
-        red = { text = "Red? An interesting choice", face = "happy" },
-        blue = { text = "Blue, the color of the sky", face = "happy" },
-        pink = { text = "Pink, sounds like a candy, yummy", face = "happy" },
-        yellow = { text = "Yellow... hm... you like bananas?", face = "happy" },
-        green = { text = "Green, the color of the nature...", face = "happy" },
+        red = { text = "Very interesting", face = "happy" },
+        blue = { text = "So the color of the sky, I see", face = "happy" },
+        pink = { text = "Why? It looks yummy though", face = "happy" },
+        yellow = { text = "You like bananas?", face = "happy" },
+        green = { text = "The color of the nature, good choice", face = "happy" },
         nothing = { text = "Nothing? Let's go with {color} then", requiredKeys = {"color"}, face = "laughing" },
     },
 
     --| COMBO EVENT |--
     combo = {
-        for_dead = { text = "They're doing combos now, some players will be eliminated", face = "combo_event_icon" },
+        for_dead = { text = "They will repeat the sequence now", face = "combo_event_icon" },
         repeat_after_me = { text = "Now you will have to repeat the sequence after me", face = "combo_event_icon" },
-        players_to_eliminate = { text = "Players with the highest amount of mistakes will be eliminated", face = "dead" },
+        players_to_eliminate = { text = "Subjects with the highest amount of mistakes will be eliminated", face = "dead" },
         lets_start = { text = "Let's start", face = "shy" },
         my_turn = { text = "My turn, watch closely", face = "normal" },
         your_turn = { text = "Your turn", face = "nerd" },
@@ -138,22 +138,22 @@ local English: DictTemplate = {
 
     --| DUEL EVENT |--
     duel = {
-        to_play = { text = "{p1} and {p2} are going to play duel now", face = "click_button_icon", requiredKeys = {"p1", "p2"} },
-        first_one_survives = { text = "The first one to click survives", face = "normal" },
-        you_did_not_click = { text = "You didn't click the button", face = "angry" },
+        to_play = { text = "{p1} and {p2} will play deadly duel now", face = "click_button_icon", requiredKeys = {"p1", "p2"} },
+        first_one_survives = { text = "The fastest subject survives", face = "normal" },
+        you_did_not_click = { text = "You didn't press", face = "angry" },
         you_are_eliminated = { text = "You are eliminated", face = "dead" },
         good_job = { text = "Good job", face = "shy" },
-        you_were_fast_enough = { text = "You were fast enough", face = "happy" },
-        you_are_slow = { text = "The other player clicked faster", face = "laughing" },
+        you_were_fast_enough = { text = "Looks like you die now", face = "happy" },  -- Changed both to make fun of them
+        you_are_slow = { text = "Oh, that was fast!", face = "laughing" },
         won = { text = "{player} won this duel", face = "happy", requiredKeys = {"player"} },
         wait_for_green = { text = "Wait until the button turns green", face = { text = "..." } }
     },
 
     --| EVEN ODD EVENT |--
     even_odd = {
-        intro_dead = { text = "They will choose whether to press the button or not", face = "even_odd_event_icon" },
-        intro_alive = { text = "You will choose whether to press the button or not", face = "even_odd_event_icon" },
-        intro_counting = { text = "Once everyone has decided, I'll count the presses", face = "nerd" },
+        intro_dead = { text = "They will decide whether to press the button or not", face = "even_odd_event_icon" },
+        intro_alive = { text = "You will decide whether to press the button or not", face = "even_odd_event_icon" },
+        intro_counting = { text = "After, I'll count the presses", face = "nerd" },
         intro_odd = { text = "If the total is odd, all who pressed are eliminated", face = "even_odd_event_icon" },
         intro_even = { text = "If it's even, those who didn't press are eliminated", face = "even_odd_event_icon" },
 
@@ -171,39 +171,39 @@ local English: DictTemplate = {
 
     --| GOD BUTTON EVENT |--
     god_btn = {
-        intro_dead = { text = "They're searching one button between 100 buttons", face = "laughing" },
-        intro_ready = { text = "Are you ready for searching?", face = "happy" },
-        intro_100_buttons = { text = "Because now there are gonna be 100 buttons", face = "scared" },
-        intro_first_rewarded = { text = "First to find it will be awarded", face = "shy" },
+        intro_dead = { text = "100 buttons appeared", face = "laughing" },
+        intro_ready = { text = "Be ready to search", face = "happy" },
+        intro_100_buttons = { text = "100 buttons will fall down of the sky", face = "scared" },
+        intro_first_rewarded = { text = "One button gives you something cool", face = "shy" },
         good_luck = { text = "Good luck finding it", face = "laughing" },
         you_found_god_btn = { text = "You found the button!", face = "happy" },
         someone_found_god_btn = { text = "{player} found the button", requiredKeys = {"player"}, face = "scared" },
-        no_one_found_god_btn = { text = "No one found the button...", face = "laughing" }
+        no_one_found_god_btn = { text = "No one found the button, hahaha", face = "laughing" }
     },
 
     --| HANDOUT EVENT |--
     handout = {
         intro_dead = { text = "Someone will get a gift", face = "laughing" },
-        intro_alive_part1 = { text = "One very lucky player will get a gift now", face = "happy" },
-        intro_alive_part2 = { text = "I think it's gonna be.......", face = "scared" },
+        intro_alive_part1 = { text = "One subject will get a gift now", face = "happy" },
+        intro_alive_part2 = { text = "And it will be......", face = "scared" },
         dead_who_got = { text = "{player} got a gift", requiredKeys = {"player"}, face = "laughing" },
         you_got_tool_part1 = { text = "You!", face = "happy" },
-        you_got_tool_part2 = { text = "Click on the button that appeared", face = "shy" },
-        you_got_tool_part3 = { text = "And then click on somebody cool!!", face = "no_mouth" },
-        you_got_tool_part4 = { text = "Very pretty confetti is gonna spawn", face = "laughing" },
+        you_got_tool_part2 = { text = "So there is a gray button, press on it", face = "shy" },
+        you_got_tool_part3 = { text = "And after that click on somebody you like", face = "no_mouth" },
+        you_got_tool_part4 = { text = "Very pretty confetti will appear", face = "laughing" },
         someone_got_tool_part1 = { text = "{player}", requiredKeys = {"player"}, face = "normal" },
-        someone_got_tool_part2 = { text = "They have a cool gift now", face = "happy" },
-        someone_got_tool_part3 = { text = "That's cool, right?", face = "shy" },
-        someone_got_tool_part4 = { text = "Good luck.", face = "scared" }
+        someone_got_tool_part2 = { text = "They're happy with their gift now", face = "happy" },
+        someone_got_tool_part3 = { text = "It's very cool", face = "shy" },
+        someone_got_tool_part4 = { text = "Make them mad", face = "scared" }
     },
 
     --| LINKED EVENT |--
     linked = {
-        intro_part1 = { text = "Two people are gonna be linked together now", face = "scared" },
-        intro_part2 = { text = "If one of them dies, the other one dies too", face = "dead" },
-        intro_part3 = { text = "Let me think who is going to be linked", face = "shy" },
-        first_player_is = { text = "The first player is...", face = "normal" },
-        second_player_is = { text = "The second player is...", face = "normal" },
+        intro_part1 = { text = "I will link two people together now", face = "scared" },
+        intro_part2 = { text = "If one dies the other dies too", face = "dead" },
+        intro_part3 = { text = "I hope it's gonna be you hahah", face = "normal" },
+        first_player_is = { text = "The first subject is...", face = "normal" },
+        second_player_is = { text = "The second subject is...", face = "normal" },
         player = { text = "{player}", requiredKeys = {"player"} },
     },
 
@@ -211,13 +211,13 @@ local English: DictTemplate = {
     math = {
         dead_who_quiz = { text = "{player} will do math quiz now", requiredKeys = {"player"}, face = "nerd" },
 
-        intro_self_q1 = { text = "How good are you in math?", face = "nerd" },
-        intro_self_q2 = { text = "Other people lives depend on you now", face = "scared" },
+        intro_self_q1 = { text = "You think you're smart?", face = "nerd" },
+        intro_self_q2 = { text = "Somebody will die if they think otherwise", face = "scared" },
 
         intro_others_q1 = { text = "Do you think {player} is good in math?", requiredKeys = {"player"}, face = "nerd" },
         intro_others_q2 = { text = "You will have to find out", face = "shy" },
 
-        calculate_this = { text = "Calculate this:\n{exp}", requiredKeys = {"exp"}, face = "nerd" },
+        calculate_this = { text = "Calculate this now:\n{exp}", requiredKeys = {"exp"}, face = "nerd" },
 
         is_player_smart = { text = "Is {player} smart enough to calculate:\n{exp}?", requiredKeys = {"player","exp"}, face = "nerd" },
 
@@ -233,9 +233,9 @@ local English: DictTemplate = {
 
     --| MAZE EVENT |--
     maze = {
-        intro_part1 = { text = "I just spawned a maze", face = "normal" },
-        intro_part2 = { text = "There are 6 buttons", face = "normal" },
-        intro_part3 = { text = "One of them kills, one gives reward", face = "scared" },
+        intro_part1 = { text = "A maze just appeared", face = "normal" },
+        intro_part2 = { text = "There are exactly 6 buttons", face = "normal" },
+        intro_part3 = { text = "One of them is dangerous, other is useful", face = "scared" },
         intro_part4 = { text = "Good luck searching", face = "happy" },
         somebody_awarded = { text = "Somebody was awarded", face = "happy" },
         no_one_awarded = { text = "No one was awarded", face = "no_mouth" },
@@ -243,24 +243,24 @@ local English: DictTemplate = {
 
     --| OBBY EVENT |--
     obby = {
-        intro_part1 = { text = "I just spawned a parkour", face = "normal" },
-        intro_part2 = { text = "There is a button in the end", face = "normal" },
-        intro_part3 = { text = "First one to press it gets reward", face = "scared" },
-        intro_part4 = { text = "The last one to press it, gets eliminated", face = "happy" },
-        intro_part5 = { text = "Good luck", face = "dead" },
+        intro_part1 = { text = "I just spawned some really easy challenge", face = "normal" },
+        intro_part2 = { text = "There is one button in the end", face = "normal" },
+        intro_part3 = { text = "Be the first one to press it to get something cool", face = "scared" },
+        intro_part4 = { text = "The last one to press it will get really bad dream", face = "happy" },
+        intro_part5 = { text = "Don't waste your time here", face = "dead" },
     },
 
     --| REVIVE EVENT |--
     revive = {
-        intro_random = { text = "Someone random will be revived now", face = "shy" },
-        player_revived = { text = "{player} was revived", requiredKeys = {"player"}, face = "happy" },
+        intro_random = { text = "Someone random will get back to life now", face = "shy" },
+        player_revived = { text = "And it is {player}", requiredKeys = {"player"}, face = "happy" },
 
-        intro_vote_common = { text = "Someone will be revived now", face = "shy" },
-        intro_vote_candidate = { text = "Other players will decide if that's you...", face = "shy" },
-        intro_dead_not_you = { text = "But not you, sadly...", face = "no_mouth" },
-        intro_choose_wise = { text = "Choose wisely who should be revived", face = "nerd" },
+        intro_vote_common = { text = "Do you want somebody to come back?", face = "shy" },
+        intro_vote_candidate = { text = "Subjects will decide if it's you", face = "shy" },
+        intro_dead_not_you = { text = "Someone but not you will definitely will", face = "no_mouth" },
+        intro_choose_wise = { text = "Even if not, you have to choose", face = "nerd" },
 
-        you_are_revived = { text = "You are revived!", face = "happy" },
+        you_are_revived = { text = "Say hi to everyone!", face = "happy" },
     },
 
     --| SACRIFICE EVENT |--
@@ -271,35 +271,35 @@ local English: DictTemplate = {
             face = "scared"
         },
 
-        chosen_you_1 = { text = "You have been chosen...", face = "scared" },
-        chosen_you_2 = { text = "Someone has to sacrifice themselves to save you", face = "scared" },
+        chosen_you_1 = { text = "Your life can end now", face = "scared" },
+        chosen_you_2 = { text = "Someone has to sacrifice to save you", face = "scared" },
 
         chosen_others_1 = { text = "{p1} and {p2} are chosen.", requiredKeys = {"p1","p2"}, face = "laughing" },
-        prompt_sacrifice = { text = "Will you sacrifice yourself to save them?", face = "shy" },
+        prompt_sacrifice = { text = "Will you sacrifice to save them?", face = "shy" },
 
         press_to_save = { text = "Press to save them", face = "shy" },
         choice_cannot_be_undone = { text = "Your choice cannot be undone", face = "dead" },
 
-        you_are_eliminated = { text = "You're eliminated", face = "dead" },
-        they_are_eliminated = { text = "They are eliminated", face = "scared" },
+        you_are_eliminated = { text = "Goodbye", face = "dead" },
+        they_are_eliminated = { text = "Say goodbye to them", face = "scared" },
 
-        you_are_saved = { text = "You're saved", face = "happy" },
-        you_saved_them = { text = "You saved them", face = "dead" },
-        they_were_saved = { text = "{p1} and {p2} were saved!", requiredKeys = {"p1","p2"}, face = "happy" },
+        you_are_saved = { text = "That's sad, you're alive...", face = "angry" },
+        you_saved_them = { text = "You're such a nice person", face = "dead" },
+        they_were_saved = { text = "{p1} and {p2} are good now", requiredKeys = {"p1","p2"}, face = "happy" },
     },
 
     --| SIMON EVENT |--
     simon = {
-        intro_dead = { text = "They're playing Simon says", face = "nerd" },
-        intro_alive_1 = { text = "Alright, I'm Simon now", face = "shy" },
-        intro_alive_2 = { text = "No \"Simon says\"? Then do the opposite", face = "nerd" },
+        intro_dead = { text = "They're listening to Simon now", face = "nerd" },
+        intro_alive_1 = { text = "Remember, I'm Simon now", face = "shy" },
+        intro_alive_2 = { text = "Do the opposite if I DIDN'T SAY to do", face = "nerd" },
         round_text = { text = "{text}", face = "normal" },
     },
 
     --| SPLIT OR STEAL EVENT |--
     split_steal = {
-        intro_you_pair = { text = "You are paired with {p2} to play Split or Steal", requiredKeys = {"p2"}, face = "scared" },
-        intro_others_pair = { text = "{p1} and {p2} have been chosen for the Split or Steal.", requiredKeys = {"p1","p2"}, face = "happy" },
+        intro_you_pair = { text = "Be friends with {p2}", requiredKeys = {"p2"}, face = "scared" },
+        intro_others_pair = { text = "{p1} and {p2} have to split or steal now", requiredKeys = {"p1","p2"}, face = "happy" },
 
         rule_both_split = { text = "If both split, nothing happens", face = "happy" },
         rule_one_steal = { text = "If one steals, the other dies", face = "scared" },
@@ -307,22 +307,22 @@ local English: DictTemplate = {
         rule_both_steal_others = { text = "If both steal, they both die", face = "laughing" },
 
         choose_wisely = { text = "Choose wisely", face = "nerd" },
-        waiting_for_players = { text = "Waiting for the players to choose", face = "normal" },
+        waiting_for_players = { text = "Waiting for the subjects to decide", face = "normal" },
 
-        both_steal = { text = "Both players chose to steal, they both die", face = "laughing" },
+        both_steal = { text = "Both subjects chose to steal, they both die", face = "laughing" },
         stealer_chosen = { text = "{stealer} chose to steal, {victim} is eliminated", requiredKeys = {"stealer","victim"}, face = "unamused" },
-        both_split = { text = "Both players chose to split, they both survive", face = "happy" },
+        both_split = { text = "Both subjects chose to split, they both survive", face = "happy" },
     },
 
     --| TWO KNOWS EVENT |--
     two_knows = {
-        intro_killer_1 = { text = "You got a button that kills", face = "shy" },
+        intro_killer_1 = { text = "Your button is bad", face = "shy" },
         intro_killer_2 = { text = "Everybody who clicks it, dies", face = "scared" },
-        intro_killer_3 = { text = "Try to convince others to click it for you (your kills)", face = "normal" },
+        intro_killer_3 = { text = "Try to convince others to click it for you (your is bad)", face = "normal" },
 
-        intro_saver_1 = { text = "You got a button that saves", face = "shy" },
-        intro_saver_2 = { text = "Everybody who clicks it, is saved", face = "happy" },
-        intro_saver_3 = { text = "Try to convince others to click it for you (your saves)", face = "normal" },
+        intro_saver_1 = { text = "You're button is very normal", face = "shy" },
+        intro_saver_2 = { text = "Everybody who clicks it, doesn't die", face = "happy" },
+        intro_saver_3 = { text = "Try to convince others to click it for you (your is good)", face = "normal" },
 
         intro_others_1 = { text = "You have to talk with {p1} and {p2}", requiredKeys = {"p1","p2"}, face = "shy" },
         intro_others_2 = { text = "One of them has a button that kills you", face = "normal" },
@@ -339,17 +339,17 @@ local English: DictTemplate = {
     vote = {
         dead_intro = { text = "They're voting for who to eliminate", face = "shy" },
 
-        intro_common_1 = { text = "People are gonna vote who to eliminate", face = "normal" },
-        intro_candidate_fate = { text = "Others will decide your fate...", face = "scared" },
-        intro_choose_wise = { text = "Choose wisely who should be eliminated", face = "happy" },
+        intro_common_1 = { text = "Time to vote for elimination", face = "normal" },
+        intro_candidate_fate = { text = "Others will decide your fate.", face = "scared" },
+        intro_choose_wise = { text = "Choose somebody you don't like", face = "happy" },
 
-        candidate_line_1 = { text = "It may be a bit boring while they're voting?", face = "normal" },
-        candidate_line_2 = { text = "Many people are crazy", face = "shy" },
-        candidate_line_3 = { text = "They are gonna choose someone who just looks bad", face = "normal" },
-        candidate_line_4 = { text = "Or someone who did something bad", face = "scared" },
-        candidate_line_5 = { text = "If you know what I'm talking about", face = "normal" },
-        candidate_line_6 = { text = "You didn't make them mad, right?", face = "shy" },
-        candidate_line_7 = { text = "Let's see who was eliminated", face = "scared" },
+        candidate_line_1 = { text = "So I see they are voting", face = "normal" },
+        candidate_line_2 = { text = "The most voted will be eliminated", face = "shy" },
+        candidate_line_3 = { text = "What do you think, do they like you?", face = "normal" },
+        candidate_line_4 = { text = "Imagine if they don't", face = "scared" },
+        candidate_line_5 = { text = "You will lose this game haha", face = "normal" },
+        candidate_line_6 = { text = "And losing the experiment is so bad", face = "shy" },
+        candidate_line_7 = { text = "So I hope that's you", face = "scared" },
 
         you_eliminated = { text = "You were eliminated... I'm sorry", face = "dead" },
         player_eliminated = { text = "{player} was eliminated", requiredKeys = {"player"}, face = "dead" },
@@ -357,18 +357,18 @@ local English: DictTemplate = {
 
     --| START EVENT |--
     start = {
-        intro_hey = { text = "Hey {player}!", requiredKeys = {"player"}, face = "shy" },
-        intro_button_experiment = { text = "This is a Button Experiment", face = "normal" },
-        intro_tested = { text = "You're gonna be tested in different scenarios", face = "scared" },
-        intro_easy_hard = { text = "Some of them will be easy, some of them will be hard", face = "dead" },
+        intro_hey = { text = "Hello {player}", requiredKeys = {"player"}, face = "unamused" },
+        intro_button_experiment = { text = "Welcome to the Button Experiment", face = "normal" },
+        intro_tested = { text = "We will test you.", face = "scared" },
+        intro_easy_hard = { text = "Don't think it will be easy", face = "dead" },
         intro_begin = { text = "Let's begin", face = "happy" },
     },
 
     --| YOU SURVIVED EVENT |--
     you_survived = {
         survivor_made_it = { text = "{survivor} made it to the end", requiredKeys = {"survivor"}, face = "happy" },
-        survivor_one_left = { text = "Oh, looks like you're the one who is left", face = "shy" },
-        survivor_congratulations = { text = "You survived, congratulations!", face = "happy" },
+        survivor_one_left = { text = "Very good performance!", face = "shy" },
+        survivor_congratulations = { text = "There is a button, you can press it", face = "happy" },
     }
 }
 

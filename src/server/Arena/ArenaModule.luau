@@ -104,7 +104,6 @@ function ArenaModule.init()
         TimerModule.setTime(-1)
         local waited = 0
 
-        task.wait(10)
         while task.wait(1) do
             TimerModule.setTime(30 - waited)
             if #Players:GetPlayers() > 0 then

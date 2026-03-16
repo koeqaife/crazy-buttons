@@ -35,7 +35,14 @@ local mainText: TextLabel = workspace
     :WaitForChild("mainText")
 
 local function allPlayersLoaded()
+    local playersCount = #Players:GetPlayers()
     for _, player in Players:GetPlayers() do
+        local joinData = player:GetJoinData()
+        if joinData and joinData.TeleportData then
+            if (joinData.TeleportData.playersCount or -1) > playersCount then
+                return false
+            end
+        end
         if not loadedPlayers[player] then
             return false
         end

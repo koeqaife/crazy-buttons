@@ -16,8 +16,8 @@ local playerBoardText: TextLabel = workspace
     :WaitForChild("SurfaceGui")
     :WaitForChild("mainText")
 
-local specialPlayerBoardText: TextLabel = workspace
-    :WaitForChild("SpecialTerminalScreen")
+local specialRoundCounter: TextLabel = workspace
+    :WaitForChild("SpecialRoundCounter")
     :WaitForChild("SurfaceGui")
     :WaitForChild("mainText")
 
@@ -159,6 +159,10 @@ local function startGame()
 
     local teleportOptions = Instance.new("TeleportOptions")
     teleportOptions.ShouldReserveServer = true
+    teleportOptions:SetTeleportData({
+        playersCount = #playersToTeleport,
+        isSpecial = false
+    })
     local ok, err = pcall(function()
         TeleportService:TeleportAsync(
             TELEPORT_PLACE_ID,
@@ -187,6 +191,7 @@ local function startGame()
         end
     end
 
+    task.wait(5)
     updatePadCount(0, MAX_PLAYERS)
     promoteFromQueue(MAX_PLAYERS)
     updatePadCount(countActive(), MAX_PLAYERS)
@@ -374,6 +379,34 @@ local function onPlayerExit(player: Player)
     checkStartConditions()
 end
 
+local function specialRoundCountdown()
+    local target = DateTime.fromUniversalTime(2026, 3, 20, 18, 0, 0).UnixTimestamp
+
+    while true do
+        local now = DateTime.now().UnixTimestamp
+        local remaining = math.max(0, target - now)
+
+        local days = math.floor(remaining / 86400)
+        local hours = math.floor((remaining % 86400) / 3600)
+        local minutes = math.floor((remaining % 3600) / 60)
+        local seconds = remaining % 60
+
+        local timeString
+
+        if days > 0 then
+            timeString = string.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds)
+        elseif hours > 0 then
+            timeString = string.format("%02d:%02d:%02d", hours, minutes, seconds)
+        else
+            timeString = string.format("%02d:%02d", minutes, seconds)
+        end
+
+        specialRoundCounter.Text = "Special rounds start in " .. timeString
+
+        task.wait(1)
+    end
+end
+
 function LobbyModule.init()
     DataStoreModule.init()
     MusicModule.init()
@@ -389,7 +422,7 @@ function LobbyModule.init()
         end
     end
 
-    specialPlayerBoardText.Text = "Special rounds\nComing soon..."
+    task.spawn(specialRoundCountdown)
 
     game.Players.PlayerAdded:Connect(function(player: Player)
         local leaderstats = Instance.new("Folder")

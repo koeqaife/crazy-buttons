@@ -43,7 +43,7 @@ function Event.onEvent()
     GameState.runPromisePerDead(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "they_have_to_click", delay = 5 },
-            { key = "last_num_eliminate", delay = 7, data = {num = 1} },
+            { key = "last_num_eliminate", delay = 7 },
         }))
     end):andThen(function() end)
 
@@ -51,7 +51,7 @@ function Event.onEvent()
         return protect(TextModule.showTextSequence(player, {
             { key = "you_have_to_click", delay = 6 },
             { key = "click_faster", delay = 5 },
-            { key = "last_num_eliminate", delay = 7, data = {num = 1} },
+            { key = "last_num_eliminate", delay = 7 },
         }))
     end):await()
 

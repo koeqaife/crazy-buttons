@@ -71,11 +71,11 @@ function Event.onEvent()
             GameState.addRewardTo(player, 8)
             TextModule.setText(player, "choice_cannot_be_undone")
             toKill = player
-            task.wait(3)
             GameState.cancelAll()
         end
     end):catch(error):await()
     TimerModule.setTime(-1)
+    task.wait(3)
 
     local playerMustBeKilled = toKill ~= nil
 

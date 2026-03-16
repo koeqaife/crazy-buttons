@@ -24,22 +24,20 @@ local function spawnCoolPlatforms()
     local MAX_HEIGHT = 500
 
     local STEP = PLATFORM_SIZE + GAP
+    local seed = tonumber(string.sub(game.JobId, 1, 9), 16) or 0
 
     for x = -GRID_RADIUS, GRID_RADIUS do
         for z = -GRID_RADIUS, GRID_RADIUS do
             if not (x == 0 and z == 0) then
                 local heightOffset =
-                    MIN_HEIGHT
-                    + (MAX_HEIGHT - MIN_HEIGHT)
-                        * ((x * 92821 + z * 1237) % 1000)
-                        / 1000
+                    MIN_HEIGHT + (MAX_HEIGHT - MIN_HEIGHT)
+                    * ((x * 92821 + z * 1237 + seed) % 1000) / 1000
 
-                local pos = CENTER
-                    + Vector3.new(
-                        x * STEP,
-                        heightOffset,
-                        z * STEP
-                    )
+                local pos = CENTER + Vector3.new(
+                    x * STEP,
+                    heightOffset,
+                    z * STEP
+                )
 
                 local newPlatform = Platform:Clone()
                 newPlatform.Parent = Folder

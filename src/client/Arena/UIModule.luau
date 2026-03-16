@@ -19,6 +19,8 @@ local cash = 0
 local reward = 0
 local rewardCounter = 0
 
+local round = math.round
+
 local UIModule = {}
 
 function UIModule.connect()
@@ -31,16 +33,16 @@ function UIModule.connect()
     end)
     State.SyncEvent.OnClientEvent:Connect(function(key: string, value: any)
         if key == "cash" then
-            cash = value
+            cash = round(value)
             moneyLabel.Text = tostring(value) .. " (+" .. tostring(reward) .. ")"
         elseif key == "reward" then
             if value > 0 then
                 rewardCounter += value - reward
             end
-            reward = value
+            reward = round(value)
             moneyLabel.Text = tostring(cash) .. " (+" .. tostring(value) .. ")"
         elseif key == "multiplier" then
-            multiplierLabel.Text = tostring(value * 100 - 100) .. "% friend multiplier"
+            multiplierLabel.Text = tostring(round(value * 100 - 100)) .. "% friend multiplier"
         end
     end)
 end

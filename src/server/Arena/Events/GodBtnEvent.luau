@@ -7,6 +7,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local KillToolModule = require(Arena.KillToolModule)
 local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
@@ -45,6 +46,21 @@ function Event.onEvent()
         }))
     end):catch(error):await()
 
+    local spawns = ReplicatedStorage.GodButtons :: Folder
+    local buttonSpawns: {Part} = {}
+
+    for i, part in spawns:GetChildren() do
+        if part:IsA("Part") then
+            local clone = part:Clone()
+            clone.Parent = workspace
+            clone.Name = "GodButtonSpawn_" .. i
+            table.insert(buttonSpawns, clone)
+            GameState.registerInstance(clone)
+        end
+    end
+
+    Helpers.shuffleTable(buttonSpawns)
+
     local seed = math.random()
     local godButton = math.random(1, 100)
 
@@ -52,7 +68,7 @@ function Event.onEvent()
     GameState.runFuncPerAlive(function(player)
         local buttons = {}
         for i = 1, 100 do
-            table.insert(buttons, { idx = i })
+            table.insert(buttons, { idx = i, spawnAt = buttonSpawns[i].Name })
         end
 
         ButtonsModule.setButtons(player, buttons, nil, nil, seed)
@@ -98,6 +114,7 @@ function Event.onEvent()
     end):await()
     TimerModule.setTime(-1)
 
+    GameState.destroyInstances()
     GameState.runFuncPerAll(function(player)
         ButtonsModule.setButtons(player, {})
         if awardedPlayer ~= nil then

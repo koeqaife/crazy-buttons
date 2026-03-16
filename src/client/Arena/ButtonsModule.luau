@@ -47,9 +47,6 @@ local BUTTONS = {
     { color = Color3.new(1, 0.5, 0.5) },        -- Salmon
 }
 
-local MIN_DISTANCE = 23
-local MAX_DISTANCE = 150
-
 local KEYS = {
     Enum.KeyCode.One,
     Enum.KeyCode.Two,
@@ -137,9 +134,7 @@ local function createButton(obj: IndicesModule.Button, buttonData: { color: Colo
     return buttonClone
 end
 
-function ButtonsModule.setButtons(indices: Indices, seed: number?)
-    local rng = Random.new(seed)
-
+function ButtonsModule.setButtons(indices: Indices)
     for _, btn in ipairs(spawnedButtons) do
         if btn and btn.Parent then
             btn:Destroy()
@@ -150,65 +145,31 @@ function ButtonsModule.setButtons(indices: Indices, seed: number?)
     spawnedButtonsIndicesMap = {}
     copyToViewport = {}
 
-    if #indices <= 20 then
-        local xOffset = -((#indices - 1) * GAP) / 2
+    local xOffset = -((#indices - 1) * GAP) / 2
 
-        for i, obj in ipairs(indices) do
-            local buttonData = BUTTONS[((obj.showAs or obj.idx) - 1) % #BUTTONS + 1]
-            if buttonData then
-                if obj.spawnAt ~= nil then
-                    local buttonClone = createButton(obj, buttonData, -1)
-                    local part = workspace:WaitForChild(obj.spawnAt) :: Part
-                    buttonClone:MoveTo(part.Position)
-
-                    local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
-                    local button = buttonClone:WaitForChild("Button") :: Part
-                    buttonStand.Orientation = buttonStand.Orientation + Vector3.new(0, part.Orientation.Y - 90, 0)
-                    button.Orientation = button.Orientation + Vector3.new(0, part.Orientation.Y - 90, 0)
-                else
-                    local buttonClone = createButton(obj, buttonData, i)
-                    local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
-                    buttonClone:MoveTo(spawnPos)
-
-                    local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
-                    local button = buttonClone:WaitForChild("Button") :: Part
-                    buttonStand.Orientation = buttonStand.Orientation + Vector3.new(0, buttonSpawn.Orientation.Y - 90, 0)
-                    button.Orientation = button.Orientation + Vector3.new(0, buttonSpawn.Orientation.Y - 90, 0)
-
-                    xOffset += GAP
-                end
-            end
-        end
-    else
-        for i, obj in ipairs(indices) do
-            local buttonData = BUTTONS[((obj.showAs or obj.idx) - 1) % #BUTTONS + 1]
-            if buttonData then
-                local offset
-                local distance
-                local angle
-
-                while true do
-                    distance = rng:NextInteger(MIN_DISTANCE, MAX_DISTANCE)
-                    angle = rng:NextNumber() * 2 * math.pi
-                    offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * distance
-
-                    local tooClose = false
-                    for _, btn in ipairs(spawnedButtons) do
-                        local btnPos = (btn.PrimaryPart :: BasePart).Position
-                        if (btnPos - (buttonSpawn.Position + offset)).Magnitude < 7 then
-                            tooClose = true
-                        end
-                    end
-
-                    if not tooClose then
-                        break
-                    end
-                end
-
+    for i, obj in ipairs(indices) do
+        local buttonData = BUTTONS[((obj.showAs or obj.idx) - 1) % #BUTTONS + 1]
+        if buttonData then
+            if obj.spawnAt ~= nil then
                 local buttonClone = createButton(obj, buttonData, -1)
+                local part = workspace:WaitForChild(obj.spawnAt) :: Part
+                buttonClone:MoveTo(part.Position)
 
-                local spawnPos = buttonSpawn.Position + offset
+                local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
+                local button = buttonClone:WaitForChild("Button") :: Part
+                buttonStand.Orientation = buttonStand.Orientation + Vector3.new(0, part.Orientation.Y - 90, 0)
+                button.Orientation = button.Orientation + Vector3.new(0, part.Orientation.Y - 90, 0)
+            else
+                local buttonClone = createButton(obj, buttonData, i)
+                local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
                 buttonClone:MoveTo(spawnPos)
+
+                local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
+                local button = buttonClone:WaitForChild("Button") :: Part
+                buttonStand.Orientation = buttonStand.Orientation + Vector3.new(0, buttonSpawn.Orientation.Y - 90, 0)
+                button.Orientation = button.Orientation + Vector3.new(0, buttonSpawn.Orientation.Y - 90, 0)
+
+                xOffset += GAP
             end
         end
     end
@@ -311,11 +272,11 @@ end
 
 function ButtonsModule.connect()
     UpdateButtonsEvent.OnClientEvent:Connect(
-        function(type: string, indices: Indices, seed: number?)
+        function(type: string, indices: Indices)
             if type == "update" then
                 ButtonsModule.updateButtons(indices)
             else
-                ButtonsModule.setButtons(indices, seed)
+                ButtonsModule.setButtons(indices)
             end
         end
     )

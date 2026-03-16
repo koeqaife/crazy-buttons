@@ -16,6 +16,12 @@ local screenLabel = workspace
     :WaitForChild("SurfaceGui")
     :WaitForChild("mainText") :: TextLabel
 
+local terminalFace = workspace
+    :WaitForChild("TerminalFace")
+    :WaitForChild("SurfaceGui") :: SurfaceGui
+
+local dot = terminalFace:WaitForChild("Dot") :: Frame
+
 local sounds: {Sound} = {}
 local spawnLocations: {Part} = {}
 
@@ -208,6 +214,11 @@ function AmbienceModule.init()
 
     screenLightCrtEffect()
     task.spawn(timer)
+    task.spawn(function()
+        while task.wait(1.325) do
+            dot.Visible = not dot.Visible
+        end
+    end)
 end
 
 return AmbienceModule

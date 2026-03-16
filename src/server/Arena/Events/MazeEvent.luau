@@ -34,7 +34,7 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local playerSpawnLocation = workspace:WaitForChild("SpawnLocation") :: SpawnLocation
+    local playerSpawnLocation = workspace:WaitForChild("StandingPad") :: Part
 
     local maze = ReplicatedStorage:WaitForChild("Maze"):Clone() :: Model
     maze.Parent = workspace

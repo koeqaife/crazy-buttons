@@ -32,7 +32,7 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local playerSpawnLocation = workspace:WaitForChild("SpawnLocation") :: SpawnLocation
+    local playerSpawnLocation = workspace:WaitForChild("StandingPad") :: Part
 
     local obby = ReplicatedStorage:WaitForChild("Obby"):Clone() :: Model
     obby.Parent = workspace

@@ -320,7 +320,7 @@ local English: DictTemplate = {
         intro_killer_2 = { text = "Everybody who clicks it, dies", face = "scared" },
         intro_killer_3 = { text = "Try to convince others to click it for you (your is bad)", face = "normal" },
 
-        intro_saver_1 = { text = "You're button is very normal", face = "shy" },
+        intro_saver_1 = { text = "Your button is very normal", face = "shy" },
         intro_saver_2 = { text = "Everybody who clicks it, doesn't die", face = "happy" },
         intro_saver_3 = { text = "Try to convince others to click it for you (your is good)", face = "normal" },
 

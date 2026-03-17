@@ -20,8 +20,8 @@ local function spawnCoolPlatforms()
     local GAP = 350
 
     local GRID_RADIUS = 7
-    local MIN_HEIGHT = -300
-    local MAX_HEIGHT = 500
+    local MIN_HEIGHT = -500
+    local MAX_HEIGHT = 1500
 
     local STEP = PLATFORM_SIZE + GAP
     local seed = tonumber(string.sub(game.JobId, 1, 9), 16) or 0

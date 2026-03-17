@@ -369,7 +369,16 @@ local English: DictTemplate = {
         survivor_made_it = { text = "{survivor} made it to the end", requiredKeys = {"survivor"}, face = "happy" },
         survivor_one_left = { text = "Very good performance!", face = "shy" },
         survivor_congratulations = { text = "There is a button, you can press it", face = "happy" },
-    }
+    },
+
+    --| FIVE BUTTONS EVENT |--
+    five_buttons = {
+        intro_part1 = { text = "Five buttons will appear now", face = "happy" },
+        intro_part2 = { text = "One of them kills", face = "scared" },
+        intro_part3 = { text = "We will start with somebody random", face = "shy" },
+        first_player = { text = "The first player is {player}", requiredKeys = {"player"}, face = "shy" },
+        next_player = { text = "The next player is {player}", requiredKeys = {"player"}, face = "shy" },
+    },
 }
 
 return English

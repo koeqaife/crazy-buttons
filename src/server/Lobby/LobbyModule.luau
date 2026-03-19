@@ -380,7 +380,7 @@ local function onPlayerExit(player: Player)
 end
 
 local function specialRoundCountdown()
-    local target = DateTime.fromUniversalTime(2026, 3, 20, 18, 0, 0).UnixTimestamp
+    local target = DateTime.fromUniversalTime(2026, 3, 22, 18, 0, 0).UnixTimestamp
 
     while true do
         local now = DateTime.now().UnixTimestamp

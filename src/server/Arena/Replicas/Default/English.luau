@@ -378,6 +378,9 @@ local English: DictTemplate = {
         intro_part3 = { text = "We will start with somebody random", face = "shy" },
         first_player = { text = "The first player is {player}", requiredKeys = {"player"}, face = "shy" },
         next_player = { text = "The next player is {player}", requiredKeys = {"player"}, face = "shy" },
+        you_eliminated = { text = "You are eliminated", face = "dead" },
+        player_eliminated = { text = "{player} was eliminated", requiredKeys = {"player"}, face = "dead" },
+        button_safe = { text = "Button was safe", face = "happy" }
     },
 }
 

@@ -27,6 +27,9 @@ function Event.check()
 end
 
 function Event.onEvent()
+    -- My code quality got worsen lately...
+    -- No idea why, but I got really really bad in this
+    -- But I will try to at least make it work
     GameState.runPromisePerAll(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_part1", delay = 5 },
@@ -37,6 +40,7 @@ function Event.onEvent()
 
     local somebodyDied = false
     local counter = 0
+    local kills = math.random(1, 5)
 
     GameState.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
@@ -65,8 +69,8 @@ function Event.onEvent()
             { idx = 5, inputDisabled = false },
         }, nil)
 
-        TimerModule.setTime(15)
-        local clicked = GameState.protectedAwait(randomPlayer, ButtonsModule.waitForClick(randomPlayer, 15))
+        TimerModule.setTime(20)
+        local clicked = GameState.protectedAwait(randomPlayer, ButtonsModule.waitForClick(randomPlayer, 20))
         if clicked ~= nil then
             GameState.runFuncPerAlive(function(player)
                 ButtonsModule.updateButtons(player, {
@@ -76,9 +80,20 @@ function Event.onEvent()
         end
         TimerModule.setTime(-1)
 
-        if clicked == nil or math.random(1, 5) == 1 then
+        if clicked == nil or clicked == kills then
+            GameState.runFuncPerAlive(function(player)
+                if player == randomPlayer then
+                    TextModule.setText(player, "you_eliminated")
+                else
+                    TextModule.setText(player, "player_eliminated", { player = randomPlayer })
+                end
+            end)
             GameState.kill(randomPlayer)
             somebodyDied = true
+        else
+            GameState.runFuncPerAlive(function(player)
+                TextModule.setText(player, "button_safe")
+            end)
         end
 
         GameState.runFuncPerAlive(function(player)
@@ -91,6 +106,7 @@ function Event.onEvent()
             }, nil)
         end)
         counter += 1
+        task.wait(5)
     end
 
     return

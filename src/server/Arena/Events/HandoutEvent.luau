@@ -70,8 +70,10 @@ function Event.onEvent()
         GameState.runFuncPerAlive(function(player)
             if player == randomPlayer then
                 TextModule.setText(player, "you_got_tool_part1" )
+                KillToolModule.giveTool(player)
             else
                 TextModule.setText(player, "someone_got_tool_part1", { player = randomPlayer } )
+                GameState.addRewardTo(player, 1)
             end
         end)
         task.wait(5)

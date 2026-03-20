@@ -291,8 +291,10 @@ local English: DictTemplate = {
     --| SIMON EVENT |--
     simon = {
         intro_dead = { text = "They're listening to Simon now", face = "nerd" },
-        intro_alive_1 = { text = "Remember, I'm Simon now", face = "shy" },
-        intro_alive_2 = { text = "Do the opposite if I DIDN'T SAY to do", face = "nerd" },
+        intro_alive_1 = { text = "I'm Simon now, follow my commands carefully", face = "shy" },
+        intro_alive_2 = { text = "Do the opposite if I didn't say 'Simon says'", face = "nerd" },
+        intro_alive_3 = { text = "When I say 'select', click the button so it gets highlighted", face = "nerd" },
+        intro_alive_4 = { text = "Let's begin with something simple", face = "nerd" },
         round_text = { text = "{text}", face = "normal" },
     },
 

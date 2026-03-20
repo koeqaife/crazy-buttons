@@ -18,44 +18,45 @@ local ButtonsModule = require(Arena.ButtonsModule)
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
 type EventType = EventTypeModule.Event
-type Text = { opposite: boolean, text: string, idx: number?, custom: number? }
+type Text = { opposite: boolean, text: string, idx: number?, custom: number?, tutorial: string }
 
 local Event = {} :: EventType
 Event.category = "reaction"
 Event.name = "simon"
 
+-- Tutorial appears on when you die
 local texts: {Text} = {
     -- 4
-    { text = "Simon says... select ", opposite = false },
-    { text = "Simon says... do not select ", opposite = true },
-    { text = "Simon says, select ", opposite = false },
-    { text = "Simon says, do not select ", opposite = true },
+    { text = "Simon says... select ", opposite = false, tutorial = "You had to select the color" },
+    { text = "Simon says... do not select ", opposite = true, tutorial = "Your selection had to be opposite" },
+    { text = "Simon says, select ", opposite = false, tutorial = "You had to select the color" },
+    { text = "Simon says, do not select ", opposite = true, tutorial = "Your selection had to be opposite" },
 
     -- 6
-    { text = "Select ", opposite = true },
-    { text = "Do not select ", opposite = false },
+    { text = "Select ", opposite = true, tutorial = "Your selection had to be opposite" },
+    { text = "Do not select ", opposite = false, tutorial = "There was no 'Simon says' so you had to do the opposite of 'do not'" },
 
     -- 11
-    { text = "Now... select ", opposite = true },
-    { text = "Now... do not select ", opposite = false },
-    { text = "Simply select ", opposite = true },
-    { text = "My name is Simon, select ", opposite = true },
-    { text = "Simon thinks you should select ", opposite = true },
+    { text = "Now... select ", opposite = true, tutorial = "There was no 'Simon says' so your selection had to be other color" },
+    { text = "Now... do not select ", opposite = false, tutorial = "There was no 'Simon says' so you had to do the opposite of 'do not'" },
+    { text = "Simply select ", opposite = true, tutorial = "Simply is not 'Simon says', so your selection had to be other color" },
+    { text = "My name is Simon, select ", opposite = true, tutorial = "His name is Simon, but there was no 'Simon says'" },
+    { text = "Simon thinks you should select ", opposite = true, tutorial = "Simon thinks but he didn't say 'Simon says'" },
 
     -- 17
-    { text = "Simon says... select the color of the sky", opposite = false, idx = 2 },
-    { text = "Simon says... select the color of a banana", opposite = false, idx = 4 },
-    { text = "Simon says... select the color of a ruby", opposite = false, idx = 1 },
-    { text = "Select the color of the sky", opposite = true, idx = 2 },
-    { text = "Select the color of a banana", opposite = true, idx = 4 },
-    { text = "Select the color of a ruby", opposite = true, idx = 1 },
+    { text = "Simon says... select the color of the sky", opposite = false, idx = 2, tutorial = "The color of the sky is blue" },
+    { text = "Simon says... select the color of a banana", opposite = false, idx = 4, tutorial = "The color of banana is yellow" },
+    { text = "Simon says... select the color of a ruby", opposite = false, idx = 1, tutorial = "The color of ruby is red" },
+    { text = "Select the color of the sky", opposite = true, idx = 2, tutorial = "There was no 'Simon says' so your selection had to be NOT blue" },
+    { text = "Select the color of a banana", opposite = true, idx = 4, tutorial = "There was no 'Simon says' so your selection had to be NOT yellow" },
+    { text = "Select the color of a ruby", opposite = true, idx = 1, tutorial = "There was no 'Simon says' so your selection had to be NOT red" },
 
     -- 22
-    { text = "Do not change your selection", custom = 1, opposite = false },
-    { text = "Simply not change your selection", custom = 1, opposite = false },
-    { text = "Change your selection", custom = 1, opposite = true },
-    { text = "Simon says... change your selection", custom = 1, opposite = false },
-    { text = "Simon says... do not change your selection", custom = 1, opposite = true },
+    { text = "Do not change your selection", custom = 1, opposite = false, tutorial = "There was no 'Simon says' so you had to do the opposite of 'do not'" },
+    { text = "Simply not change your selection", custom = 1, opposite = false, tutorial = "There was no 'Simon says' so you had to do the opposite of 'simply not'" },
+    { text = "Change your selection", custom = 1, opposite = true, tutorial = "There was no 'Simon says' so you had to not click anything" },
+    { text = "Simon says... change your selection", custom = 1, opposite = false, tutorial = "You had to press any button" },
+    { text = "Simon says... do not change your selection", custom = 1, opposite = true, tutorial = "You had to not press any button" },
 }
 local COLOR_NAMES = { "Red", "Blue", "Pink", "Yellow" }
 
@@ -100,6 +101,8 @@ function Event.onEvent()
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_alive_1", delay = 5 },
             { key = "intro_alive_2", delay = 5 },
+            { key = "intro_alive_3", delay = 5 },
+            { key = "intro_alive_4", delay = 5 },
         }))
     end):catch(error):await()
 
@@ -114,18 +117,24 @@ function Event.onEvent()
     end)
 
     local lastChosen: {[Player]: number?} = {}
+    local lastString = -1
     for i = 1, MAX_SUB_ROUNDS do
         if deathsThisEvent >= MAX_DEATHS_ALLOWED or (#GameState.alivePlayers <= 3 and i > 5) then
             break
         end
 
         local maxRange = ROUNDS_RANGE[i]
-        local randomTextRaw = texts[math.random(1, maxRange)]
+        local newStringIdx = -1
+        while newStringIdx == lastString do
+            newStringIdx = math.random(1, maxRange)
+        end
+        local randomTextRaw = texts[newStringIdx]
         local randomText: Text = {  -- Copy
             text = randomTextRaw.text,
             custom = randomTextRaw.custom,
             idx = randomTextRaw.idx,
-            opposite = randomTextRaw.opposite
+            opposite = randomTextRaw.opposite,
+            tutorial = randomTextRaw.tutorial
         }
         if randomText.custom == nil and randomText.idx == nil then
             local randomColor = math.random(1, 4)
@@ -154,6 +163,7 @@ function Event.onEvent()
                 then
                     ButtonsModule.setButtons(player, {})
                     GameState.kill(player)
+                    TextModule.setText(player, "round_text", { text = randomText.tutorial })
                     deathsThisEvent += 1
                 end
             elseif randomText.custom == 1 then

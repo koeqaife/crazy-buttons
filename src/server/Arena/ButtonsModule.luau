@@ -6,6 +6,7 @@ local Arena = game:GetService("ServerScriptService").Server.Arena
 
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local SideEffectType = require(Arena.SideEffectType)
+local TextModule = require(Arena.TextModule)
 local IndicesModule = require(ReplicatedStorage.Shared.IndicesType)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 type Indices = IndicesModule.Indices
@@ -171,6 +172,12 @@ function ButtonsModule.setButtons(
         Helpers.shuffleTable(buttons, seed)
     end
 
+    for _, button in ipairs(buttons) do
+        if button.text then
+            button.text = TextModule.translateFor(player, button.text)
+        end
+    end
+
     UpdateButtonsEvent:FireClient(player, "set", buttons, seed)
     buttonsPerPlayer[player] = buttons
 end
@@ -182,6 +189,12 @@ function ButtonsModule.updateButtons(
 )
     if sideEffect then
         buttons = sideEffect.buttonsEffect(sideEffect)
+    end
+
+    for _, button in ipairs(buttons) do
+        if button.text then
+            button.text = TextModule.translateFor(player, button.text)
+        end
     end
 
     UpdateButtonsEvent:FireClient(player, "update", buttons)

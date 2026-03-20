@@ -27,6 +27,12 @@ local function fire(player: Player, text: string, face: Format.Face?)
      UpdateTextEvent:FireClient(player, text, face)
 end
 
+function TextModule.translateFor(player: Player, text: string): string
+    -- For in-place translations
+    -- TODO: Make it work...
+    return text
+end
+
 function TextModule.showTextSequence(player: Player, sequence: {{key: string, data: {[string]: any}?, delay: number?}})
     return Promise.new(function(resolve, reject, onCancel)
         local cancelled = false

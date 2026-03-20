@@ -7,7 +7,9 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- If one of them dies, the other one dies too
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local LinksModule = require(ServerScriptService.Server.Arena.LinksModule)
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 
@@ -31,11 +33,11 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local randomPlayers = GameState.pickPlayers(2)
+    local randomPlayers = PlayersModule.pickPlayers(2)
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
 
-    GameState.runPromisePerAll(function(player, protect)
+    PlayersModule.runPromisePerAll(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_part1", delay = 5 },
             { key = "intro_part2", delay = 5 },
@@ -44,26 +46,26 @@ function Event.onEvent()
         }))
     end):await()
 
-    GameState.runFuncPerAll(function(player)
+    PlayersModule.runFuncPerAll(function(player)
         TextModule.setText(player, "player", { player = p1 })
     end)
-    GameState.addHighlightToOne(p1, COLOR, COLOR)
+    MiscModule.addHighlightToOne(p1, COLOR, COLOR)
     logAction(p1, "linked")
     task.wait(5)
 
-    GameState.runFuncPerAll(function(player)
+    PlayersModule.runFuncPerAll(function(player)
         TextModule.setText(player, "second_player_is")
     end)
     task.wait(5)
 
-    GameState.runFuncPerAll(function(player)
+    PlayersModule.runFuncPerAll(function(player)
         TextModule.setText(player, "player", { player = p2 })
     end)
-    GameState.addHighlightToOne(p2, COLOR, COLOR)
+    MiscModule.addHighlightToOne(p2, COLOR, COLOR)
     logAction(p2, "linked")
     task.wait(5)
 
-    GameState.linkTogether(p1, p2)
+    LinksModule.linkTogether(p1, p2)
 
     return
 end

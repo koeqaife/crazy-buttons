@@ -1,0 +1,403 @@
+--!strict
+--!optimize 2
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local TeleportService = game:GetService("TeleportService")
+local LinksModule = require(script.Parent.LinksModule)
+local RewardsModule = require(script.Parent.RewardsModule)
+local Helpers = require(ReplicatedStorage.Shared.Helpers)
+local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
+local ButtonsModule = require(ServerScriptService.Server.Arena.ButtonsModule)
+local Promise = require(ReplicatedStorage.Shared.Promise)
+
+local GameState = {}
+
+local SyncDeadEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+SyncDeadEvent.Name = "SyncDeadEvent"
+
+local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
+local ForceRevive: BindableEvent = Instance.new("BindableEvent")
+
+local alivePlayers: {Player} = {}
+local deadPlayers: {Player} = {}
+local playerRevivedTimes: {[Player]: number} = {}
+local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
+local LOBBY_PLACE_ID = 115379867051786
+
+GameState.OnPlayerDied = OnPlayerDied
+GameState.ForceRevive = ForceRevive
+GameState.alivePlayers = alivePlayers
+GameState.deadPlayers = deadPlayers
+GameState.playerRevivedTimes = playerRevivedTimes
+
+-- track how many revives have occurred during the current run
+local revivesThisGame = 0
+
+local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+local resetAction = require(ServerScriptService.Server.Shared.QuestsModule).resetAction
+
+local function ensureRunningPromises(player: Player)
+    if runningPromises[player] == nil then
+        runningPromises[player] = {}
+    end
+    return runningPromises[player]
+end
+
+local function cancelPlayerPromises(player: Player)
+    Promise.defer(function(resolve, reject, onCancel)
+        local playerRunningPromises = ensureRunningPromises(player)
+        for i = #playerRunningPromises, 1, -1 do
+            print("Cancelling promise for", player.Name)
+            local promise = playerRunningPromises[i]
+            if promise then
+                promise:cancel()
+            end
+        end
+        table.clear(playerRunningPromises)
+    end):catch(warn)
+end
+
+local function protect<T>(player: Player, promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>
+    local newPromise = Promise.new(function(resolve, reject, onCancel)
+        promise:andThen(resolve):catch(reject)
+        onCancel(function()
+            promise:cancel()
+        end)
+    end) :: Promise.TypedPromise<T>
+
+    local playerRunningPromises = ensureRunningPromises(player)
+
+    newPromise:finally(function(status)
+        local idx = table.find(playerRunningPromises, newPromise)
+        if idx ~= nil then table.remove(playerRunningPromises, idx) end
+    end)
+
+    if newPromise:getStatus() == "Started" then -- check just in case of UB
+        table.insert(playerRunningPromises, newPromise)
+    end
+
+    return newPromise
+end
+
+local function protectedAwait<T>(player: Player, promise: Promise.TypedPromise<T?>): T
+    local protectedPromise = protect(player, promise)
+    local ok, result = protectedPromise:await()
+    if protectedPromise:getStatus() == "Cancelled" then
+        return result
+    elseif not ok then
+        error(result)
+    end
+    return result
+end
+
+GameState.protect = protect
+GameState.protectedAwait = protectedAwait
+GameState.cancelPlayerPromises = cancelPlayerPromises
+
+function GameState.forceReviveIsAllowed(player: Player?)
+    local base = revivesThisGame < 1 and #alivePlayers >= 3 and #deadPlayers > 0
+    if player then
+        return (
+            base
+            and table.find(deadPlayers, player)
+            and (playerRevivedTimes[player] or 0) < 1
+        )
+    else
+        return base
+    end
+end
+
+function GameState.runButtonsForDead()
+    GameState.runNewPromisePerDead(function(player, protect, await)
+        local function clearButtons()
+            ButtonsModule.setButtons(player, {})
+        end
+
+        GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
+            if GameState.forceReviveIsAllowed(player) then
+                local forceReviveText = "Force Random Revive"
+                if DataStoreModule.getNumber(player, "pendingRevives") > 0 then
+                    forceReviveText = "Force Random Revive (Bought)"
+                end
+
+                ButtonsModule.setButtons(player, {
+                    { idx = 3, text = forceReviveText },
+                    { idx = 5, text = "Return to lobby" }
+                })
+            else
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Return to lobby" }
+                })
+            end
+
+            task.wait(0.75)  -- Wait a bit to make sure they don't click it accidentally
+            local clickPromise = ButtonsModule.waitForClick(player, -1)
+            onCancel(function()
+                clickPromise:cancel()
+                clearButtons()
+            end)
+
+            local _, clickedIdx = clickPromise:catch(error):await()
+            clearButtons()
+
+            if clickedIdx == 5 then
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Teleporting...", inputDisabled = true }
+                })
+                TeleportService:Teleport(LOBBY_PLACE_ID, player)
+                resolve2()
+            elseif clickedIdx == 3 then
+                ForceRevive:Fire(player)
+                resolve2()
+            end
+        end)):catch(warn)
+    end)
+end
+
+function GameState.kill(player: Player, reason: string?)
+    if not player or not player.Parent then
+        return
+    end
+
+    for i, p in ipairs(alivePlayers) do
+        if p == player then
+            table.remove(alivePlayers, i)
+            break
+        end
+    end
+    table.insert(deadPlayers, player)
+
+    SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
+    OnPlayerDied:Fire(player)
+
+    if #alivePlayers < 3 then
+        GameState.runFuncPerDead(function(player)
+            ButtonsModule.setButtons(player, {
+                { idx = 5, text = "Return to lobby" }
+            })
+        end)
+    end
+
+    logAction(player, "die")
+    resetAction(player, "press_streak")
+    resetAction(player, "survive_streak")
+    cancelPlayerPromises(player)
+
+    Promise.defer(function(resolve)
+        RewardsModule.flushReward(player)
+        task.wait()
+        task.wait()
+        task.wait()
+        task.wait()
+
+        -- Kill other linked player
+        local linked = LinksModule.clearLinks(player)
+        if linked then
+            GameState.kill(linked)
+        end
+        GameState.runButtonsForDead()
+        resolve()
+    end):catch(warn)
+end
+
+
+function GameState.revive(player: Player, reason: string?)
+    if not player or not player.Parent then
+        return
+    end
+
+    if playerRevivedTimes[player] == nil then
+        playerRevivedTimes[player] = 0
+    end
+    playerRevivedTimes[player] += 1
+
+    -- count global revive usage
+    revivesThisGame += 1
+    GameState.revivesThisGame = revivesThisGame
+
+    for i, p in ipairs(deadPlayers) do
+        if p == player then
+            table.remove(deadPlayers, i)
+            break
+        end
+    end
+    table.insert(alivePlayers, player)
+
+    SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers, reason)
+    ButtonsModule.setButtons(player, {})
+
+    cancelPlayerPromises(player)
+end
+
+function GameState.pickPlayers(amount: number, from: {Player}?): {Player}
+    local fromArray = from or alivePlayers
+
+    Helpers.shuffleTable(fromArray)
+
+    local result = {}
+    local count = math.min(amount, #fromArray)
+
+    for i = 1, count do
+        result[i] = fromArray[i]
+    end
+
+    return result
+end
+
+function GameState.pickOnePlayer(from: {Player}?): Player
+    local fromArray = from or alivePlayers
+
+    Helpers.shuffleTable(fromArray)
+
+    return fromArray[1]
+end
+
+function GameState.connect()
+    Players.PlayerRemoving:Connect(function(player: Player, reason)
+        for i, p in ipairs(alivePlayers) do
+            if p == player then
+                table.remove(alivePlayers, i)
+                break
+            end
+        end
+
+        for i, p in ipairs(deadPlayers) do
+            if p == player then
+                table.remove(deadPlayers, i)
+                break
+            end
+        end
+
+        LinksModule.clearLinks(player)
+
+        cancelPlayerPromises(player)
+        RewardsModule.flushReward(player)
+    end)
+end
+
+
+type NewPromiseFunc = (
+    player: Player,
+    protect: <T>(promise: Promise.TypedPromise<T?>) -> Promise.TypedPromise<T>,
+    await: <T>(promise: Promise.TypedPromise<T?>) -> T
+) -> nil
+
+type PromiseFunc = (
+    player: Player,
+    protect: <T>(promise: Promise.TypedPromise<T?>) -> Promise.TypedPromise<T>,
+    await: <T>(promise: Promise.TypedPromise<T?>) -> T
+) -> Promise.TypedPromise<any>
+
+local function runNewPromisePer(
+    array: {Player},
+    func: NewPromiseFunc
+)
+    local snapshot = table.clone(array)
+    local promises = {}
+    for _, player in ipairs(snapshot) do
+        if not player or not player.Parent then
+            continue
+        end
+
+        local function protectForPlayer<T>(promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>
+            return protect(player, promise)
+        end
+
+        local function awaitForPlayer<T>(promise: Promise.TypedPromise<T?>): T
+            return protectedAwait(player, promise)
+        end
+
+        local newPromise = protect(player, Promise.new(function(resolve)
+            func(player, protectForPlayer, awaitForPlayer)
+            resolve()
+        end))
+
+        table.insert(promises, newPromise)
+    end
+    return Promise.allSettled(promises)
+end
+
+local function runPromisePer(array: {Player}, func: PromiseFunc)
+    local snapshot = table.clone(array)
+    local promises = {}
+    for _, player in ipairs(snapshot) do
+        if not player or not player.Parent then
+            continue
+        end
+
+        local function protectForPlayer<T>(promise: Promise.TypedPromise<T?>): Promise.TypedPromise<T>
+            return protect(player, promise)
+        end
+
+        local function awaitForPlayer<T>(promise: Promise.TypedPromise<T?>): T
+            return protectedAwait(player, promise)
+        end
+
+        local newPromise = protect(player, func(player, protectForPlayer, awaitForPlayer))
+
+        table.insert(promises, newPromise)
+    end
+    return Promise.allSettled(promises)
+end
+
+-- New
+function GameState.runNewPromisePerAll(func: NewPromiseFunc)
+    return runNewPromisePer(Players:GetPlayers(), func)
+end
+
+function GameState.runNewPromisePerAlive(func: NewPromiseFunc)
+    return runNewPromisePer(alivePlayers, func)
+end
+
+function GameState.runNewPromisePerDead(func: NewPromiseFunc)
+    return runNewPromisePer(deadPlayers, func)
+end
+
+-- Existing
+function GameState.runPromisePerAll(promise: PromiseFunc)
+    return runPromisePer(Players:GetPlayers(), promise)
+end
+
+function GameState.runPromisePerAlive(promise: PromiseFunc)
+    return runPromisePer(alivePlayers, promise)
+end
+
+function GameState.runPromisePerDead(promise: PromiseFunc)
+    return runPromisePer(deadPlayers, promise)
+end
+
+-- Func
+function GameState.runFuncPerAll(func: (player: Player) -> nil)
+    local snapshot = table.clone(Players:GetPlayers())
+    for _, player in ipairs(snapshot) do
+        func(player)
+    end
+end
+
+function GameState.runFuncPerAlive(func: (player: Player) -> nil)
+    local snapshot = table.clone(alivePlayers)
+    for _, player in ipairs(snapshot) do
+        func(player)
+    end
+end
+
+function GameState.runFuncPerDead(func: (player: Player) -> nil)
+    local snapshot = table.clone(deadPlayers)
+    for _, player in ipairs(snapshot) do
+        func(player)
+    end
+end
+-- End
+
+function GameState.isDead(player: Player)
+    return table.find(deadPlayers, player) ~= nil
+end
+
+function GameState.cancelAll()
+    for i, player in ipairs(Players:GetPlayers()) do
+        cancelPlayerPromises(player)
+    end
+end
+
+return GameState

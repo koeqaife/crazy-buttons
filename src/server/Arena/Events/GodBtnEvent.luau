@@ -6,10 +6,13 @@
 -- First one to find it gets a reward
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local KillToolModule = require(Arena.KillToolModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -34,11 +37,11 @@ function Event.check()
 end
 
 function Event.onEvent()
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "intro_dead")
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_ready", delay = 5 },
             { key = "intro_100_buttons", delay = 5 },
@@ -55,7 +58,7 @@ function Event.onEvent()
             clone.Parent = workspace
             clone.Name = "GodButtonSpawn_" .. i
             table.insert(buttonSpawns, clone)
-            GameState.registerInstance(clone)
+            MiscModule.registerInstance(clone)
         end
     end
 
@@ -65,7 +68,7 @@ function Event.onEvent()
     local godButton = math.random(1, 100)
 
     TimerModule.setTime(60)
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         local buttons = {}
         for i = 1, 100 do
             table.insert(buttons, { idx = i, spawnAt = buttonSpawns[i].Name })
@@ -78,7 +81,7 @@ function Event.onEvent()
     local awardedPlayer: Player? = nil
     local awardedResolved = false
 
-    GameState.runPromisePerAlive(function(player, protect, await)
+    PlayersModule.runPromisePerAlive(function(player, protect, await)
         return protect(Promise.new(function(resolve, reject, onCancel)
             while task.wait(0.3) and not awardedResolved do -- for debouncing
                 local clickPromise = ButtonsModule.waitForClick(player, 60)
@@ -86,20 +89,20 @@ function Event.onEvent()
                 local clicked = await(clickPromise)
 
                 if clicked == godButton then
-                    GameState.addRewardTo(player, 2)
+                    RewardsModule.addRewardTo(player, 2)
                     if not awardedResolved then
                         awardedResolved = true
                         awardedPlayer = player
-                        GameState.addHighlightTo({player})
-                        GameState.cancelAll()
+                        MiscModule.addHighlightTo({player})
+                        PlayersModule.cancelAll()
                         return resolve()
                     elseif awardedPlayer == player then
                         return resolve()
                     end
                     break
                 elseif clicked ~= nil and not awardedResolved then
-                    GameState.addRewardTo(player, 0.25)
-                    GameState.runFuncPerAlive(function(player2)
+                    RewardsModule.addRewardTo(player, 0.25)
+                    PlayersModule.runFuncPerAlive(function(player2)
                         ButtonsModule.updateButtons(player2, {{ idx = clicked, disabled = true }})
                     end)
                 end
@@ -114,14 +117,14 @@ function Event.onEvent()
     end):await()
     TimerModule.setTime(-1)
 
-    GameState.destroyInstances()
-    GameState.runFuncPerAll(function(player)
+    MiscModule.destroyInstances()
+    PlayersModule.runFuncPerAll(function(player)
         ButtonsModule.setButtons(player, {})
         if awardedPlayer ~= nil then
             if awardedPlayer == player then
                 TextModule.setText(player, "you_found_god_btn")
                 KillToolModule.giveTool(player)
-                GameState.rewardBadge(player, BADGE_ID)
+                RewardsModule.rewardBadge(player, BADGE_ID)
             else
                 TextModule.setText(player, "someone_found_god_btn", { player = awardedPlayer })
             end

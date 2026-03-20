@@ -7,8 +7,10 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- They have to convince others to press their button
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -33,7 +35,7 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local randomPlayers = GameState.pickPlayers(2)
+    local randomPlayers = PlayersModule.pickPlayers(2)
 
     local kills = math.random(1, 2)
     local p1 = randomPlayers[1]
@@ -41,7 +43,7 @@ function Event.onEvent()
     local playerKills = if kills == 1 then p1 else p2
     local playerSaves = if kills == 1 then p2 else p1
 
-    GameState.runPromisePerAll(function(player, protect, await)
+    PlayersModule.runPromisePerAll(function(player, protect, await)
         if player == playerKills then
             return protect(TextModule.showTextSequence(player, {
                 { key = "intro_killer_1", delay = 5 },
@@ -63,11 +65,11 @@ function Event.onEvent()
         end
     end):catch(error):await()
 
-    GameState.addHighlightToOne(p1, firstIdxColor, firstIdxColor)
-    GameState.addHighlightToOne(p2, secondIdxColor, secondIdxColor)
+    MiscModule.addHighlightToOne(p1, firstIdxColor, firstIdxColor)
+    MiscModule.addHighlightToOne(p2, secondIdxColor, secondIdxColor)
 
-    GameState.runFuncPerAlive(function(player)
-        local disableInput = player == p1 or player == p2 or table.find(GameState.alivePlayers, player) == nil
+    PlayersModule.runFuncPerAlive(function(player)
+        local disableInput = player == p1 or player == p2
         ButtonsModule.setButtons(player, {
             { idx = 1, text = p1.DisplayName, inputDisabled = disableInput },
             { idx = 2, text = p2.DisplayName, inputDisabled = disableInput },
@@ -76,26 +78,26 @@ function Event.onEvent()
 
     TimerModule.setTime(30)
     local _, chosen = ButtonsModule.initiateButtonChoice(30, function(player, idx)
-        local disableInput = player == p1 or player == p2 or table.find(GameState.alivePlayers, player) == nil
+        local disableInput = player == p1 or player == p2 or PlayersModule.isDead(player)
         if disableInput then
             return false
         end
         return true
     end, function(player, idx)
-        GameState.removeHighlightFromOne(player)
+        MiscModule.removeHighlightFromOne(player)
         if idx == 1 then
-            GameState.addHighlightToOne(player, firstIdxColor, firstIdxColor)
+            MiscModule.addHighlightToOne(player, firstIdxColor, firstIdxColor)
         elseif idx == 2 then
-            GameState.addHighlightToOne(player, secondIdxColor, secondIdxColor)
+            MiscModule.addHighlightToOne(player, secondIdxColor, secondIdxColor)
         end
     end):catch(error):await()
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
     end)
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
-        GameState.addRewardTo(player, 5)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
+        RewardsModule.addRewardTo(player, 5)
         if player == p1 or player == p2 then
             return TextModule.setText(player, "lets_see")
         end
@@ -103,12 +105,12 @@ function Event.onEvent()
         local choice = chosen[player]
         if choice == nil then
             TextModule.setText(player, "result_no_choice")
-            GameState.kill(player)
+            PlayersModule.kill(player)
         else
             local chosenPlayer = if choice == 1 then p1 else p2
             if choice == kills then
                 TextModule.setText(player, "result_chose_died", { p = chosenPlayer })
-                GameState.kill(player)
+                PlayersModule.kill(player)
                 logAction(playerKills, "two_knows_kills")
             else
                 TextModule.setText(player, "result_chose_safe", { p = chosenPlayer })

@@ -7,9 +7,11 @@
 -- Otherwise there is gonna vote with which player people wanna revive
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -40,20 +42,20 @@ local function getMostVoted(result: { [Player]: number }): Player?
 end
 
 function Event.check()
-    return #GameState.deadPlayers >= 1
+    return #PlayersModule.deadPlayers >= 1
 end
 
 local function onEventVariant()
     -- Revive random player
-    local randomPlayer = GameState.pickOnePlayer(GameState.deadPlayers)
+    local randomPlayer = PlayersModule.pickOnePlayer(PlayersModule.deadPlayers)
 
-    GameState.runNewPromisePerAll(function(player, protect, await)
+    PlayersModule.runNewPromisePerAll(function(player, protect, await)
         if player == randomPlayer then
             await(TextModule.showTextSequence(player, {
                 { key = "intro_random", delay = 6 },
                 { key = "you_are_revived", delay = 6 },
             }))
-            GameState.revive(player)
+            PlayersModule.revive(player)
         else
             await(TextModule.showTextSequence(player, {
                 { key = "intro_random", delay = 6 },
@@ -64,30 +66,30 @@ local function onEventVariant()
 end
 
 function Event.onEvent()
-    if math.random() < 0.25 or #GameState.deadPlayers < 3 then
+    if math.random() < 0.25 or #PlayersModule.deadPlayers < 3 then
         return onEventVariant()
     end
 
     -- Vote variant
     local amount
-    if #GameState.deadPlayers > 5 then
+    if #PlayersModule.deadPlayers > 5 then
         amount = 4
-    elseif #GameState.deadPlayers > 4 then
+    elseif #PlayersModule.deadPlayers > 4 then
         amount = 3
     else
         amount = 2
     end
 
-    local playersForVote = GameState.pickPlayers(amount, GameState.deadPlayers)
-    GameState.addHighlightTo(playersForVote)
+    local playersForVote = PlayersModule.pickPlayers(amount, PlayersModule.deadPlayers)
+    MiscModule.addHighlightTo(playersForVote)
 
-    GameState.runPromisePerAll(function(player, protect)
+    PlayersModule.runPromisePerAll(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
                 { key = "intro_vote_common", delay = 5 },
                 { key = "intro_vote_candidate", delay = 5 },
             }))
-        elseif table.find(GameState.deadPlayers, player) then
+        elseif table.find(PlayersModule.deadPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
                 { key = "intro_vote_common", delay = 5 },
                 { key = "intro_dead_not_you", delay = 5 },
@@ -102,7 +104,7 @@ function Event.onEvent()
 
     TimerModule.setTime(25)
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         if not table.find(playersForVote, player) then
             local buttons: IndicesType.Indices = {}
             for i, playerForVote in ipairs(playersForVote) do
@@ -132,10 +134,10 @@ function Event.onEvent()
         mostVotedPlayer = mostVoted
     end
 
-    GameState.runFuncPerAll(function(player: Player)
+    PlayersModule.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
             TextModule.setText(player, "you_are_revived")
-            GameState.revive(player)
+            PlayersModule.revive(player)
         else
             TextModule.setText(player, "player_revived", { player = mostVotedPlayer })
         end

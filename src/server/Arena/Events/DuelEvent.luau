@@ -11,7 +11,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -46,17 +47,17 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local randomPlayers = GameState.pickPlayers(2)
+    local randomPlayers = PlayersModule.pickPlayers(2)
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         return TextModule.setText(player, "to_play", {p1 = p1, p2 = p2})
     end)
 
     if not explained then
         explained = true
-        GameState.runPromisePerAlive(function(player, protect)
+        PlayersModule.runPromisePerAlive(function(player, protect)
             if player == p1 or player == p2 then
                 local otherPlayer = if player == p1 then p2 else p1
                 return protect(TextModule.showTextSequence(player, {
@@ -71,7 +72,7 @@ function Event.onEvent()
             end
         end):await()
     else
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             if player == p1 or player == p2 then
                 local otherPlayer = if player == p1 then p2 else p1
 
@@ -83,7 +84,7 @@ function Event.onEvent()
         task.wait(6)
     end
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         if player == p1 or player == p2 then
             ButtonsModule.setButtons(player, {
                 { idx = 1 }
@@ -100,7 +101,7 @@ function Event.onEvent()
         AmbienceModule.playEerieHorrorRising()
     end)
     -- With cooldown of 1 second, so people can't just click really fast
-    local promise = GameState.runPromisePerAlive(function(player, protect, await)
+    local promise = PlayersModule.runPromisePerAlive(function(player, protect, await)
         if player ~= p1 and player ~= p2 then
             ButtonsModule.updateButtons(player, {
                 { idx = 1, inputDisabled = true }
@@ -144,7 +145,7 @@ function Event.onEvent()
 
     local firstClicked: Player? = nil
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         if player ~= p1 and player ~= p2 then
             ButtonsModule.updateButtons(player, {
                 { idx = 5, inputDisabled = true }
@@ -171,7 +172,7 @@ function Event.onEvent()
                 { key = "you_did_not_click", delay = 3 },
                 { key = "you_are_eliminated", delay = 3 },
             }))
-            GameState.kill(player)
+            PlayersModule.kill(player)
             return
         end
         ButtonsModule.setButtons(player, {})
@@ -182,17 +183,17 @@ function Event.onEvent()
             firstClicked = player
 
             local otherPlayer = if player == p1 then p2 else p1
-            GameState.cancelPlayerPromises(otherPlayer)
+            PlayersModule.cancelPlayerPromises(otherPlayer)
             ButtonsModule.setButtons(otherPlayer, {})
             task.wait()
         end
     end):catch(error):await()
 
-    GameState.runNewPromisePerAll(function(player, protect, await)
+    PlayersModule.runNewPromisePerAll(function(player, protect, await)
         local lost = if firstClicked == p1 then p2 else p1
 
         if player == firstClicked then
-            GameState.addRewardTo(player, 7)
+            RewardsModule.addRewardTo(player, 7)
             logAction(player, "duel_win")
             logAction(player, "duel_win_streak")
             await(TextModule.showTextSequence(player, {
@@ -200,13 +201,13 @@ function Event.onEvent()
                 { key = "good_job", delay = 3 },
             }))
         elseif player == lost then
-            GameState.addRewardTo(player, 3)
+            RewardsModule.addRewardTo(player, 3)
             resetAction(player, "duel_win_streak")
             await(TextModule.showTextSequence(player, {
                 { key = "you_are_slow", delay = 3 },
                 { key = "you_are_eliminated", delay = 3 },
             }))
-            GameState.kill(player)
+            PlayersModule.kill(player)
         elseif firstClicked ~= nil then
             await(TextModule.showTextSequence(player, {
                 { key = "won", delay = 4, data = {player = firstClicked} },

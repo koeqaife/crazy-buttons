@@ -9,8 +9,10 @@
 -- Time to wait is random so timer is hidden
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -40,14 +42,14 @@ function Event.check()
 end
 
 function Event.onEvent()
-    GameState.runPromisePerDead(function(player, protect)
+    PlayersModule.runPromisePerDead(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "they_have_to_click", delay = 5 },
             { key = "last_num_eliminate", delay = 7 },
         }))
     end):andThen(function() end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "you_have_to_click", delay = 6 },
             { key = "click_faster", delay = 5 },
@@ -55,14 +57,14 @@ function Event.onEvent()
         }))
     end):await()
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
             { idx = 1 }
         })
         TextModule.setText(player, "wait_for_green")
     end)
 
-    local counter = #GameState.alivePlayers - 1
+    local counter = #PlayersModule.alivePlayers - 1
 
     local toWait = math.random(25, 60)
     local lastClickPerPlayer: {[Player]: number} = {}
@@ -71,7 +73,7 @@ function Event.onEvent()
         AmbienceModule.playEerieHorrorRising()
     end)
     -- With cooldown of 1 second, so people can't just click really fast
-    local promise = GameState.runPromisePerAlive(function(player, protect, await)
+    local promise = PlayersModule.runPromisePerAlive(function(player, protect, await)
         return Promise.new(function(resolve2, reject2, onCancel2)
             while task.wait() do
                 local promise = ButtonsModule.waitForClick(player, toWait)
@@ -106,7 +108,7 @@ function Event.onEvent()
     sound.PlayOnRemove = true
     sound:Destroy()
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         -- Apply cooldown
         local now = os.clock()
         if lastClickPerPlayer[player] and now - lastClickPerPlayer[player] < COOLDOWN then
@@ -127,7 +129,7 @@ function Event.onEvent()
                 { key = "you_are_eliminated", delay = 4 },
             }))
             counter -= 1
-            GameState.kill(player)
+            PlayersModule.kill(player)
             return
         end
         ButtonsModule.setButtons(player, {})
@@ -138,14 +140,14 @@ function Event.onEvent()
                 { key = "you_clicked_too_slow", delay = 4},
                 { key = "you_are_eliminated", delay = 4 },
             }))
-            GameState.addRewardTo(player, 1)
-            GameState.kill(player)
+            RewardsModule.addRewardTo(player, 1)
+            PlayersModule.kill(player)
         else
             await(TextModule.showTextSequence(player, {
                 { key = "you_survived", delay = 4 },
                 { key = "wait_for_others", delay = 4 },
             }))
-            GameState.addRewardTo(player, 5)
+            RewardsModule.addRewardTo(player, 5)
         end
     end):catch(error):await()
 

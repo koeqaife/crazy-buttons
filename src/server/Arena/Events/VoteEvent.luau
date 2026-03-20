@@ -6,9 +6,12 @@
 -- The one with highest amount of votes dies
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -51,21 +54,21 @@ end
 
 function Event.onEvent()
     local amount
-    if #GameState.alivePlayers > 15 then
+    if #PlayersModule.alivePlayers > 15 then
         amount = 4
-    elseif #GameState.alivePlayers > 5 then
+    elseif #PlayersModule.alivePlayers > 5 then
         amount = 3
     else
         amount = 2
     end
 
-    local playersForVote = GameState.pickPlayers(amount)
+    local playersForVote = PlayersModule.pickPlayers(amount)
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "dead_intro")
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         if table.find(playersForVote, player) then
             return protect(TextModule.showTextSequence(player, {
                 { key = "intro_common_1", delay = 5 },
@@ -84,17 +87,17 @@ function Event.onEvent()
     local votingPromise = ButtonsModule.initiateButtonChoice(
         30,
         function(player, idx)
-            return table.find(GameState.alivePlayers, player) ~= nil and table.find(playersForVote, player) == nil
+            return table.find(PlayersModule.alivePlayers, player) ~= nil and table.find(playersForVote, player) == nil
         end,
         function(player, idx)
-            GameState.removeHighlightFromOne(player)
+            MiscModule.removeHighlightFromOne(player)
             if idx ~= nil then
-                GameState.addHighlightToOne(player, highlightColors[idx])
+                MiscModule.addHighlightToOne(player, highlightColors[idx])
             end
         end, nil, true
     )
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         local playerOnVote = table.find(playersForVote, player) ~= nil
 
         local buttons: IndicesType.Indices = {}
@@ -102,7 +105,7 @@ function Event.onEvent()
             table.insert(buttons, { idx = i, text = playerForVote.DisplayName, inputDisabled = playerOnVote })
 
             local color = highlightColors[i]
-            GameState.addHighlightToOne(playerForVote, color, color)
+            MiscModule.addHighlightToOne(playerForVote, color, color)
         end
 
         ButtonsModule.setButtons(player, buttons)
@@ -142,14 +145,14 @@ function Event.onEvent()
         mostVotedPlayer = mostVoted
     end
 
-    GameState.runFuncPerAlive(function(player)
-        GameState.addRewardTo(player, 3)
+    PlayersModule.runFuncPerAlive(function(player)
+        RewardsModule.addRewardTo(player, 3)
     end)
 
-    GameState.runFuncPerAll(function(player: Player)
+    PlayersModule.runFuncPerAll(function(player: Player)
         if player == mostVotedPlayer then
             TextModule.setText(player, "you_eliminated")
-            GameState.kill(player)
+            PlayersModule.kill(player)
         else
             TextModule.setText(player, "player_eliminated", { player = mostVotedPlayer })
         end

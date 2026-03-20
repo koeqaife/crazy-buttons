@@ -1,12 +1,14 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Gives a weapon to one random player
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local KillToolModule = require(Arena.KillToolModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 
@@ -28,26 +30,26 @@ function Event.check()
 end
 
 function Event.onEvent()
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "intro_dead")
     end)
 
-    GameState.runPromisePerAlive(function(player, protect, await)
+    PlayersModule.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_alive_part1", delay = 5 },
             { key = "intro_alive_part2", delay = 4 },
         }))
     end):catch(error):await()
 
-    local randomPlayer = GameState.pickOnePlayer()
+    local randomPlayer = PlayersModule.pickOnePlayer()
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "dead_who_got", { player = randomPlayer })
     end)
 
     if not explained then
         explained = true
-        GameState.runNewPromisePerAlive(function(player, protect, await)
+        PlayersModule.runNewPromisePerAlive(function(player, protect, await)
             if player == randomPlayer then
                 KillToolModule.giveTool(player)
                 await(TextModule.showTextSequence(player, {
@@ -57,7 +59,7 @@ function Event.onEvent()
                     { key = "you_got_tool_part4", delay = 5 },
                 }))
             else
-                GameState.addRewardTo(player, 1)
+                RewardsModule.addRewardTo(player, 1)
                 await(TextModule.showTextSequence(player, {
                     { key = "someone_got_tool_part1", delay = 2.5, data = { player = randomPlayer } },
                     { key = "someone_got_tool_part2", delay = 5 },
@@ -67,13 +69,13 @@ function Event.onEvent()
             end
         end):catch(error):await()
     else
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             if player == randomPlayer then
                 TextModule.setText(player, "you_got_tool_part1" )
                 KillToolModule.giveTool(player)
             else
                 TextModule.setText(player, "someone_got_tool_part1", { player = randomPlayer } )
-                GameState.addRewardTo(player, 1)
+                RewardsModule.addRewardTo(player, 1)
             end
         end)
         task.wait(5)

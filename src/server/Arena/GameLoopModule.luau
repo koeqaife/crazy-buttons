@@ -5,9 +5,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local ButtonsModule = require(script.Parent.ButtonsModule)
+local LinksModule = require(script.Parent.LinksModule)
+local MiscModule = require(script.Parent.MiscModule)
+local PlayersModule = require(script.Parent.PlayersModule)
+local RewardsModule = require(script.Parent.RewardsModule)
 local EventType = require(ServerScriptService.Server.Arena.Events.EventType)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
-local GameState = require(Arena.GameStateModule)
 local TimerModule = require(Arena.TimerModule)
 local AmbienceModule = require(Arena.AmbienceModule)
 local TextModule = require(Arena.TextModule)
@@ -74,8 +77,8 @@ local eventCooldown: {[Event]: number} = {}
 local EVENT_COOLDOWN = 3
 
 local function checkEvent(event: Event)
-    local players = #GameState.alivePlayers
-    local round = GameState.round
+    local players = #PlayersModule.alivePlayers
+    local round = MiscModule.round
     local count = eventCounts[event] or 0
     return (not event.minPlayers or players >= event.minPlayers)
             and (not event.maxPlayers or players <= event.maxPlayers)
@@ -125,18 +128,18 @@ local function runEvent(event: Event?)
 
     TextModule.setContext(event.name)
     TimerModule.setTime(-1)
-    GameState.cancelAll()
+    PlayersModule.cancelAll()
     task.wait()
     task.wait()
     task.wait()
     task.wait()
-    GameState.destroyInstances()
-    GameState.runButtonsForDead()
+    MiscModule.destroyInstances()
+    PlayersModule.runButtonsForDead()
     AmbienceModule.stopAll()
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
     end)
-    GameState.removeHighlightFromAll()
+    MiscModule.removeHighlightFromAll()
 
     local promise = Promise.promisify(event.onEvent)()
     local ok, result = promise:await()
@@ -144,9 +147,9 @@ local function runEvent(event: Event?)
         promise:cancel()
         warn("Event failed: ", result)
 
-        GameState.cancelAll()
+        PlayersModule.cancelAll()
         TextModule.setContext("misc")
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             TextModule.setText(player, "error_occurred")
         end)
 
@@ -161,7 +164,7 @@ local function processReceipt(receiptInfo: {PlayerId: number, ProductId: number}
             return Enum.ProductPurchaseDecision.NotProcessedYet
         end
 
-        if GameState.forceReviveIsAllowed(player) then
+        if PlayersModule.forceReviveIsAllowed(player) then
             forcedNextEvent = { event = ReviveEvent, by = player }
         else
             DataStoreModule.increaseKey(player, "pendingRevives", 1)
@@ -181,7 +184,7 @@ local function onForceReviveButton(player: Player)
         return
     end
 
-    if not GameState.forceReviveIsAllowed(player) then
+    if not PlayersModule.forceReviveIsAllowed(player) then
         return
     end
 
@@ -194,7 +197,7 @@ local function onForceReviveButton(player: Player)
 end
 
 local function dumpState()
-    print("Round: ", GameState.round)
+    print("Round: ", MiscModule.round)
     print("Last event category: ", lastEventCategory)
     for _, event in ipairs(events) do
         print(
@@ -209,13 +212,13 @@ local function dumpState()
 end
 
 local function dumpPlayers()
-    print("ALIVE PLAYERS:", #GameState.alivePlayers)
-    for _, player in ipairs(GameState.alivePlayers) do
+    print("ALIVE PLAYERS:", #PlayersModule.alivePlayers)
+    for _, player in ipairs(PlayersModule.alivePlayers) do
         print("  ", player.Name)
     end
 
-    print("DEAD PLAYERS:", #GameState.deadPlayers)
-    for _, player in ipairs(GameState.deadPlayers) do
+    print("DEAD PLAYERS:", #PlayersModule.deadPlayers)
+    for _, player in ipairs(PlayersModule.deadPlayers) do
         print("  ", player.Name)
     end
 end
@@ -223,31 +226,31 @@ end
 function GameLoopModule.start()
     _G.dumpState = dumpState
     _G.dumpPlayers = dumpPlayers
-    _G.cancelAll = GameState.cancelAll
-    _G.kill = GameState.kill
-    _G.revive = GameState.revive
+    _G.cancelAll = PlayersModule.cancelAll
+    _G.kill = PlayersModule.kill
+    _G.revive = PlayersModule.revive
 
     for _, player in ipairs(Players:GetPlayers()) do
         -- TODO: Remove after beta/alpha test ended
-        GameState.rewardBadge(player, EXPERIMENT_BADGE_ID):catch(warn):await()
+        RewardsModule.rewardBadge(player, EXPERIMENT_BADGE_ID):catch(warn):await()
     end
 
-    GameState.ForceRevive.Event:Connect(onForceReviveButton)
+    PlayersModule.ForceRevive.Event:Connect(onForceReviveButton)
     MarketplaceService.ProcessReceipt = processReceipt
 
     task.spawn(function()
         runEvent(StartEvent)
 
-        while #GameState.alivePlayers > 0 do
-            GameState.round += 1
+        while #PlayersModule.alivePlayers > 0 do
+            MiscModule.round += 1
 
-            if #GameState.alivePlayers <= 4 then
-                GameState.clearLinkedPlayers()
+            if #PlayersModule.alivePlayers <= 4 then
+                LinksModule.clearLinkedPlayers()
             end
 
             local nextEvent: Event? = nil
             if forcedNextEvent then
-                if forcedNextEvent.event == ReviveEvent and not GameState.forceReviveIsAllowed() then
+                if forcedNextEvent.event == ReviveEvent and not PlayersModule.forceReviveIsAllowed() then
                     TextModule.setContext("misc")
                     TextModule.setText(forcedNextEvent.by, "purchase_not_processed")
                     DataStoreModule.increaseKey(forcedNextEvent.by, "pendingRevives", 1)
@@ -268,13 +271,13 @@ function GameLoopModule.start()
             if nextEvent ~= nil then
                 runEvent(nextEvent)
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
-                eventCooldown[nextEvent] = GameState.round + EVENT_COOLDOWN
+                eventCooldown[nextEvent] = MiscModule.round + EVENT_COOLDOWN
                 lastEventCategory = nextEvent.category
 
-                if #GameState.alivePlayers > 1 then
-                    GameState.runFuncPerAll(function(player)
+                if #PlayersModule.alivePlayers > 1 then
+                    PlayersModule.runFuncPerAll(function(player)
                         TextModule.setContext("misc")
-                        TextModule.setText(player, "players_left", {count = #GameState.alivePlayers})
+                        TextModule.setText(player, "players_left", {count = #PlayersModule.alivePlayers})
                     end)
 
                     task.wait(5)

@@ -7,9 +7,11 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local KillToolModule = require(ServerScriptService.Server.Arena.KillToolModule)
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
 local ButtonsModule = require(Arena.ButtonsModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
@@ -36,13 +38,13 @@ function Event.onEvent()
 
     local obby = ReplicatedStorage:WaitForChild("Obby"):Clone() :: Model
     obby.Parent = workspace
-    GameState.registerInstance(obby)
+    MiscModule.registerInstance(obby)
 
     local obbyButtonSpawn = obby:WaitForChild("ObbyButtonSpawn")
     obbyButtonSpawn.Parent = workspace
-    GameState.registerInstance(obbyButtonSpawn)
+    MiscModule.registerInstance(obbyButtonSpawn)
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {{ idx = 5, spawnAt = "ObbyButtonSpawn" }}, nil, false)
 
         local character = player.Character
@@ -51,7 +53,7 @@ function Event.onEvent()
         end
     end)
 
-    GameState.runPromisePerAll(function(player, protect, await)
+    PlayersModule.runPromisePerAll(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_part1", delay = 4 },
             { key = "intro_part2", delay = 4 },
@@ -63,12 +65,12 @@ function Event.onEvent()
 
     local awardedResolved = false
     local killResolved = false
-    local counter = #GameState.alivePlayers - 1
+    local counter = #PlayersModule.alivePlayers - 1
 
     local clicked: {Player} = {}
 
     TimerModule.setTime(80)
-    GameState.runPromisePerAlive(function(player, protect, await)
+    PlayersModule.runPromisePerAlive(function(player, protect, await)
         return protect(Promise.new(function(resolve, reject, onCancel)
             local idx = await(ButtonsModule.waitForClick(player, 80))
             if idx == nil then
@@ -77,24 +79,24 @@ function Event.onEvent()
 
             logAction(player, "complete_obby")
             table.insert(clicked, player)
-            GameState.addRewardTo(player, 10)
+            RewardsModule.addRewardTo(player, 10)
             counter -= 1
 
             if not awardedResolved then
                 awardedResolved = true
-                GameState.addRewardTo(player, 20)
+                RewardsModule.addRewardTo(player, 20)
                 KillToolModule.giveTool(player)
             elseif counter <= 0 and not killResolved then
                 killResolved = true
-                GameState.kill(player)
+                PlayersModule.kill(player)
             end
 
             if awardedResolved and killResolved then
-                GameState.cancelAll()
+                PlayersModule.cancelAll()
             end
 
             if counter <= 0 then
-                GameState.cancelAll()
+                PlayersModule.cancelAll()
                 return resolve()
             end
         end))
@@ -108,19 +110,19 @@ function Event.onEvent()
     TimerModule.setTime(-1)
 
     if counter < 2 then
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             if not table.find(clicked, player) then
-                GameState.kill(player)
+                PlayersModule.kill(player)
             end
         end)
     end
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
     end)
 
-    GameState.runButtonsForDead()
-    GameState.destroyInstances()
+    PlayersModule.runButtonsForDead()
+    MiscModule.destroyInstances()
 
     return
 end

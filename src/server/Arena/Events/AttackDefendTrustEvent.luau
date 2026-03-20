@@ -3,8 +3,10 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local TimerModule = require(Arena.TimerModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -60,19 +62,19 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local randomPlayers = GameState.pickPlayers(2)
+    local randomPlayers = PlayersModule.pickPlayers(2)
 
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "chosen_players", {p1 = p1, p2 = p2})
     end)
 
-    GameState.addHighlightTo({p1, p2})
+    MiscModule.addHighlightTo({p1, p2})
     if not explained then
         explained = true
-        GameState.runPromisePerAlive(function(player, protect)
+        PlayersModule.runPromisePerAlive(function(player, protect)
             if player == p1 or player == p2 then
                 local otherPlayer = if player == p1 then p2 else p1
 
@@ -92,7 +94,7 @@ function Event.onEvent()
             end
         end):await()
     else
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             if player == p1 or player == p2 then
                 local otherPlayer = if player == p1 then p2 else p1
 
@@ -105,10 +107,10 @@ function Event.onEvent()
     end
 
     for attempt = 1, 6 do
-        GameState.removeHighlightFromAll()
-        GameState.addHighlightTo({p1, p2})
+        MiscModule.removeHighlightFromAll()
+        MiscModule.addHighlightTo({p1, p2})
 
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             local inputEnabled = player == p1 or player == p2
             ButtonsModule.setButtons(player, {})
             ButtonsModule.setButtons(player, {
@@ -121,7 +123,7 @@ function Event.onEvent()
                 TextModule.setText(player, "choose_your_move")
             end
         end)
-        GameState.runFuncPerAll(function(player)
+        PlayersModule.runFuncPerAll(function(player)
             if not (player == p1 or player == p2) then
                 TextModule.setText(player, "waiting_for_move", {p1 = p1, p2 = p2})
             end
@@ -132,11 +134,11 @@ function Event.onEvent()
         TimerModule.setTime(-1)
 
         if chosen[p1] == nil and chosen[p2] == nil then
-            GameState.runFuncPerAll(function(player)
+            PlayersModule.runFuncPerAll(function(player)
                 TextModule.setText(player, "both_did_not_move")
             end)
-            GameState.kill(p1)
-            GameState.kill(p2)
+            PlayersModule.kill(p1)
+            PlayersModule.kill(p2)
             break
         elseif chosen[p1] == nil then
             chosen[p1] = 3
@@ -144,13 +146,13 @@ function Event.onEvent()
             chosen[p2] = 3
         end
 
-        GameState.removeHighlightFromAll()
-        GameState.addHighlightToOne(p1, colors[chosen[p1]])
-        GameState.addHighlightToOne(p2, colors[chosen[p2]])
+        MiscModule.removeHighlightFromAll()
+        MiscModule.addHighlightToOne(p1, colors[chosen[p1]])
+        MiscModule.addHighlightToOne(p2, colors[chosen[p2]])
         task.wait(2)
 
         if chosen[p1] == chosen[p2] then
-            GameState.runPromisePerAll(function(player, protect)
+            PlayersModule.runPromisePerAll(function(player, protect)
                 if player == p1 or player == p2 then
                     return protect(TextModule.showTextSequence(player, {
                         { key = "you_both_chose", delay = 4, data = {btn = buttons[chosen[player]].text} },
@@ -170,28 +172,28 @@ function Event.onEvent()
             if beats[c1] == c2 then
                 TextModule.setText(p1, beatsText[c1][c2])
                 TextModule.setText(p2, beatsText[c2][c1])
-                GameState.runFuncPerAll(function(player)
+                PlayersModule.runFuncPerAll(function(player)
                     if player ~= p1 and player ~= p2 then
                         TextModule.setText(player, "won_against", {won = p1, lost = p2})
                     end
                 end)
-                GameState.addRewardTo(p1, 7)
+                RewardsModule.addRewardTo(p1, 7)
                 logAction(p1, "att_def_trust_win")
                 task.wait(5)
-                GameState.kill(p2)
+                PlayersModule.kill(p2)
                 break
             else
                 TextModule.setText(p2, beatsText[c2][c1])
                 TextModule.setText(p1, beatsText[c1][c2])
-                GameState.runFuncPerAll(function(player)
+                PlayersModule.runFuncPerAll(function(player)
                     if player ~= p1 and player ~= p2 then
                         TextModule.setText(player, "won_against", {lost = p1, won = p2})
                     end
                 end)
                 logAction(p2, "att_def_trust_win")
-                GameState.addRewardTo(p2, 7)
+                RewardsModule.addRewardTo(p2, 7)
                 task.wait(5)
-                GameState.kill(p1)
+                PlayersModule.kill(p1)
                 break
             end
         end

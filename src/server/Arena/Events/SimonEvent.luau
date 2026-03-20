@@ -10,7 +10,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- On tests it was hard but after some time playing it, it became easier
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -93,11 +94,11 @@ end
 function Event.onEvent()
     local deathsThisEvent = 0
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "intro_dead")
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_alive_1", delay = 5 },
             { key = "intro_alive_2", delay = 5 },
@@ -106,7 +107,7 @@ function Event.onEvent()
         }))
     end):catch(error):await()
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         logAction(player, "simon_says")
         ButtonsModule.setButtons(player, {
             { idx = 1, text = "Red" },
@@ -119,7 +120,7 @@ function Event.onEvent()
     local lastChosen: {[Player]: number?} = {}
     local lastString = -1
     for i = 1, MAX_SUB_ROUNDS do
-        if deathsThisEvent >= MAX_DEATHS_ALLOWED or (#GameState.alivePlayers <= 3 and i > 5) then
+        if deathsThisEvent >= MAX_DEATHS_ALLOWED or (#PlayersModule.alivePlayers <= 3 and i > 5) then
             break
         end
 
@@ -148,21 +149,21 @@ function Event.onEvent()
         end
 
         -- use localization key with dynamic text passed in data
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             TextModule.setText(player, "round_text", { text = randomText.text })
         end)
 
         local _, chosen = ButtonsModule.initiateButtonChoice(8, nil, nil, lastChosenCopy, true):catch(error):await()
 
-        GameState.runNewPromisePerAlive(function(player)
+        PlayersModule.runNewPromisePerAlive(function(player)
             local selected = chosen[player]
-            GameState.addRewardTo(player, 0.5)
+            RewardsModule.addRewardTo(player, 0.5)
             if randomText.idx then
                 if (randomText.opposite and randomText.idx == selected) or
                     (not randomText.opposite and randomText.idx ~= selected)
                 then
                     ButtonsModule.setButtons(player, {})
-                    GameState.kill(player)
+                    PlayersModule.kill(player)
                     TextModule.setText(player, "round_text", { text = randomText.tutorial })
                     deathsThisEvent += 1
                 end
@@ -173,7 +174,7 @@ function Event.onEvent()
                     (not randomText.opposite and not didChange)
                 then
                     ButtonsModule.setButtons(player, {})
-                    GameState.kill(player)
+                    PlayersModule.kill(player)
                     deathsThisEvent += 1
                 end
             end

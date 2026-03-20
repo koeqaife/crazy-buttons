@@ -1,12 +1,14 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Event where person is asked "do you like aliens?" and if they say no, they get killed
 -- They get badge 100%
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -28,11 +30,11 @@ function Event.check()
 end
 
 function Event.onEvent()
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "secret_question")
     end)
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
             { key = "question_for_you", delay = 4 },
             { key = "question_like_aliens", delay = 4 },
@@ -46,14 +48,14 @@ function Event.onEvent()
         local clicked = await(ButtonsModule.waitForClick(player, 15))
 
         ButtonsModule.setButtons(player, {})
-        GameState.rewardBadge(player, BADGE_ID):andThenCall(print, "rewardBadge: success")
+        RewardsModule.rewardBadge(player, BADGE_ID):andThenCall(print, "rewardBadge: success")
 
         if clicked ~= 1 then
             await(TextModule.showTextSequence(player, {
                 { key = "oh_no", delay = 2 },
                 { key = "unamused", delay = 3 }
             }))
-            GameState.kill(player)
+            PlayersModule.kill(player)
         else
             await(TextModule.showTextSequence(player, {
                 { key = "happy_face", delay = 2 },
@@ -61,7 +63,7 @@ function Event.onEvent()
             }))
         end
 
-        GameState.addRewardTo(player, 5)
+        RewardsModule.addRewardTo(player, 5)
     end):catch(error):await()
 
     return

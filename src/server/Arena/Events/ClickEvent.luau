@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Event where you have time to prepare (15 seconds)
@@ -9,7 +10,8 @@
 -- On tests it was not too hard but also not too easy
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -37,11 +39,11 @@ function Event.onEvent()
     -- 2 -> button says to not click
     local variant = math.random(1, 2)
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "reaction_test_for_dead")
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "reaction_test", delay = 6 },
             { key = "not_much_time", delay = 6 },
@@ -53,7 +55,7 @@ function Event.onEvent()
     end):catch(error):await()
 
     TimerModule.setTime(2)
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         local buttonText
         if variant == 1 then
             buttonText = "CLICK ME"
@@ -81,21 +83,21 @@ function Event.onEvent()
     local toWait = if randomAction == 1 then 2.5 else 4
     local _, chosen = ButtonsModule.initiateButtonChoice(toWait):catch(error):await()
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
 
         local clicked = chosen[player] ~= nil
 
-        GameState.addRewardTo(player, 2)
+        RewardsModule.addRewardTo(player, 2)
         if randomAction == 1 and not clicked then
             TextModule.setText(player, "you_had_to_click")
-            GameState.kill(player)
+            PlayersModule.kill(player)
         elseif randomAction == 2 and clicked then
             TextModule.setText(player, "you_had_to_not_click")
-            GameState.kill(player)
+            PlayersModule.kill(player)
         else
             TextModule.setText(player, "you_survived")
-            GameState.addRewardTo(player, 4)
+            RewardsModule.addRewardTo(player, 4)
         end
     end)
     task.wait(5)

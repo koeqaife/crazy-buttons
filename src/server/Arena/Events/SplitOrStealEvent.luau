@@ -8,8 +8,10 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- If both steal, both die. If one steal the other dies. If both split, nothing happens
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -39,13 +41,13 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local randomPlayers = GameState.pickPlayers(2)
+    local randomPlayers = PlayersModule.pickPlayers(2)
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
 
     if not explained then
         explained = true
-        GameState.runPromisePerAll(function(player, protect, await)
+        PlayersModule.runPromisePerAll(function(player, protect, await)
             if table.find(randomPlayers, player) then
                 return protect(TextModule.showTextSequence(player, {
                     { key = "intro_you_pair", delay = 7, data = { p2 = (p1 == player and p2 or p1) } },
@@ -63,7 +65,7 @@ function Event.onEvent()
             end
         end):catch(error):await()
     else
-        GameState.runFuncPerAll(function(player)
+        PlayersModule.runFuncPerAll(function(player)
             if table.find(randomPlayers, player) then
                 TextModule.setText(player, "intro_you_pair", { p2 = (p1 == player and p2 or p1) } )
             else
@@ -73,12 +75,12 @@ function Event.onEvent()
         task.wait(7)
     end
 
-    GameState.addHighlightTo(randomPlayers)
+    MiscModule.addHighlightTo(randomPlayers)
 
     local STEAL_BTN = 1
     local SPLIT_BTN = 5
 
-    GameState.runFuncPerAll(function(player)
+    PlayersModule.runFuncPerAll(function(player)
         if table.find(randomPlayers, player) then
             ButtonsModule.setButtons(player, {
                 { idx = SPLIT_BTN, text = "Split" },
@@ -97,46 +99,46 @@ function Event.onEvent()
     TimerModule.setTime(-1)
 
     task.wait(1)
-    GameState.removeHighlightFrom(randomPlayers)
+    MiscModule.removeHighlightFrom(randomPlayers)
     clickSound:Play()
 
     local c1 = chosen[p1]
     local c2 = chosen[p2]
 
     if c1 == STEAL_BTN and c2 == STEAL_BTN then
-        GameState.runFuncPerAll(function(player)
+        PlayersModule.runFuncPerAll(function(player)
             TextModule.setText(player, "both_steal")
         end)
 
-        GameState.addHighlightTo(randomPlayers, Color3.new(1, 0, 0), Color3.new(1, 0, 0))
+        MiscModule.addHighlightTo(randomPlayers, Color3.new(1, 0, 0), Color3.new(1, 0, 0))
         task.wait(10)
 
-        GameState.kill(p1)
-        GameState.kill(p2)
+        PlayersModule.kill(p1)
+        PlayersModule.kill(p2)
     elseif c1 == STEAL_BTN or c2 == STEAL_BTN then
         local stealer = c1 == STEAL_BTN and p1 or p2
         local victim = c1 == STEAL_BTN and p2 or p1
 
-        GameState.runFuncPerAll(function(player)
+        PlayersModule.runFuncPerAll(function(player)
             TextModule.setText(player, "stealer_chosen", { stealer = stealer, victim = victim })
         end)
 
-        GameState.addHighlightToOne(victim, Color3.new(0.3, 1, 0))
-        GameState.addHighlightToOne(stealer, Color3.new(1, 0, 0), Color3.new(1, 0, 0))
-        GameState.addRewardTo(stealer, 10)
+        MiscModule.addHighlightToOne(victim, Color3.new(0.3, 1, 0))
+        MiscModule.addHighlightToOne(stealer, Color3.new(1, 0, 0), Color3.new(1, 0, 0))
+        RewardsModule.addRewardTo(stealer, 10)
         logAction(stealer, "steal_survive")
 
         task.wait(7)
 
-        GameState.kill(victim)
+        PlayersModule.kill(victim)
     else
-        GameState.addHighlightTo(randomPlayers, Color3.new(0.3, 1, 0))
-        GameState.runFuncPerAll(function(player)
+        MiscModule.addHighlightTo(randomPlayers, Color3.new(0.3, 1, 0))
+        PlayersModule.runFuncPerAll(function(player)
             TextModule.setText(player, "both_split")
         end)
 
-        GameState.addRewardTo(p1, 5)
-        GameState.addRewardTo(p2, 5)
+        RewardsModule.addRewardTo(p1, 5)
+        RewardsModule.addRewardTo(p2, 5)
         logAction(p1, "split_survive")
         logAction(p2, "split_survive")
 

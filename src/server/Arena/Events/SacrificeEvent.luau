@@ -1,11 +1,14 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Event where two random people are gonna be killed if no one will sacrifice themselves
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -27,15 +30,15 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local randomPlayers = GameState.pickPlayers(2)
+    local randomPlayers = PlayersModule.pickPlayers(2)
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "dead_intro", { p1 = p1, p2 = p2 })
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         if table.find(randomPlayers, player) then
             return protect(TextModule.showTextSequence(player, {
                 { key = "chosen_you_1", delay = 5 },
@@ -51,10 +54,10 @@ function Event.onEvent()
 
     local toKill: Player? = nil
 
-    GameState.addHighlightTo(randomPlayers)
+    MiscModule.addHighlightTo(randomPlayers)
 
     TimerModule.setTime(30)
-    GameState.runNewPromisePerAlive(function(player, protect, await)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         if table.find(randomPlayers, player) then
             return
         end
@@ -68,10 +71,10 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
 
         if clicked and toKill ~= nil then
-            GameState.addRewardTo(player, 8)
+            RewardsModule.addRewardTo(player, 8)
             TextModule.setText(player, "choice_cannot_be_undone")
             toKill = player
-            GameState.cancelAll()
+            PlayersModule.cancelAll()
         end
     end):catch(error):await()
     TimerModule.setTime(-1)
@@ -79,12 +82,12 @@ function Event.onEvent()
 
     local playerMustBeKilled = toKill ~= nil
 
-    GameState.runFuncPerAll(function(player)
-        GameState.addRewardTo(player, 1)
+    PlayersModule.runFuncPerAll(function(player)
+        RewardsModule.addRewardTo(player, 1)
         if playerMustBeKilled then
             if table.find(randomPlayers, player) then
                 TextModule.setText(player, "you_are_eliminated")
-                GameState.kill(player)
+                PlayersModule.kill(player)
             else
                 TextModule.setText(player, "they_are_eliminated", { p1 = p1, p2 = p2 })
             end
@@ -93,7 +96,7 @@ function Event.onEvent()
                 TextModule.setText(player, "you_are_saved")
             elseif player == toKill then
                 TextModule.setText(player, "you_saved_them")
-                GameState.kill(player)
+                PlayersModule.kill(player)
             else
                 TextModule.setText(player, "they_were_saved", { p1 = p1, p2 = p2 })
             end
@@ -101,7 +104,7 @@ function Event.onEvent()
     end)
     task.wait(5)
 
-    GameState.removeHighlightFromAll()
+    MiscModule.removeHighlightFromAll()
 
     return
 end

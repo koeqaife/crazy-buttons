@@ -9,7 +9,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- So positions are always different
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -40,11 +41,11 @@ end
 
 function Event.onEvent()
     if next(chosenColors) then
-        GameState.runFuncPerDead(function(player)
+        PlayersModule.runFuncPerDead(function(player)
             TextModule.setText(player, "for_dead_remember")
         end)
 
-        GameState.runPromisePerAlive(function(player, protect)
+        PlayersModule.runPromisePerAlive(function(player, protect)
             return protect(TextModule.showTextSequence(player, {
                 { key = "you_remember_color", delay = 5.5 },
                 { key = "lets_check", delay = 4 },
@@ -52,7 +53,7 @@ function Event.onEvent()
         end):catch(error):await()
 
         TimerModule.setTime(15)
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             if not chosenColors[player] then
                 TextModule.setText(player, "did_not_choose")
                 return
@@ -67,10 +68,10 @@ function Event.onEvent()
             })
         end)
 
-        local _, chosen = ButtonsModule.initiateButtonChoice(15, nil, nil, nil, nil, GameState.alivePlayers):catch(error):await()
+        local _, chosen = ButtonsModule.initiateButtonChoice(15, nil, nil, nil, nil, PlayersModule.alivePlayers):catch(error):await()
         TimerModule.setTime(-1)
 
-        GameState.runNewPromisePerAlive(function(player, protect, await)
+        PlayersModule.runNewPromisePerAlive(function(player, protect, await)
             if not chosenColors[player] then
                 TextModule.setText(player, "so_lucky")
                 return
@@ -79,10 +80,10 @@ function Event.onEvent()
             local color = chosen[player] or 0
             if color ~= chosenColors[player] then
                 TextModule.setText(player, "wrong_color")
-                GameState.kill(player)
+                PlayersModule.kill(player)
                 task.wait(5)
             else
-                GameState.addRewardTo(player, 8)
+                RewardsModule.addRewardTo(player, 8)
                 logAction(player, "remember_color")
                 await(TextModule.showTextSequence(player, {
                     { key = "correct_color", delay = 4 },
@@ -94,11 +95,11 @@ function Event.onEvent()
         return
     end
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "for_dead_start")
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "about_to_show_colors", delay = 4.5 },
             { key = "remember_color", delay = 4.5 },
@@ -106,7 +107,7 @@ function Event.onEvent()
     end):catch(error):await()
 
     TimerModule.setTime(25)
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         TextModule.setText(player, "choose")
         local buttons = {
             { idx = 1, text = "Red" },
@@ -121,12 +122,12 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, buttons)
     end)
 
-    local _, chosen = ButtonsModule.initiateButtonChoice(25, nil, nil, nil, nil, GameState.alivePlayers):catch(error):await()
+    local _, chosen = ButtonsModule.initiateButtonChoice(25, nil, nil, nil, nil, PlayersModule.alivePlayers):catch(error):await()
     TimerModule.setTime(-1)
 
     local toSave: {[Player]: number} = {}
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         local color = chosen[player] or 0
         if color == 1 then
             TextModule.setText(player, "red")
@@ -144,7 +145,7 @@ function Event.onEvent()
             TextModule.setText(player, "nothing", {color = colorName})
         end
         toSave[player] = color
-        GameState.addRewardTo(player, 2)
+        RewardsModule.addRewardTo(player, 2)
     end)
     chosenColors = toSave
 

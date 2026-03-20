@@ -9,9 +9,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -91,11 +92,11 @@ local function enableAllBtn(player: Player)
 end
 
 function Event.onEvent()
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "for_dead")
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
+    PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "repeat_after_me", delay = 6 },
             { key = "players_to_eliminate", delay = 7 },
@@ -103,7 +104,7 @@ function Event.onEvent()
         }))
     end):catch(error):await()
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
             { idx = 1, text = COLOR_NAMES[1] },
             { idx = 2, text = COLOR_NAMES[2] },
@@ -114,7 +115,7 @@ function Event.onEvent()
 
     local mistakes: { [Player]: number } = {}
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         for round = 1, COMBO_COUNT do
             local combo: {number} = {}
             for i = 1, ROUND_COMBO_LENGTH[round] do
@@ -160,7 +161,7 @@ function Event.onEvent()
                     logAction(player, "combo_mistake")
                 else
                     -- If all 27 are without mistakes gonna be 14 (ceil of 13.5)
-                    GameState.addRewardTo(player, 0.5)
+                    RewardsModule.addRewardTo(player, 0.5)
                 end
 
                 disableInput(player)
@@ -185,17 +186,17 @@ function Event.onEvent()
 
     local toKill = toCount[1].player
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
+    PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         await(TextModule.showTextSequence(player, {
             { key = "mistakes_count", delay = 3, data = {num = tostring(mistakes[player] or 0)} },
             { key = "lets_see", delay = 4 }
         }))
         -- For everyone who played, even if they died
-        GameState.addRewardTo(player, 3)
+        RewardsModule.addRewardTo(player, 3)
 
         if player == toKill then
             TextModule.setText(player, "you_eliminated")
-            GameState.kill(player)
+            PlayersModule.kill(player)
         else
             if (mistakes[player] or 0) == 0 then
                 logAction(player, "perfect_combo")
@@ -203,7 +204,7 @@ function Event.onEvent()
                 if owns ~= nil and not table.find(owns, "dangerousAura") then
                     DataStoreModule.mergeKey(player, "owns", {"dangerousAura"})
                 end
-                GameState.rewardBadge(player, BADGE_ID):catch(warn)
+                RewardsModule.rewardBadge(player, BADGE_ID):catch(warn)
             end
             TextModule.setText(player, "you_survived")
         end

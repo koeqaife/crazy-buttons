@@ -5,9 +5,11 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- Description:
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
 local ButtonsModule = require(Arena.ButtonsModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 
@@ -30,7 +32,7 @@ function Event.onEvent()
     -- My code quality got worsen lately...
     -- No idea why, but I got really really bad in this
     -- But I will try to at least make it work
-    GameState.runPromisePerAll(function(player, protect, await)
+    PlayersModule.runPromisePerAll(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_part1", delay = 5 },
             { key = "intro_part2", delay = 5 },
@@ -42,7 +44,7 @@ function Event.onEvent()
     local counter = 0
     local kills = math.random(1, 5)
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
             { idx = 1, inputDisabled = true },
             { idx = 2, inputDisabled = true },
@@ -53,14 +55,16 @@ function Event.onEvent()
     end)
 
     while not somebodyDied or counter < 5 do
-        local randomPlayer = GameState.pickOnePlayer()
-        GameState.runFuncPerAlive(function(player)
+        local randomPlayer = PlayersModule.pickOnePlayer()
+        PlayersModule.runFuncPerAlive(function(player)
             if counter == 0 then
                 return TextModule.setText(player, "first_player", { player = randomPlayer })
             end
             TextModule.setText(player, "next_player", { player = randomPlayer })
         end)
 
+        MiscModule.removeHighlightFromAll()
+        MiscModule.addHighlightToOne(randomPlayer)
         ButtonsModule.updateButtons(randomPlayer, {
             { idx = 1, inputDisabled = false },
             { idx = 2, inputDisabled = false },
@@ -70,9 +74,9 @@ function Event.onEvent()
         }, nil)
 
         TimerModule.setTime(20)
-        local clicked = GameState.protectedAwait(randomPlayer, ButtonsModule.waitForClick(randomPlayer, 20))
+        local clicked = PlayersModule.protectedAwait(randomPlayer, ButtonsModule.waitForClick(randomPlayer, 20))
         if clicked ~= nil then
-            GameState.runFuncPerAlive(function(player)
+            PlayersModule.runFuncPerAlive(function(player)
                 ButtonsModule.updateButtons(player, {
                     { idx = clicked, disabled = true },
                 }, nil)
@@ -81,22 +85,23 @@ function Event.onEvent()
         TimerModule.setTime(-1)
 
         if clicked == nil or clicked == kills then
-            GameState.runFuncPerAlive(function(player)
+            PlayersModule.runFuncPerAlive(function(player)
                 if player == randomPlayer then
                     TextModule.setText(player, "you_eliminated")
                 else
                     TextModule.setText(player, "player_eliminated", { player = randomPlayer })
                 end
             end)
-            GameState.kill(randomPlayer)
+            PlayersModule.kill(randomPlayer)
             somebodyDied = true
         else
-            GameState.runFuncPerAlive(function(player)
+            RewardsModule.addRewardTo(randomPlayer, 2.5)
+            PlayersModule.runFuncPerAlive(function(player)
                 TextModule.setText(player, "button_safe")
             end)
         end
 
-        GameState.runFuncPerAlive(function(player)
+        PlayersModule.runFuncPerAlive(function(player)
             ButtonsModule.updateButtons(player, {
                 { idx = 1, inputDisabled = true },
                 { idx = 2, inputDisabled = true },

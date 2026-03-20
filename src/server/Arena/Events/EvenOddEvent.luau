@@ -1,5 +1,6 @@
 --!strict
 --!optimize 2
+local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Description:
 -- Event where players will have to choose whether to press the button or not
@@ -7,7 +8,9 @@
 -- If it's even, those who didn't press are eliminated
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
-local GameState = require(Arena.GameStateModule)
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -28,7 +31,7 @@ function Event.check()
 end
 
 function Event.onEvent()
-    GameState.runPromisePerDead(function(player, protect, await)
+    PlayersModule.runPromisePerDead(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_dead", delay = 5 },
             { key = "intro_counting", delay = 5 },
@@ -37,7 +40,7 @@ function Event.onEvent()
         }))
     end):andThen(function() end)
 
-    GameState.runPromisePerAlive(function(player, protect, await)
+    PlayersModule.runPromisePerAlive(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_alive", delay = 5 },
             { key = "intro_counting", delay = 5 },
@@ -46,7 +49,7 @@ function Event.onEvent()
         }))
     end):await()
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
             { idx = 2 }
         })
@@ -70,16 +73,16 @@ function Event.onEvent()
         end
     end
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
         TextModule.setText(player, "time_to_count")
     end)
     task.wait(2)
 
     for _, player in ipairs(clickedPlayers) do
-        GameState.addHighlightToOne(player)
+        MiscModule.addHighlightToOne(player)
 
-        GameState.runFuncPerAlive(function(playerToShow)
+        PlayersModule.runFuncPerAlive(function(playerToShow)
             TextModule.setText(playerToShow, "player_clicked", { player = player })
         end)
 
@@ -88,23 +91,23 @@ function Event.onEvent()
 
     local isEven = count % 2 == 0
 
-    GameState.runNewPromisePerAlive(function(player)
+    PlayersModule.runNewPromisePerAlive(function(player)
         if isEven then
             TextModule.setText(player, "count_even")
         else
             TextModule.setText(player, "count_odd")
         end
         task.wait(5)
-        GameState.addRewardTo(player, 3)
+        RewardsModule.addRewardTo(player, 3)
 
         if (isEven and table.find(clickedPlayers, player)) or
            (not isEven and not table.find(clickedPlayers, player))
         then
-            GameState.addRewardTo(player, 4)
+            RewardsModule.addRewardTo(player, 4)
             TextModule.setText(player, "you_survived")
         else
             TextModule.setText(player, "you_are_eliminated")
-            GameState.kill(player)
+            PlayersModule.kill(player)
         end
         task.wait(5)
     end):await()

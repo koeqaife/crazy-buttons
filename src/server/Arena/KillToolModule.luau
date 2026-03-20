@@ -2,8 +2,8 @@
 --!optimize 2
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
-local GameState = require(script.Parent.GameStateModule)
 local IconModule = require(script.Parent.IconModule)
+local PlayersModule = require(script.Parent.PlayersModule)
 
 -- To add or remove tool from player
 local ActivateKillTool = Instance.new("RemoteEvent", ReplicatedStorage)
@@ -175,7 +175,7 @@ local function onAction(player: Player, action: ActionType)
             warn(err)
         end
 
-        GameState.kill(action.killPlayer, "byKillTool")
+        PlayersModule.kill(action.killPlayer, "byKillTool")
         KillToolModule.removeTool(player)
 
         selectPlayer(action.killPlayer, false)
@@ -185,7 +185,7 @@ end
 
 function KillToolModule.init()
     KillToolAction.OnServerEvent:Connect(onAction)
-    GameState.OnPlayerDied.Event:Connect(function(player: Player)
+    PlayersModule.OnPlayerDied.Event:Connect(function(player: Player)
         task.wait(3)  -- Give player some time to kill someone else
         KillToolModule.removeTool(player)
         selectPlayer(player, false)

@@ -12,9 +12,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -126,7 +128,7 @@ end
 
 function Event.onEvent()
     local randomQuiz = getQuiz()
-    local randomPlayer = GameState.pickOnePlayer()
+    local randomPlayer = PlayersModule.pickOnePlayer()
 
     local answers = {randomQuiz.answer}
     for _, incorrect in ipairs(randomQuiz.incorrectAnswers) do
@@ -134,12 +136,12 @@ function Event.onEvent()
     end
     Helpers.shuffleTable(answers)
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "dead_who_quiz", { player = randomPlayer })
     end)
 
-    GameState.addHighlightTo({randomPlayer})
-    GameState.runPromisePerAlive(function(player, protect)
+    MiscModule.addHighlightTo({randomPlayer})
+    PlayersModule.runPromisePerAlive(function(player, protect)
         if player == randomPlayer then
             return protect(TextModule.showTextSequence(player, {
                 { key = "intro_self_q1", delay = 4 },
@@ -154,7 +156,7 @@ function Event.onEvent()
     end):catch(error):await()
 
     TimerModule.setTime(45)
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         if player == randomPlayer then
             TextModule.setText(player, "calculate_this", { exp = randomQuiz.exp })
 
@@ -173,14 +175,14 @@ function Event.onEvent()
         end
     end)
 
-    local _, chosen = ButtonsModule.initiateButtonChoice(45, nil, nil, nil, nil, GameState.alivePlayers):catch(error):await()
+    local _, chosen = ButtonsModule.initiateButtonChoice(45, nil, nil, nil, nil, PlayersModule.alivePlayers):catch(error):await()
 
     local answered = answers[chosen[randomPlayer] or 0] or -1
     local isRight = answered == randomQuiz.answer
     local yesCount = 0
     local total = 0
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         if player == randomPlayer then
             return
         end
@@ -196,11 +198,11 @@ function Event.onEvent()
 
     local playerMustDie = not isRight and (yesCount <= total / 2)
 
-    GameState.runNewPromisePerAlive(function(player)
+    PlayersModule.runNewPromisePerAlive(function(player)
         if player == randomPlayer then
             if isRight then
                 TextModule.setText(player, "you_answer_right")
-                GameState.addRewardTo(player, 5)
+                RewardsModule.addRewardTo(player, 5)
                 logAction(player, "math_correct")
                 task.wait(5)
             else
@@ -208,10 +210,10 @@ function Event.onEvent()
                 if playerMustDie then
                     task.wait(2)
                     TextModule.setText(player, "you_not_believed")
-                    GameState.kill(player)
+                    PlayersModule.kill(player)
                     task.wait(3)
                 else
-                    GameState.addRewardTo(player, 5)
+                    RewardsModule.addRewardTo(player, 5)
                     task.wait(5)
                 end
             end
@@ -220,17 +222,17 @@ function Event.onEvent()
             local isYes = choice == 2
             if choice == nil then
                 TextModule.setText(player, "you_had_to_answer")
-                GameState.kill(player)
+                PlayersModule.kill(player)
             elseif isYes ~= isRight then
-                GameState.addRewardTo(player, 3)
+                RewardsModule.addRewardTo(player, 3)
                 if playerMustDie then
                     TextModule.setText(player, "you_wrong_lucky")
                 else
                     TextModule.setText(player, "you_wrong")
-                    GameState.kill(player)
+                    PlayersModule.kill(player)
                 end
             else
-                GameState.addRewardTo(player, 6)
+                RewardsModule.addRewardTo(player, 6)
                 TextModule.setText(player, "you_right")
             end
             task.wait(5)

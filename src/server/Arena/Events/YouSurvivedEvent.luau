@@ -8,8 +8,10 @@ local TeleportService = game:GetService("TeleportService")
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local ButtonsModule = require(ServerScriptService.Server.Arena.ButtonsModule)
+local LinksModule = require(ServerScriptService.Server.Arena.LinksModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 
@@ -38,10 +40,10 @@ function Event.check()
 end
 
 function Event.onEvent()
-    local survivor = GameState.alivePlayers[1]
-    table.clear(GameState.alivePlayers)
+    local survivor = PlayersModule.alivePlayers[1]
+    table.clear(PlayersModule.alivePlayers)
 
-    GameState.runFuncPerDead(function(player)
+    PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "survivor_made_it", { survivor = survivor })
     end)
 
@@ -50,14 +52,14 @@ function Event.onEvent()
     local survives = DataStoreModule.getNumber(survivor, "survives")
     for surviveCount, badgeId in pairs(badges) do
         if survives >= surviveCount then
-            GameState.rewardBadge(survivor, badgeId):catch(warn):await()
+            RewardsModule.rewardBadge(survivor, badgeId):catch(warn):await()
         end
     end
-    GameState.addRewardTo(survivor, 5)
-    GameState.flushReward(survivor)
+    RewardsModule.addRewardTo(survivor, 5)
+    RewardsModule.flushReward(survivor)
     logAction(survivor, "survive_streak")
     logAction(survivor, "survive")
-    if GameState.wasLinked[survivor] then
+    if LinksModule.wasLinked[survivor] then
         logAction(survivor, "linked_win")
     end
 

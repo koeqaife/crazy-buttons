@@ -7,10 +7,12 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
 local KillToolModule = require(ServerScriptService.Server.Arena.KillToolModule)
+local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
+local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
+local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local TimerModule = require(ServerScriptService.Server.Arena.TimerModule)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
 local ButtonsModule = require(Arena.ButtonsModule)
-local GameState = require(Arena.GameStateModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
@@ -38,7 +40,7 @@ function Event.onEvent()
 
     local maze = ReplicatedStorage:WaitForChild("Maze"):Clone() :: Model
     maze.Parent = workspace
-    GameState.registerInstance(maze)
+    MiscModule.registerInstance(maze)
 
     local mazeSpawns = maze:WaitForChild("Spawns") :: Folder
     local spawns: {Part} = {}
@@ -50,7 +52,7 @@ function Event.onEvent()
         table.insert(spawns, buttonSpawn :: Part)
         table.insert(idx, i)
 
-        GameState.registerInstance(buttonSpawn)
+        MiscModule.registerInstance(buttonSpawn)
     end
     Helpers.shuffleTable(spawns)
 
@@ -60,7 +62,7 @@ function Event.onEvent()
         reward += 1
     end
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         local buttons: IndicesType.Indices = {}
         for i, buttonSpawn in ipairs(spawns) do
             if i > 6 then break end
@@ -74,7 +76,7 @@ function Event.onEvent()
         end
     end)
 
-    GameState.runPromisePerAll(function(player, protect, await)
+    PlayersModule.runPromisePerAll(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_part1", delay = 4 },
             { key = "intro_part2", delay = 4 },
@@ -89,37 +91,37 @@ function Event.onEvent()
     local resolved = false
 
     TimerModule.setTime(150)
-    GameState.runPromisePerAlive(function(player, protect, await)
+    PlayersModule.runPromisePerAlive(function(player, protect, await)
         return protect(Promise.new(function(resolve, reject, onCancel)
             while task.wait(3) and not resolved do -- for debouncing
                 local clickPromise = ButtonsModule.waitForClick(player, 150)
 
                 local clicked = await(clickPromise)
 
-                GameState.addRewardTo(player, 0.25)
+                RewardsModule.addRewardTo(player, 0.25)
                 logAction(player, "press_maze")
 
-                GameState.runFuncPerAlive(function(player2)
+                PlayersModule.runFuncPerAlive(function(player2)
                     ButtonsModule.updateButtons(player2, {{ idx = clicked, disabled = true }})
                 end)
                 counter -= 1
 
                 if clicked == reward and not awardedResolved then
                     awardedResolved = true
-                    GameState.addRewardTo(player, 2)
+                    RewardsModule.addRewardTo(player, 2)
                     KillToolModule.giveTool(player)
                 elseif clicked == kills and not killResolved then
                     killResolved = true
-                    GameState.kill(player)
+                    PlayersModule.kill(player)
                 end
 
                 if awardedResolved and killResolved then
-                    GameState.cancelAll()
+                    PlayersModule.cancelAll()
                 end
 
                 if counter <= 0 then
                     resolved = true
-                    GameState.cancelAll()
+                    PlayersModule.cancelAll()
                     return resolve()
                 end
             end
@@ -133,10 +135,10 @@ function Event.onEvent()
     end):await()
     TimerModule.setTime(-1)
 
-    GameState.runButtonsForDead()
-    GameState.destroyInstances()
+    PlayersModule.runButtonsForDead()
+    MiscModule.destroyInstances()
 
-    GameState.runFuncPerAlive(function(player)
+    PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
         if awardedResolved then
             TextModule.setText(player, "somebody_awarded")

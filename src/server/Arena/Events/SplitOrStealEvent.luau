@@ -32,6 +32,8 @@ Event.minPlayers = 2
 Event.maxPerGame = 3
 Event.minRound = 3
 
+local explained = false
+
 function Event.check()
     return true
 end
@@ -41,23 +43,35 @@ function Event.onEvent()
     local p1 = randomPlayers[1]
     local p2 = randomPlayers[2]
 
-    GameState.runPromisePerAll(function(player, protect, await)
-        if table.find(randomPlayers, player) then
-            return protect(TextModule.showTextSequence(player, {
-                { key = "intro_you_pair", delay = 7, data = { p2 = (p1 == player and p2 or p1) } },
-                { key = "rule_both_split", delay = 5 },
-                { key = "rule_one_steal", delay = 5 },
-                { key = "rule_both_steal", delay = 5 },
-            }))
-        else
-            return protect(TextModule.showTextSequence(player, {
-                { key = "intro_others_pair", delay = 7, data = { p1 = p1, p2 = p2 } },
-                { key = "rule_both_split", delay = 5 },
-                { key = "rule_one_steal", delay = 5 },
-                { key = "rule_both_steal_others", delay = 5 },
-            }))
-        end
-    end):catch(error):await()
+    if not explained then
+        explained = true
+        GameState.runPromisePerAll(function(player, protect, await)
+            if table.find(randomPlayers, player) then
+                return protect(TextModule.showTextSequence(player, {
+                    { key = "intro_you_pair", delay = 7, data = { p2 = (p1 == player and p2 or p1) } },
+                    { key = "rule_both_split", delay = 5 },
+                    { key = "rule_one_steal", delay = 5 },
+                    { key = "rule_both_steal", delay = 5 },
+                }))
+            else
+                return protect(TextModule.showTextSequence(player, {
+                    { key = "intro_others_pair", delay = 7, data = { p1 = p1, p2 = p2 } },
+                    { key = "rule_both_split", delay = 5 },
+                    { key = "rule_one_steal", delay = 5 },
+                    { key = "rule_both_steal_others", delay = 5 },
+                }))
+            end
+        end):catch(error):await()
+    else
+        GameState.runFuncPerAll(function(player)
+            if table.find(randomPlayers, player) then
+                TextModule.setText(player, "intro_you_pair", { p2 = (p1 == player and p2 or p1) } )
+            else
+                TextModule.setText(player, "intro_others_pair", { p1 = p1, p2 = p2 } )
+            end
+        end)
+        task.wait(7)
+    end
 
     GameState.addHighlightTo(randomPlayers)
 

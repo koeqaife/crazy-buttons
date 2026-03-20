@@ -21,6 +21,8 @@ Event.minRound = 3
 Event.minPlayers = 3
 Event.maxPerGame = 8
 
+local explained = false
+
 function Event.check()
     return true
 end
@@ -43,25 +45,37 @@ function Event.onEvent()
         TextModule.setText(player, "dead_who_got", { player = randomPlayer })
     end)
 
-    GameState.runNewPromisePerAlive(function(player, protect, await)
-        if player == randomPlayer then
-            KillToolModule.giveTool(player)
-            await(TextModule.showTextSequence(player, {
-                { key = "you_got_tool_part1", delay = 2.5 },
-                { key = "you_got_tool_part2", delay = 5 },
-                { key = "you_got_tool_part3", delay = 5 },
-                { key = "you_got_tool_part4", delay = 5 },
-            }))
-        else
-            GameState.addRewardTo(player, 1)
-            await(TextModule.showTextSequence(player, {
-                { key = "someone_got_tool_part1", delay = 2.5, data = { player = randomPlayer } },
-                { key = "someone_got_tool_part2", delay = 5 },
-                { key = "someone_got_tool_part3", delay = 5 },
-                { key = "someone_got_tool_part4", delay = 5 },
-            }))
-        end
-    end):catch(error):await()
+    if not explained then
+        explained = true
+        GameState.runNewPromisePerAlive(function(player, protect, await)
+            if player == randomPlayer then
+                KillToolModule.giveTool(player)
+                await(TextModule.showTextSequence(player, {
+                    { key = "you_got_tool_part1", delay = 2.5 },
+                    { key = "you_got_tool_part2", delay = 5 },
+                    { key = "you_got_tool_part3", delay = 5 },
+                    { key = "you_got_tool_part4", delay = 5 },
+                }))
+            else
+                GameState.addRewardTo(player, 1)
+                await(TextModule.showTextSequence(player, {
+                    { key = "someone_got_tool_part1", delay = 2.5, data = { player = randomPlayer } },
+                    { key = "someone_got_tool_part2", delay = 5 },
+                    { key = "someone_got_tool_part3", delay = 5 },
+                    { key = "someone_got_tool_part4", delay = 5 },
+                }))
+            end
+        end):catch(error):await()
+    else
+        GameState.runFuncPerAlive(function(player)
+            if player == randomPlayer then
+                TextModule.setText(player, "you_got_tool_part1" )
+            else
+                TextModule.setText(player, "someone_got_tool_part1", { player = randomPlayer } )
+            end
+        end)
+        task.wait(5)
+    end
 
     return
 end

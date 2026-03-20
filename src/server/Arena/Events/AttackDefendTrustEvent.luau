@@ -53,6 +53,8 @@ local beatsText = {
 Event.chance = 0.075
 Event.minPlayers = 2
 
+local explained = false
+
 function Event.check()
     return true
 end
@@ -68,25 +70,39 @@ function Event.onEvent()
     end)
 
     GameState.addHighlightTo({p1, p2})
-    GameState.runPromisePerAlive(function(player, protect)
-        if player == p1 or player == p2 then
-            local otherPlayer = if player == p1 then p2 else p1
+    if not explained then
+        explained = true
+        GameState.runPromisePerAlive(function(player, protect)
+            if player == p1 or player == p2 then
+                local otherPlayer = if player == p1 then p2 else p1
 
-            return protect(TextModule.showTextSequence(player, {
-                { key = "chosen_players", delay = 5, data = {p1 = "You", p2 = otherPlayer} },
-                { key = "rules_are_simple", delay = 4, face = "happy" },
-                { key = "rules", delay = 7 },
-                { key = "loser_eliminate", delay = 5 },
-            }))
-        else
-            return protect(TextModule.showTextSequence(player, {
-                { key = "chosen_players", delay = 5, data = {p1 = p1, p2 = p2} },
-                { key = "rules_are_simple", delay = 4 },
-                { key = "rules", delay = 7 },
-                { key = "loser_eliminate", delay = 5 },
-            }))
-        end
-    end):await()
+                return protect(TextModule.showTextSequence(player, {
+                    { key = "chosen_players", delay = 5, data = {p1 = "You", p2 = otherPlayer} },
+                    { key = "rules_are_simple", delay = 4, face = "happy" },
+                    { key = "rules", delay = 7 },
+                    { key = "loser_eliminate", delay = 5 },
+                }))
+            else
+                return protect(TextModule.showTextSequence(player, {
+                    { key = "chosen_players", delay = 5, data = {p1 = p1, p2 = p2} },
+                    { key = "rules_are_simple", delay = 4 },
+                    { key = "rules", delay = 7 },
+                    { key = "loser_eliminate", delay = 5 },
+                }))
+            end
+        end):await()
+    else
+        GameState.runFuncPerAlive(function(player)
+            if player == p1 or player == p2 then
+                local otherPlayer = if player == p1 then p2 else p1
+
+                TextModule.setText(player, "chosen_players", {p1 = "You", p2 = otherPlayer} )
+            else
+                TextModule.setText(player, "chosen_players", {p1 = p1, p2 = p2} )
+            end
+        end)
+        task.wait(5)
+    end
 
     for attempt = 1, 6 do
         GameState.removeHighlightFromAll()

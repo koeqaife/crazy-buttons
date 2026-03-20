@@ -39,6 +39,8 @@ Event.minPlayers = 2
 Event.maxPerGame = 15
 Event.minRound = 5
 
+local explained = false
+
 function Event.check()
     return true
 end
@@ -52,20 +54,34 @@ function Event.onEvent()
         return TextModule.setText(player, "to_play", {p1 = p1, p2 = p2})
     end)
 
-    GameState.runPromisePerAlive(function(player, protect)
-        if player == p1 or player == p2 then
-            local otherPlayer = if player == p1 then p2 else p1
-            return protect(TextModule.showTextSequence(player, {
-                { key = "to_play", delay = 6, data = {p1 = "You", p2 = otherPlayer} },
-                { key = "first_one_survives", delay = 6 },
-            }))
-        else
-            return protect(TextModule.showTextSequence(player, {
-                { key = "to_play", delay = 6, data = {p1 = p1, p2 = p2} },
-                { key = "first_one_survives", delay = 6 },
-            }))
-        end
-    end):await()
+    if not explained then
+        explained = true
+        GameState.runPromisePerAlive(function(player, protect)
+            if player == p1 or player == p2 then
+                local otherPlayer = if player == p1 then p2 else p1
+                return protect(TextModule.showTextSequence(player, {
+                    { key = "to_play", delay = 6, data = {p1 = "You", p2 = otherPlayer} },
+                    { key = "first_one_survives", delay = 6 },
+                }))
+            else
+                return protect(TextModule.showTextSequence(player, {
+                    { key = "to_play", delay = 6, data = {p1 = p1, p2 = p2} },
+                    { key = "first_one_survives", delay = 6 },
+                }))
+            end
+        end):await()
+    else
+        GameState.runFuncPerAlive(function(player)
+            if player == p1 or player == p2 then
+                local otherPlayer = if player == p1 then p2 else p1
+
+                TextModule.setText(player, "to_play", {p1 = "You", p2 = otherPlayer} )
+            else
+                TextModule.setText(player, "to_play", {p1 = p1, p2 = p2} )
+            end
+        end)
+        task.wait(6)
+    end
 
     GameState.runFuncPerAlive(function(player)
         if player == p1 or player == p2 then

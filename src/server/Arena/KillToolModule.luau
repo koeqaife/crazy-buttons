@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local GameState = require(script.Parent.GameStateModule)
+local IconModule = require(script.Parent.IconModule)
 
 -- To add or remove tool from player
 local ActivateKillTool = Instance.new("RemoteEvent", ReplicatedStorage)
@@ -11,6 +12,8 @@ ActivateKillTool.Name = "ActivateKillTool"
 -- When player does action
 local KillToolAction = Instance.new("RemoteEvent", ReplicatedStorage)
 KillToolAction.Name = "KillToolAction"
+
+local GuiSpace = IconModule.reserveSpace(-1, "KillTool")
 
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 
@@ -43,7 +46,7 @@ local function getMeta(player: Player)
     end
 end
 
-local function showIcon(player: Player, visible: boolean, icon: string?)
+local function showLight(player: Player, visible: boolean)
     local character = player.Character
     if not character then
         return
@@ -52,7 +55,6 @@ local function showIcon(player: Player, visible: boolean, icon: string?)
     local rootPart = character:FindFirstChild("HumanoidRootPart") :: Part
 
     local light = rootPart:FindFirstChild("KillToolLight") :: PointLight?
-    local gui = character:FindFirstChild("KillToolGui") :: BillboardGui?
 
     if visible then
         if light == nil then
@@ -64,36 +66,9 @@ local function showIcon(player: Player, visible: boolean, icon: string?)
             newLight.Shadows = true
             newLight.Color = Color3.fromRGB(255, 255, 0)
         end
-
-        if gui == nil then
-            local newGui = Instance.new("BillboardGui")
-            newGui.Name = "KillToolGui"
-            newGui.Adornee = character
-            newGui.Parent = character
-            newGui.Size = UDim2.new(2, 0, 2, 0)
-            newGui.SizeOffset = Vector2.new(0, 0)
-            newGui.ExtentsOffsetWorldSpace = Vector3.new(0, 1.5, 0)
-
-            local imageLabel = Instance.new("ImageLabel")
-            imageLabel.Name = "icon"
-            imageLabel.Parent = newGui
-            imageLabel.BackgroundTransparency = 1
-            imageLabel.Size = UDim2.new(1, 0, 1, 0)
-            if icon then
-                imageLabel.Image = icon
-            end
-        else
-            local imageLabel = gui:FindFirstChild("icon") :: ImageLabel?
-            if imageLabel and icon then
-                imageLabel.Image = icon
-            end
-        end
     else
         if light ~= nil then
             light:Destroy()
-        end
-        if gui ~= nil then
-            gui:Destroy()
         end
     end
 end
@@ -121,17 +96,22 @@ local function updateIcon(player: Player?)
     if not player then
         return
     end
+
     local isSelected = (selectedPlayers[player] or 0) > 0
     if isSelected then
-        showIcon(player, true, SKULL_ICON)
+        GuiSpace.addIcon(player, "skull", SKULL_ICON)
     else
-        local meta = getMeta(player)
-        if meta.active then
-            showIcon(player, true, SKULL_ICON_WITH_CURSOR)
-        else
-            showIcon(player, false)
-        end
+        GuiSpace.removeIcon(player, "skull")
     end
+
+    local isActive = getMeta(player).active
+    if isActive then
+        GuiSpace.addIcon(player, "cursor", SKULL_ICON_WITH_CURSOR)
+    else
+        GuiSpace.removeIcon(player, "cursor")
+    end
+
+    showLight(player, isActive or isSelected)
 end
 
 function KillToolModule.giveTool(player: Player)

@@ -18,6 +18,7 @@ local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModul
 local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
 local QuestsModule = require(ServerScriptService.Server.Shared.QuestsModule)
 local GameStateModule = require(script.Parent.GameStateModule)
+local IconModule = require(script.Parent.IconModule)
 local KillToolModule = require(script.Parent.KillToolModule)
 local UIModule = require(script.Parent.UIModule)
 local GameLoopModule = require(Arena.GameLoopModule)
@@ -60,6 +61,7 @@ function ArenaModule.init()
     UIModule.init()
     TextModule.init()
     QuestsModule.init()
+    IconModule.init()
 
     mainText.Text = "Waiting for players..."
 

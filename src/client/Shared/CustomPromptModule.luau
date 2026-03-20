@@ -90,7 +90,7 @@ local function withHSV(color: Color3, sMul: number, vMul: number)
 	)
 end
 
-local function buildColorScheme(accent: Color3)
+local function buildNeutralColorScheme(accent: Color3)
 	return {
 		accent = accent,
 
@@ -101,9 +101,20 @@ local function buildColorScheme(accent: Color3)
 		textSecondary = withHSV(accent, 0.05, 0.7),
 
 		icon = withHSV(accent, 0.7, 1.3),
-		iconMuted = withHSV(accent, 0.2, 0.6),
+	}
+end
 
-		active = withHSV(accent, 0.8, 1.15),
+local function buildAccentColorScheme(accent: Color3)
+	return {
+		accent = accent,
+
+		background = withHSV(accent, 0.6, 1.2),
+		container = withHSV(accent, 0.7, 1.3),
+
+		textPrimary = withHSV(accent, 0.35, 0.15),
+		textSecondary = withHSV(accent, 0.1, 0.15),
+
+		icon = withHSV(accent, 0.5, 0.09),
 	}
 end
 
@@ -128,12 +139,6 @@ local function createPrompt(
 
 	local roundedCorner = Instance.new("UICorner")
 	roundedCorner.Parent = frame
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Parent = frame
-	stroke.Thickness = 2
-	table.insert(tweensForFadeOut, TweenService:Create(stroke, tweenInfoQuick, { Thickness = 0 }))
-	table.insert(tweensForFadeIn, TweenService:Create(stroke, tweenInfoQuick, { Thickness = 2 }))
 
 	local inputFrame = Instance.new("Frame")
 	inputFrame.Name = "InputFrame"
@@ -388,13 +393,16 @@ local function createPrompt(
 	end
 	local function updateUIByAttrs()
 		local highlighted = prompt:GetAttribute("highlighted") :: boolean or false
-		stroke.Enabled = highlighted
-
 		local color = prompt:GetAttribute("color") :: Color3 or Color3.new(1, 1, 1)
-		local scheme = buildColorScheme(color)
+		local scheme
+		if highlighted then
+			scheme = buildAccentColorScheme(color)
+		else
+			scheme = buildNeutralColorScheme(color)
+		end
+
 
 		frame.BackgroundColor3 = scheme.background
-		stroke.Color = scheme.active
 		actionText.TextColor3 = scheme.textPrimary
 		objectText.TextColor3 = scheme.textSecondary
 		roundFrame.BackgroundColor3 = scheme.container

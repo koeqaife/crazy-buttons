@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local TeleportService = game:GetService("TeleportService")
+local IconModule = require(script.Parent.IconModule)
 local LinksModule = require(script.Parent.LinksModule)
 local RewardsModule = require(script.Parent.RewardsModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
@@ -13,17 +14,26 @@ local Promise = require(ReplicatedStorage.Shared.Promise)
 
 local GameState = {}
 
+local GuiSpace = IconModule.reserveSpace(0, "lives")
+
 local SyncDeadEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 SyncDeadEvent.Name = "SyncDeadEvent"
+
+local LifeEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+LifeEvent.Name = "LifeEvent"
 
 local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
 local ForceRevive: BindableEvent = Instance.new("BindableEvent")
 
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
+local lives: {[Player]: number} = {}
 local playerRevivedTimes: {[Player]: number} = {}
 local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
 local LOBBY_PLACE_ID = 115379867051786
+local LIFE_COUNT_FOR_PLAYER = 3
+local HEART_ICON = "rbxassetid://135523015698113"
+local NO_HEART_ICON = "rbxassetid://79783468789350"
 
 GameState.OnPlayerDied = OnPlayerDied
 GameState.ForceRevive = ForceRevive
@@ -36,6 +46,26 @@ local revivesThisGame = 0
 
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 local resetAction = require(ServerScriptService.Server.Shared.QuestsModule).resetAction
+
+local function updateIcons(player: Player)
+    local playerLives = lives[player]
+    if playerLives == nil then
+        playerLives = LIFE_COUNT_FOR_PLAYER
+    end
+
+    GuiSpace.clearIcons(player)
+
+    for i = 1, LIFE_COUNT_FOR_PLAYER, 1 do
+        GuiSpace.addIcon(player, "heart" .. i, if i > playerLives then NO_HEART_ICON else HEART_ICON)
+    end
+
+    if playerLives <= 0 then
+        task.delay(3, function()
+            GuiSpace.clearIcons(player)
+        end)
+        return
+    end
+end
 
 local function ensureRunningPromises(player: Player)
     if runningPromises[player] == nil then
@@ -155,10 +185,35 @@ function GameState.runButtonsForDead()
     end)
 end
 
+function GameState.updateLists()
+    table.clear(alivePlayers)
+    table.clear(deadPlayers)
+    LifeEvent:FireAllClients(false)
+    for _, player in Players:GetPlayers() do
+        local playerLives = lives[player]
+        if playerLives == nil then
+            playerLives = LIFE_COUNT_FOR_PLAYER
+        end
+
+        if playerLives > 0 then
+            table.insert(alivePlayers, player)
+        else
+            table.insert(deadPlayers, player)
+        end
+    end
+end
+
 function GameState.kill(player: Player, reason: string?)
     if not player or not player.Parent then
         return
     end
+
+    local playerLives = lives[player]
+    if playerLives == nil then
+        playerLives = LIFE_COUNT_FOR_PLAYER
+    end
+    playerLives -= 1
+    lives[player] = playerLives
 
     for i, p in ipairs(alivePlayers) do
         if p == player then
@@ -168,12 +223,20 @@ function GameState.kill(player: Player, reason: string?)
     end
     table.insert(deadPlayers, player)
 
+    updateIcons(player)
+    if playerLives > 0 then
+        LifeEvent:FireClient(player, true)
+        return
+    else
+        LifeEvent:FireClient(player, true, true)
+    end
+
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
     OnPlayerDied:Fire(player)
 
     if #alivePlayers < 3 then
-        GameState.runFuncPerDead(function(player)
-            ButtonsModule.setButtons(player, {
+        GameState.runFuncPerDead(function(player2)
+            ButtonsModule.setButtons(player2, {
                 { idx = 5, text = "Return to lobby" }
             })
         end)
@@ -201,12 +264,12 @@ function GameState.kill(player: Player, reason: string?)
     end):catch(warn)
 end
 
-
 function GameState.revive(player: Player, reason: string?)
     if not player or not player.Parent then
         return
     end
 
+    lives[player] = LIFE_COUNT_FOR_PLAYER
     if playerRevivedTimes[player] == nil then
         playerRevivedTimes[player] = 0
     end
@@ -227,6 +290,7 @@ function GameState.revive(player: Player, reason: string?)
     SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers, reason)
     ButtonsModule.setButtons(player, {})
 
+    updateIcons(player)
     cancelPlayerPromises(player)
 end
 
@@ -254,6 +318,9 @@ function GameState.pickOnePlayer(from: {Player}?): Player
 end
 
 function GameState.connect()
+    GuiSpace.PlayerLoaded.Event:Connect(function(player: Player)
+        updateIcons(player)
+    end)
     Players.PlayerRemoving:Connect(function(player: Player, reason)
         for i, p in ipairs(alivePlayers) do
             if p == player then

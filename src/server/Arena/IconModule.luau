@@ -14,6 +14,7 @@ type Space = {
     addIcon: (player: Player, iconId: string, image: string) -> (),
     removeIcon: (player: Player, iconId: string) -> (),
     clearIcons: (player: Player) -> (),
+    PlayerLoaded: BindableEvent,
     destroy: () -> (),
 }
 
@@ -86,14 +87,19 @@ function IconModule.reserveSpace(order: number, spaceId: string): Space
     if reservedSpaces[spaceId] ~= nil then
         reservedSpaces[spaceId].destroy()
     end
+    local onLoaded = Instance.new("BindableEvent")
     for _, player in Players:GetPlayers() do
         createSpaceFrame(player, order, spaceId)
+        onLoaded:Fire(player)
     end
     local conn = Players.PlayerAdded:Connect(function(player)
         createSpaceFrame(player, order, spaceId)
+        onLoaded:Fire(player)
     end)
 
-    local space = {}
+    local space = {
+        PlayerLoaded = onLoaded
+    }
 
     function space.addIcon(player: Player, iconId: string, image: string)
         local spaceFrame: Frame? = framesPerPlayer[player][spaceId]

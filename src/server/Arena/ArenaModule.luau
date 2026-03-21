@@ -81,10 +81,6 @@ function ArenaModule.init()
         table.insert(PlayersModule.alivePlayers, player)
         loadedPlayers[player] = true
 
-        local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
-        local loadingLabel = gui:WaitForChild("loadingLabel") :: TextLabel
-        loadingLabel.Visible = false
-
         player:SetAttribute("death", DataStoreModule.getString(player, "currentDeathEffect") or "default")
         player:SetAttribute("aura", DataStoreModule.getString(player, "currentAura") or "default")
     end)

@@ -285,6 +285,8 @@ function GameLoopModule.start()
             else
                 lastEventCategory = nil
             end
+
+            PlayersModule.updateLists()
         end
 
         if forcedNextEvent then

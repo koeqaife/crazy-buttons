@@ -23,6 +23,8 @@ local cash = 0
 local reward = 0
 local rewardCounter = 0
 
+local vignetteLock = false
+
 local round = math.round
 
 local UIModule = {}
@@ -31,6 +33,12 @@ local TweenService = game:GetService("TweenService")
 local Toasts = require(StarterPlayer.StarterPlayerScripts.Client.Shared.UI.Toasts)
 
 local function showVignette()
+    if vignetteLock then
+        return
+    end
+    vignetteLock = true
+    vignette.Visible = true
+    vignette.GroupTransparency = 1
     local showTweenInfo = TweenInfo.new(
         0.2,
         Enum.EasingStyle.Quad,
@@ -45,6 +53,9 @@ local function showVignette()
 
     local hideTween = TweenService:Create(vignette, hideTweenInfo, {GroupTransparency = 1})
     hideTween:Play()
+    hideTween.Completed:Wait()
+    vignette.Visible = false
+    vignetteLock = false
 end
 
 function UIModule.connect()

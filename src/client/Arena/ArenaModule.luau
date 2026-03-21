@@ -17,6 +17,7 @@ local ViewportFrame = ViewportGui:WaitForChild("ViewportFrame") :: ViewportFrame
 local SyncVolumes = ReplicatedStorage:WaitForChild("SyncVolumesEvent") :: RemoteEvent
 
 local AuraModule = require(StarterPlayer.StarterPlayerScripts.Client.Shared.AuraModule)
+local Toasts = require(StarterPlayer.StarterPlayerScripts.Client.Shared.UI.Toasts)
 local CustomPromptModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.CustomPromptModule)
 local MusicModule = require(Players.LocalPlayer.PlayerScripts.Client.Shared.MusicModule)
 local ButtonsModule = require(Arena.ButtonsModule)
@@ -26,7 +27,15 @@ local KillToolModule = require(Arena.KillToolModule)
 local AmbienceModule = require(Arena.AmbienceModule)
 local UIModule = require(Arena.UIModule)
 
+local loaded = false
+
 function ArenaModule.init()
+    task.delay(1, function()
+        if not loaded then
+            Toasts.show("loading", "Loading...")
+        end
+    end)
+
     TextModule.connect()
     ButtonsModule.connect()
     GameStateModule.connect()
@@ -43,6 +52,12 @@ function ArenaModule.init()
 
     GameStateModule.setEffects()
     PlayerLoaded:FireServer()
+
+    loaded = true
+    Toasts.hide("loading")
+    task.delay(5, function()
+        Toasts.hide("loading")
+    end)
 
     SyncVolumes.OnClientEvent:Connect(function(volume: { music: number, ambient: number })
         MusicModule.setMultiplier(volume.music)

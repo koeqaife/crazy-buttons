@@ -14,7 +14,10 @@ type Space = {
     addIcon: (player: Player, iconId: string, image: string) -> (),
     removeIcon: (player: Player, iconId: string) -> (),
     clearIcons: (player: Player) -> (),
+    destroy: () -> (),
 }
+
+local reservedSpaces: {[string]: Space} = {}
 
 local function createBillboard(player: Player): BillboardGui
     local character = player.Character
@@ -45,6 +48,9 @@ local function createBillboard(player: Player): BillboardGui
 end
 
 local function createSpaceFrame(player: Player, order: number, id: string)
+    if framesPerPlayer[player] and framesPerPlayer[player][id] then
+        return
+    end
     local gui: BillboardGui? = billboardPerPlayer[player]
     local newFrame = Instance.new("Frame", gui)
     newFrame.BackgroundTransparency = 1
@@ -77,10 +83,13 @@ local function createSpaceFrame(player: Player, order: number, id: string)
 end
 
 function IconModule.reserveSpace(order: number, spaceId: string): Space
+    if reservedSpaces[spaceId] ~= nil then
+        reservedSpaces[spaceId].destroy()
+    end
     for _, player in Players:GetPlayers() do
         createSpaceFrame(player, order, spaceId)
     end
-    Players.PlayerAdded:Connect(function(player)
+    local conn = Players.PlayerAdded:Connect(function(player)
         createSpaceFrame(player, order, spaceId)
     end)
 
@@ -133,6 +142,25 @@ function IconModule.reserveSpace(order: number, spaceId: string): Space
         end
     end
 
+    function space.destroy()
+        -- Check if it's the same space
+        -- In case of race conditions
+        if reservedSpaces[spaceId] == space then
+            reservedSpaces[spaceId] = nil
+        end
+        for player, space2 in pairs(framesPerPlayer) do
+            for id, frame in space2 do
+                if id == spaceId then
+                    frame:Destroy()
+                    space2[id] = nil
+                    break
+                end
+            end
+        end
+        conn:Disconnect()
+    end
+
+    reservedSpaces[spaceId] = space
     return space :: Space
 end
 

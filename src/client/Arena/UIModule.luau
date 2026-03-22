@@ -70,13 +70,11 @@ function UIModule.connect()
     LifeEvent.OnClientEvent:Connect(function(show: boolean, noToast: boolean?)
         if show then
             showVignette()
-            if noToast == true then
+            if noToast ~= true then
                 Toasts.show("life", "Wait for round to finish")
             end
         else
-            if noToast == true then
-                Toasts.hide("life")
-            end
+            Toasts.hide("life")
         end
     end)
     State.SyncEvent.OnClientEvent:Connect(function(key: string, value: any)

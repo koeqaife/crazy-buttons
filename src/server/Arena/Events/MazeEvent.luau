@@ -19,6 +19,7 @@ local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+local applyTimeBonus = require(Arena.SideEffects).applyTimeBonus
 
 type EventType = EventTypeModule.Event
 
@@ -68,7 +69,7 @@ function Event.onEvent()
             if i > 6 then break end
             table.insert(buttons, { idx = i, spawnAt = buttonSpawn.Name })
         end
-        ButtonsModule.setButtons(player, buttons, nil, false)
+        ButtonsModule.setButtons(player, buttons, false)
 
         local character = player.Character
         if character then
@@ -126,7 +127,7 @@ function Event.onEvent()
                 end
             end
         end))
-    end):timeout(150):catch(function(e)
+    end):timeout(applyTimeBonus(150)):catch(function(e)
         if Promise.Error.isKind(e, Promise.Error.Kind.TimedOut) then
             return
         else

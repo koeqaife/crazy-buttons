@@ -3,13 +3,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
-local TeleportService = game:GetService("TeleportService")
 local IconModule = require(script.Parent.IconModule)
 local LinksModule = require(script.Parent.LinksModule)
 local RewardsModule = require(script.Parent.RewardsModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
-local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
-local ButtonsModule = require(ServerScriptService.Server.Arena.ButtonsModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 
 local GameState = {}
@@ -23,20 +20,17 @@ local LifeEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 LifeEvent.Name = "LifeEvent"
 
 local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
-local ForceRevive: BindableEvent = Instance.new("BindableEvent")
 
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
 local lives: {[Player]: number} = {}
 local playerRevivedTimes: {[Player]: number} = {}
 local runningPromises: {[Player]: {Promise.TypedPromise<any>}} = {}
-local LOBBY_PLACE_ID = 115379867051786
 local LIFE_COUNT_FOR_PLAYER = 3
 local HEART_ICON = "rbxassetid://135523015698113"
 local NO_HEART_ICON = "rbxassetid://79783468789350"
 
 GameState.OnPlayerDied = OnPlayerDied
-GameState.ForceRevive = ForceRevive
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.playerRevivedTimes = playerRevivedTimes
@@ -64,6 +58,14 @@ local function updateIcons(player: Player)
             GuiSpace.clearIcons(player)
         end)
         return
+    end
+end
+
+function GameState.setLivesPerPlayer(amount: number)
+    LIFE_COUNT_FOR_PLAYER = amount
+    for player, _ in lives do
+        lives[player] = amount
+        updateIcons(player)
     end
 end
 
@@ -138,53 +140,6 @@ function GameState.forceReviveIsAllowed(player: Player?)
     end
 end
 
-function GameState.runButtonsForDead()
-    GameState.runNewPromisePerDead(function(player, protect, await)
-        local function clearButtons()
-            ButtonsModule.setButtons(player, {})
-        end
-
-        GameState.protect(player, Promise.new(function(resolve2, reject, onCancel)
-            if GameState.forceReviveIsAllowed(player) then
-                local forceReviveText = "Force Random Revive"
-                if DataStoreModule.getNumber(player, "pendingRevives") > 0 then
-                    forceReviveText = "Force Random Revive (Bought)"
-                end
-
-                ButtonsModule.setButtons(player, {
-                    { idx = 3, text = forceReviveText },
-                    { idx = 5, text = "Return to lobby" }
-                })
-            else
-                ButtonsModule.setButtons(player, {
-                    { idx = 5, text = "Return to lobby" }
-                })
-            end
-
-            task.wait(0.75)  -- Wait a bit to make sure they don't click it accidentally
-            local clickPromise = ButtonsModule.waitForClick(player, -1)
-            onCancel(function()
-                clickPromise:cancel()
-                clearButtons()
-            end)
-
-            local _, clickedIdx = clickPromise:catch(error):await()
-            clearButtons()
-
-            if clickedIdx == 5 then
-                ButtonsModule.setButtons(player, {
-                    { idx = 5, text = "Teleporting...", inputDisabled = true }
-                })
-                TeleportService:Teleport(LOBBY_PLACE_ID, player)
-                resolve2()
-            elseif clickedIdx == 3 then
-                ForceRevive:Fire(player)
-                resolve2()
-            end
-        end)):catch(warn)
-    end)
-end
-
 function GameState.updateLists()
     table.clear(alivePlayers)
     table.clear(deadPlayers)
@@ -234,14 +189,6 @@ function GameState.kill(player: Player, reason: string?)
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
     OnPlayerDied:Fire(player)
 
-    if #alivePlayers < 3 then
-        GameState.runFuncPerDead(function(player2)
-            ButtonsModule.setButtons(player2, {
-                { idx = 5, text = "Return to lobby" }
-            })
-        end)
-    end
-
     logAction(player, "die")
     resetAction(player, "press_streak")
     resetAction(player, "survive_streak")
@@ -249,17 +196,13 @@ function GameState.kill(player: Player, reason: string?)
 
     Promise.defer(function(resolve)
         RewardsModule.flushReward(player)
-        task.wait()
-        task.wait()
-        task.wait()
-        task.wait()
+        task.wait(0.25)
 
         -- Kill other linked player
         local linked = LinksModule.clearLinks(player)
         if linked then
             GameState.kill(linked)
         end
-        GameState.runButtonsForDead()
         resolve()
     end):catch(warn)
 end
@@ -288,7 +231,6 @@ function GameState.revive(player: Player, reason: string?)
     table.insert(alivePlayers, player)
 
     SyncDeadEvent:FireAllClients(false, player, deadPlayers, alivePlayers, reason)
-    ButtonsModule.setButtons(player, {})
 
     updateIcons(player)
     cancelPlayerPromises(player)

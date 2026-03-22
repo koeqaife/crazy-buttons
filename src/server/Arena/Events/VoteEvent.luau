@@ -108,7 +108,7 @@ function Event.onEvent()
             MiscModule.addHighlightToOne(playerForVote, color, color)
         end
 
-        ButtonsModule.setButtons(player, buttons)
+        ButtonsModule.setButtons(player, buttons, false)
 
         if playerOnVote then
             await(TextModule.showTextSequence(player, {

@@ -8,6 +8,8 @@ local Format = require(ServerScriptService.Server.Arena.Replicas.Format)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local TextModule = {}
+local applyTextTransform = require(ServerScriptService.Server.Arena.SideEffects).applyTextTransform
+local applyFaceEffect = require(ServerScriptService.Server.Arena.SideEffects).applyFaceEffect
 
 local UpdateTextEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 UpdateTextEvent.Name = "UpdateTextEvent"
@@ -24,7 +26,7 @@ local function loadReplicas(player: Player)
 end
 
 local function fire(player: Player, text: string, face: Format.Face?)
-     UpdateTextEvent:FireClient(player, text, face)
+     UpdateTextEvent:FireClient(player, applyTextTransform(text), applyFaceEffect(face))
 end
 
 function TextModule.translateFor(player: Player, text: string): string

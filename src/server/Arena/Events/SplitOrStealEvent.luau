@@ -85,7 +85,7 @@ function Event.onEvent()
             ButtonsModule.setButtons(player, {
                 { idx = SPLIT_BTN, text = "Split" },
                 { idx = STEAL_BTN, text = "Steal" }
-            }, nil, false)
+            }, false)
             TextModule.setText(player, "choose_wisely")
         else
             TextModule.setText(player, "waiting_for_players")

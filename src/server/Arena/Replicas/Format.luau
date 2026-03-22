@@ -1,3 +1,11 @@
+export type FaceStringSpecial = "normal_special"
+    | "shy_special" | "scared_special" | "dead_special" | "no_mouth_special"
+    | "laughing_special" | "angry_special" | "unamused_special"
+    | "nerd_special" | "happy_special" | "looking_special" | "alien_special"
+
+    | "att_def_tru_icon_special" | "click_button_icon_special" | "color_event_icon_special"
+    | "combo_event_icon_special" | "even_odd_event_icon_special"
+
 export type FaceString = "normal"
     | "shy" | "scared" | "dead" | "no_mouth"
     | "laughing" | "angry" | "unamused"
@@ -5,6 +13,7 @@ export type FaceString = "normal"
 
     | "att_def_tru_icon" | "click_button_icon" | "color_event_icon"
     | "combo_event_icon" | "even_odd_event_icon"
+    | FaceStringSpecial
 
 export type FaceObject = { text: string, face: FaceString? }
 export type Face = FaceString | FaceObject

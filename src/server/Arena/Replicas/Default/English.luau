@@ -364,6 +364,10 @@ local English: DictTemplate = {
         intro_tested = { text = "We will test you.", face = "scared" },
         intro_easy_hard = { text = "Don't think it will be easy", face = "dead" },
         intro_begin = { text = "Let's begin", face = "happy" },
+        intro_special = { text = "We have special rounds now", face = "alien" },
+        intro_special2 = { text = "Three different effects will present now", face = "alien" },
+        special_text = { text = "{text}", face = "scared", requiredKeys = {"text"} },
+        special_text2 = { text = "{text}", face = "nerd", requiredKeys = {"text"} },
     },
 
     --| YOU SURVIVED EVENT |--

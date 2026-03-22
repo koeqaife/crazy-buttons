@@ -66,14 +66,57 @@ local faces: {[string]: string} = {
     even_odd_event_icon = "rbxassetid://103558857828491"
 }
 
+local specialFaces: {[string]: string} = {
+    -- Faces
+    normal = "rbxassetid://107354355339741",
+    shy = "rbxassetid://111773173400091",
+    scared = "rbxassetid://91677410847193",
+    dead = "rbxassetid://115184962430003",
+    no_mouth = "rbxassetid://73692493553538",
+    laughing = "rbxassetid://103527716306567",
+    angry = "rbxassetid://96689138674896",
+    unamused = "rbxassetid://131207236532480",
+    nerd = "rbxassetid://112962988947005",
+    happy = "rbxassetid://119222263551912",
+    looking = "rbxassetid://81924625663861",
+    alien = "rbxassetid://72083440966852",
+
+    -- Icons
+    click_button_icon = "rbxassetid://122756434736419",
+    att_def_tru_icon = "rbxassetid://130269008297548",
+    color_event_icon = "rbxassetid://110888291370464",
+    combo_event_icon = "rbxassetid://85805351076145",
+    even_odd_event_icon = "rbxassetid://116538556063793"
+}
+
+-- I don't wanna optimize that
+-- So it will load special faces even when they're not needed
+-- I know that's not the best idea
+for key, value in specialFaces do
+    faces[key .. "_special"] = value
+end
+
 local emoticons: {[string]: string} = {
     shy = "^_^",
+    shy_special = "^_^",
+
     scared = "D:",
+    scared_special = "D:",
+
     dead = "x_x",
+    dead_special = "x_x",
+
     laughing = "XD",
+    laughing_special = "XD",
+
     angry = ">:(",
+    angry_special = ">:(",
+
     unamused = "-_-",
+    unamused_special = "-_-",
+
     happy = ":D",
+    happy_special = ":D",
 }
 
 local currentGeneration = 0

@@ -5,13 +5,14 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
 
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
-local SideEffectType = require(Arena.SideEffectType)
 local TextModule = require(Arena.TextModule)
 local IndicesModule = require(ReplicatedStorage.Shared.IndicesType)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 type Indices = IndicesModule.Indices
 
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+local applyButtonsEffect = require(Arena.SideEffects).applyButtonsEffect
+local applyTimeBonus = require(Arena.SideEffects).applyTimeBonus
 
 local ButtonClickedEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 ButtonClickedEvent.Name = "ButtonClickedEvent"
@@ -75,7 +76,7 @@ local function waitForButton(player: Player, timeout: number, filter: ((Player, 
         Promise.new(function(resolve)
             -- Never resolve promise on timeout -1
             if timeout ~= -1 then
-                task.wait(timeout)
+                task.wait(applyTimeBonus(timeout))
                 resolve(nil)
             end
         end)
@@ -149,7 +150,7 @@ function ButtonsModule.initiateButtonChoice(
             conn:Disconnect()
         end)
 
-        task.wait(forTime)
+        task.wait(applyTimeBonus(forTime))
 
         conn:Disconnect()
 
@@ -160,14 +161,10 @@ end
 function ButtonsModule.setButtons(
     player: Player,
     buttons: Indices,
-    sideEffect: SideEffectType.SideEffect?,
     shuffle: boolean?,
     seed: number?
 )
-    if sideEffect then
-        buttons = sideEffect.buttonsEffect(sideEffect)
-    end
-
+    buttons = applyButtonsEffect(buttons)
     if shuffle == nil or shuffle then
         Helpers.shuffleTable(buttons, seed)
     end
@@ -184,13 +181,9 @@ end
 
 function ButtonsModule.updateButtons(
     player: Player,
-    buttons: Indices,
-    sideEffect: SideEffectType.SideEffect?
+    buttons: Indices
 )
-    if sideEffect then
-        buttons = sideEffect.buttonsEffect(sideEffect)
-    end
-
+    buttons = applyButtonsEffect(buttons)
     for _, button in ipairs(buttons) do
         if button.text then
             button.text = TextModule.translateFor(player, button.text)

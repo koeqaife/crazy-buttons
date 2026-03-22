@@ -19,6 +19,8 @@ local ButtonsModule = require(Arena.ButtonsModule)
 local TimerModule = require(Arena.TimerModule)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 
+local applyTimeBonus = require(Arena.SideEffects).applyTimeBonus
+
 type EventType = EventTypeModule.Event
 
 local Event = {} :: EventType
@@ -74,7 +76,7 @@ function Event.onEvent()
             table.insert(buttons, { idx = i, spawnAt = buttonSpawns[i].Name })
         end
 
-        ButtonsModule.setButtons(player, buttons, nil, nil, seed)
+        ButtonsModule.setButtons(player, buttons, nil, seed)
         TextModule.setText(player, "good_luck")
     end)
 
@@ -108,7 +110,7 @@ function Event.onEvent()
                 end
             end
         end))
-    end):timeout(60):catch(function(e)
+    end):timeout(applyTimeBonus(60)):catch(function(e)
         if Promise.Error.isKind(e, Promise.Error.Kind.TimedOut) then
             return
         else

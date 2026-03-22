@@ -3,12 +3,14 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local TeleportService = game:GetService("TeleportService")
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local ButtonsModule = require(script.Parent.ButtonsModule)
 local LinksModule = require(script.Parent.LinksModule)
 local MiscModule = require(script.Parent.MiscModule)
 local PlayersModule = require(script.Parent.PlayersModule)
 local RewardsModule = require(script.Parent.RewardsModule)
+local SideEffects = require(script.Parent.SideEffects)
 local EventType = require(ServerScriptService.Server.Arena.Events.EventType)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local TimerModule = require(Arena.TimerModule)
@@ -43,6 +45,7 @@ local ObbyEvent = require(Arena.Events.ObbyEvent)
 local FiveButtonsEvent = require(Arena.Events.FiveButtonsEvent)
 
 local EXPERIMENT_BADGE_ID = 4390814557028274
+local LOBBY_PLACE_ID = 115379867051786
 
 local events: {Event} = {
     ColorEvent,
@@ -121,11 +124,80 @@ local function chooseRandomEvent(): Event?
     return validEvents[#validEvents]
 end
 
+local function onForceReviveButton(player: Player)
+    if player == nil or player.Parent == nil then
+        return
+    end
+
+    if forcedNextEvent ~= nil then
+        return
+    end
+
+    if not PlayersModule.forceReviveIsAllowed(player) then
+        return
+    end
+
+    if DataStoreModule.getNumber(player, "pendingRevives") > 0 then
+        DataStoreModule.increaseKey(player, "pendingRevives", -1)
+        forcedNextEvent = { event = ReviveEvent, by = player }
+    else
+        MarketplaceService:PromptProductPurchase(player, 3546841437)
+    end
+end
+
+local function runButtonsForDead()
+    PlayersModule.runNewPromisePerDead(function(player, protect, await)
+        local function clearButtons()
+            ButtonsModule.setButtons(player, {})
+        end
+
+        PlayersModule.protect(player, Promise.new(function(resolve2, reject, onCancel)
+            if PlayersModule.forceReviveIsAllowed(player) then
+                local forceReviveText = "Force Random Revive"
+                if DataStoreModule.getNumber(player, "pendingRevives") > 0 then
+                    forceReviveText = "Force Random Revive (Bought)"
+                end
+
+                ButtonsModule.setButtons(player, {
+                    { idx = 3, text = forceReviveText },
+                    { idx = 5, text = "Return to lobby" }
+                })
+            else
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Return to lobby" }
+                })
+            end
+
+            task.wait(0.75)  -- Wait a bit to make sure they don't click it accidentally
+            local clickPromise = ButtonsModule.waitForClick(player, -1)
+            onCancel(function()
+                clickPromise:cancel()
+                clearButtons()
+            end)
+
+            local _, clickedIdx = clickPromise:catch(error):await()
+            clearButtons()
+
+            if clickedIdx == 5 then
+                ButtonsModule.setButtons(player, {
+                    { idx = 5, text = "Teleporting...", inputDisabled = true }
+                })
+                TeleportService:Teleport(LOBBY_PLACE_ID, player)
+                resolve2()
+            elseif clickedIdx == 3 then
+                onForceReviveButton(player)
+                resolve2()
+            end
+        end)):catch(warn)
+    end)
+end
+
 local function runEvent(event: Event?)
     if event == nil then
         return
     end
 
+    SideEffects.setSupportedEffects(event.supportedEffects or {})
     TextModule.setContext(event.name)
     TimerModule.setTime(-1)
     PlayersModule.cancelAll()
@@ -134,7 +206,7 @@ local function runEvent(event: Event?)
     task.wait()
     task.wait()
     MiscModule.destroyInstances()
-    PlayersModule.runButtonsForDead()
+    runButtonsForDead()
     AmbienceModule.stopAll()
     PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
@@ -155,6 +227,7 @@ local function runEvent(event: Event?)
 
         task.wait(5)
     end
+    PlayersModule.updateLists()
 end
 
 local function processReceipt(receiptInfo: {PlayerId: number, ProductId: number})
@@ -173,27 +246,6 @@ local function processReceipt(receiptInfo: {PlayerId: number, ProductId: number}
     end
 
     return Enum.ProductPurchaseDecision.NotProcessedYet
-end
-
-local function onForceReviveButton(player: Player)
-    if player == nil or player.Parent == nil then
-        return
-    end
-
-    if forcedNextEvent ~= nil then
-        return
-    end
-
-    if not PlayersModule.forceReviveIsAllowed(player) then
-        return
-    end
-
-    if DataStoreModule.getNumber(player, "pendingRevives") > 0 then
-        DataStoreModule.increaseKey(player, "pendingRevives", -1)
-        forcedNextEvent = { event = ReviveEvent, by = player }
-    else
-        MarketplaceService:PromptProductPurchase(player, 3546841437)
-    end
 end
 
 local function dumpState()
@@ -235,7 +287,13 @@ function GameLoopModule.start()
         RewardsModule.rewardBadge(player, EXPERIMENT_BADGE_ID):catch(warn):await()
     end
 
-    PlayersModule.ForceRevive.Event:Connect(onForceReviveButton)
+    PlayersModule.OnPlayerDied.Event:Connect(function(player: Player)
+        task.wait()
+        task.wait()
+        task.wait()
+        task.wait()
+        runButtonsForDead()
+    end)
     MarketplaceService.ProcessReceipt = processReceipt
 
     task.spawn(function()
@@ -249,6 +307,8 @@ function GameLoopModule.start()
             end
 
             local nextEvent: Event? = nil
+            local test = {SimonEvent, FiveButtonsEvent, GodBtnEvent}
+            forcedNextEvent = runEvent(test[math.random(1, 4)])
             if forcedNextEvent then
                 if forcedNextEvent.event == ReviveEvent and not PlayersModule.forceReviveIsAllowed() then
                     TextModule.setContext("misc")
@@ -285,8 +345,6 @@ function GameLoopModule.start()
             else
                 lastEventCategory = nil
             end
-
-            PlayersModule.updateLists()
         end
 
         if forcedNextEvent then

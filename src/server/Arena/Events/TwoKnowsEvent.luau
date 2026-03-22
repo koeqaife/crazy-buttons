@@ -73,7 +73,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {
             { idx = 1, text = p1.DisplayName, inputDisabled = disableInput },
             { idx = 2, text = p2.DisplayName, inputDisabled = disableInput },
-        }, nil, false)
+        }, false)
     end)
 
     TimerModule.setTime(30)

@@ -9,6 +9,7 @@ export type Event = {
     minRound: number?,
     maxRound: number?,
     maxPerGame: number?,
+    supportedEffects: {string}?,
     check: () -> boolean,
     onEvent: () -> nil
 }

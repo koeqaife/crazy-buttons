@@ -2,6 +2,8 @@
 --!optimize 2
 
 local TimerModule = {}
+local Arena = game:GetService("ServerScriptService").Server.Arena
+local applyTimeBonus = require(Arena.SideEffects).applyTimeBonus
 
 local screen: Part = workspace:WaitForChild("TerminalScreen")
 
@@ -23,7 +25,7 @@ function TimerModule.setTime(seconds: number, invisible: boolean?)
     end
 
     startTime = os.clock()
-    duration = seconds
+    duration = applyTimeBonus(seconds)
 
     local elapsed = os.clock() - startTime
     local remaining = math.max(0, duration - elapsed)

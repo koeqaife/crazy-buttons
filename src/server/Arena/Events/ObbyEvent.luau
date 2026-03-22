@@ -21,6 +21,7 @@ type EventType = EventTypeModule.Event
 local Event = {} :: EventType
 
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
+local applyTimeBonus = require(Arena.SideEffects).applyTimeBonus
 
 Event.chance = 0.1
 Event.minRound = 3
@@ -45,7 +46,7 @@ function Event.onEvent()
     MiscModule.registerInstance(obbyButtonSpawn)
 
     PlayersModule.runFuncPerAlive(function(player)
-        ButtonsModule.setButtons(player, {{ idx = 5, spawnAt = "ObbyButtonSpawn" }}, nil, false)
+        ButtonsModule.setButtons(player, {{ idx = 5, spawnAt = "ObbyButtonSpawn" }}, false)
 
         local character = player.Character
         if character then
@@ -100,7 +101,7 @@ function Event.onEvent()
                 return resolve()
             end
         end))
-    end):timeout(80):catch(function(e)
+    end):timeout(applyTimeBonus(80)):catch(function(e)
         if Promise.Error.isKind(e, Promise.Error.Kind.TimedOut) then
             return
         else

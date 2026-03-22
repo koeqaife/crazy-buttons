@@ -51,7 +51,7 @@ function Event.onEvent()
             { idx = 3, inputDisabled = true },
             { idx = 4, inputDisabled = true },
             { idx = 5, inputDisabled = true },
-        }, nil, false)
+        }, false)
     end)
 
     while not somebodyDied or counter < 5 do
@@ -71,7 +71,7 @@ function Event.onEvent()
             { idx = 3, inputDisabled = false },
             { idx = 4, inputDisabled = false },
             { idx = 5, inputDisabled = false },
-        }, nil)
+        })
 
         TimerModule.setTime(20)
         local clicked = PlayersModule.protectedAwait(randomPlayer, ButtonsModule.waitForClick(randomPlayer, 20))
@@ -79,7 +79,7 @@ function Event.onEvent()
             PlayersModule.runFuncPerAlive(function(player)
                 ButtonsModule.updateButtons(player, {
                     { idx = clicked, disabled = true },
-                }, nil)
+                })
             end)
         end
         TimerModule.setTime(-1)
@@ -108,7 +108,7 @@ function Event.onEvent()
                 { idx = 3, inputDisabled = true },
                 { idx = 4, inputDisabled = true },
                 { idx = 5, inputDisabled = true },
-            }, nil)
+            })
         end)
         counter += 1
         task.wait(5)

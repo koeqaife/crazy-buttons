@@ -317,8 +317,6 @@ function GameLoopModule.start()
             end
 
             local nextEvent: Event? = nil
-            local test = {SimonEvent, FiveButtonsEvent, GodBtnEvent}
-            forcedNextEvent = runEvent(test[math.random(1, 3)])
             if forcedNextEvent then
                 if forcedNextEvent.event == ReviveEvent and not PlayersModule.forceReviveIsAllowed() then
                     TextModule.setContext("misc")

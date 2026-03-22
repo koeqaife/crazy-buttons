@@ -1,7 +1,9 @@
 --!strict
 --!optimize 2
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Format = require(ServerScriptService.Server.Arena.Replicas.Format)
+local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
 
 local function boopify(text: string): string
     local function transformWord(word: string): string
@@ -39,7 +41,15 @@ local Effect = {
     end,
     textTransform = function(text: string)
         return boopify(text)
-    end
+    end,
+    buttonsEffect = function(buttons: IndicesType.Indices)
+        for _, button in ipairs(buttons) do
+            if button.text then
+                button.text = boopify(button.text)
+            end
+        end
+        return buttons
+    end,
 }
 
 return Effect :: any

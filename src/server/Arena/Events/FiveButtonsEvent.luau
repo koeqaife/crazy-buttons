@@ -54,7 +54,7 @@ function Event.onEvent()
         }, false)
     end)
 
-    while not somebodyDied or counter < 5 do
+    while not somebodyDied or counter < 5 or #PlayersModule.alivePlayers <= 0 do
         local randomPlayer = PlayersModule.pickOnePlayer()
         PlayersModule.runFuncPerAlive(function(player)
             if counter == 0 then

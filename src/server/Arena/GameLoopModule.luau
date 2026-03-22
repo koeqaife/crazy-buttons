@@ -306,10 +306,11 @@ function GameLoopModule.start()
 
     MarketplaceService.ProcessReceipt = processReceipt
 
+    local interrupt = false
     task.spawn(function()
         runEvent(StartEvent)
 
-        while #PlayersModule.alivePlayers > 0 do
+        while #PlayersModule.alivePlayers > 0 and not interrupt do
             MiscModule.round += 1
 
             if #PlayersModule.alivePlayers <= 4 then
@@ -337,7 +338,7 @@ function GameLoopModule.start()
             end
 
             if nextEvent ~= nil then
-                runEvent(nextEvent)
+                interrupt = runEvent(nextEvent)
                 eventCounts[nextEvent] = (eventCounts[nextEvent] or 0) + 1
                 eventCooldown[nextEvent] = MiscModule.round + EVENT_COOLDOWN
                 lastEventCategory = nextEvent.category

@@ -312,6 +312,9 @@ local function flushPlayer(player: Player)
         end
 
         for k, v in pairs(changes) do
+            if dataPerPlayer[player] == nil then
+                continue
+            end
             if v ~= dataPerPlayer[player][k] then
                 onChangedSignal(player, k)
             end

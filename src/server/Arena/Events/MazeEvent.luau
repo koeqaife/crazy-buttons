@@ -136,7 +136,6 @@ function Event.onEvent()
     end):await()
     TimerModule.setTime(-1)
 
-    PlayersModule.runButtonsForDead()
     MiscModule.destroyInstances()
 
     PlayersModule.runFuncPerAlive(function(player)

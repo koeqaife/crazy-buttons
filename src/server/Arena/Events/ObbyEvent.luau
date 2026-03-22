@@ -122,7 +122,6 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
     end)
 
-    PlayersModule.runButtonsForDead()
     MiscModule.destroyInstances()
 
     return

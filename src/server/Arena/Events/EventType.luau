@@ -11,7 +11,7 @@ export type Event = {
     maxPerGame: number?,
     supportedEffects: {string}?,
     check: () -> boolean,
-    onEvent: () -> nil
+    onEvent: () -> boolean?
 }
 
 return {}

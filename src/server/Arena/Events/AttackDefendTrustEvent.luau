@@ -117,7 +117,7 @@ function Event.onEvent()
                 { idx = 1, text = "Attack", inputDisabled = not inputEnabled },
                 { idx = 2, text = "Defend", inputDisabled = not inputEnabled },
                 { idx = 3, text = "Trust", inputDisabled = not inputEnabled }
-            }, nil, false)
+            }, false)
 
             if player == p1 or player == p2 then
                 TextModule.setText(player, "choose_your_move")

@@ -102,6 +102,9 @@ function IconModule.reserveSpace(order: number, spaceId: string): Space
     }
 
     function space.addIcon(player: Player, iconId: string, image: string)
+        if framesPerPlayer[player] == nil then
+            return
+        end
         local spaceFrame: Frame? = framesPerPlayer[player][spaceId]
         if spaceFrame == nil then
             -- In case of race condition
@@ -122,6 +125,9 @@ function IconModule.reserveSpace(order: number, spaceId: string): Space
     end
 
     function space.removeIcon(player: Player, iconId: string)
+        if framesPerPlayer[player] == nil then
+            return
+        end
         local spaceFrame: Frame? = framesPerPlayer[player][spaceId]
         if spaceFrame == nil then
             -- In case of race condition
@@ -135,6 +141,9 @@ function IconModule.reserveSpace(order: number, spaceId: string): Space
     end
 
     function space.clearIcons(player: Player)
+        if framesPerPlayer[player] == nil then
+            return
+        end
         local spaceFrame: Frame? = framesPerPlayer[player][spaceId]
         if spaceFrame == nil then
             -- In case of race condition

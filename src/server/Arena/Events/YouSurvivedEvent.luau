@@ -80,7 +80,7 @@ function Event.onEvent()
         { key = "survivor_congratulations", delay = 4 },
     }):catch(warn):await()
 
-    return
+    return true
 end
 
 return Event

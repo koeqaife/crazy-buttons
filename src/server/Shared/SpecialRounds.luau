@@ -4,7 +4,7 @@
 local SpecialRounds = {}
 
 local INTERVAL = 12 * 60 * 60
-local DURATION = 45 * 60
+local DURATION = 60 * 60
 local GRACE = 60
 local START_HOUR_UTC = 18
 

@@ -35,6 +35,7 @@ local LeaderboardModule = require(script.Parent.LeaderboardModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
 local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
 local QuestsModule = require(ServerScriptService.Server.Shared.QuestsModule)
+local SpecialRounds = require(ServerScriptService.Server.Shared.SpecialRounds)
 
 local pad: Part = workspace:WaitForChild("TeleportPadTrigger")
 local active: {[Player]: boolean} = {}
@@ -380,11 +381,10 @@ local function onPlayerExit(player: Player)
 end
 
 local function specialRoundCountdown()
-    local target = DateTime.fromUniversalTime(2026, 3, 22, 18, 0, 0).UnixTimestamp
-
     while true do
-        local now = DateTime.now().UnixTimestamp
-        local remaining = math.max(0, target - now)
+        local nextRoundIn = SpecialRounds.getSecondsUntilNextRound()
+        local isActive = nextRoundIn == 0
+        local remaining = if isActive then SpecialRounds.getSecondsUntilEnd() else nextRoundIn
 
         local days = math.floor(remaining / 86400)
         local hours = math.floor((remaining % 86400) / 3600)
@@ -401,7 +401,11 @@ local function specialRoundCountdown()
             timeString = string.format("%02d:%02d", minutes, seconds)
         end
 
-        specialRoundCounter.Text = "Special rounds start in " .. timeString
+        if isActive then
+            specialRoundCounter.Text = "JOIN TO PLAY SPECIAL ROUNDS NOW! Ends in " .. timeString
+        else
+            specialRoundCounter.Text = "Special rounds start in " .. timeString
+        end
 
         task.wait(1)
     end

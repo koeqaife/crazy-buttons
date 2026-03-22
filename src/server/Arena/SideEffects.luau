@@ -15,10 +15,12 @@ export type SideEffect = {
     description: string,
     universal: boolean,
     priority: number,
+    rewardsMultiplier: number?,
     timeBonus: ((original: number) -> number)?,
     textTransform: ((text: string) -> string)?,
     buttonsEffect: ((indices: Indices) -> Indices)?,
     faceEffect: ((original: Format.Face?) -> Format.Face?)?,
+    onButtonClick: ((player: Player, idx: number) -> boolean?)?,
     startHook: (() -> ())?,
     endHook: (() -> ())?,
 }
@@ -31,7 +33,9 @@ local allEffects: {SideEffect} = {
     require(SideEffects.Special),
     require(SideEffects.Alien),
     require(SideEffects.RandomButtons),
-    require(SideEffects.RandomLives)
+    require(SideEffects.RandomLives),
+    require(SideEffects.AccidentKill),
+    require(SideEffects.MixedColors),
 }
 local effectsById: EffectsMap = {}
 local activatedSet: { [string]: boolean } = {}
@@ -162,6 +166,29 @@ function SideEffectsModule.applyFaceEffect(face: Format.Face?): Format.Face?
     end
 
     return result :: Format.Face?
+end
+
+function SideEffectsModule.applyRewardsMultiplier(original: number): number
+    local result = original
+
+    for _, effect in ipairs(activeEffects) do
+        if effect.rewardsMultiplier then
+            result *= effect.rewardsMultiplier
+        end
+    end
+
+    return result
+end
+
+function SideEffectsModule.onButtonClick(player: Player, idx: number)
+    for _, effect in ipairs(activeEffects) do
+        if effect.onButtonClick then
+            local interrupt = effect.onButtonClick(player, idx)
+            if interrupt == true then
+                break
+            end
+        end
+    end
 end
 
 return SideEffectsModule

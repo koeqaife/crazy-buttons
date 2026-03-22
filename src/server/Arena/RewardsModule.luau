@@ -9,6 +9,7 @@ local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModul
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local GameState = {}
 
+local applyRewardsMultiplier = require(ServerScriptService.Server.Arena.SideEffects).applyRewardsMultiplier
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 local RewardChanged: BindableEvent = Instance.new("BindableEvent")
 
@@ -71,6 +72,7 @@ end
 
 function GameState.addRewardTo(player: Player, amount: number)
     amount *= rewardMultipliers[player] or 1
+    amount = applyRewardsMultiplier(amount)
     if rewards[player] == nil then
         rewards[player] = amount
     else

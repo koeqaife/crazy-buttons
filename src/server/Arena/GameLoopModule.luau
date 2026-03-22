@@ -287,13 +287,23 @@ function GameLoopModule.start()
         RewardsModule.rewardBadge(player, EXPERIMENT_BADGE_ID):catch(warn):await()
     end
 
+    PlayersModule.OnPlayerLostLife.Event:Connect(function(player: Player)
+        ButtonsModule.setButtons(player, {})
+    end)
+
     PlayersModule.OnPlayerDied.Event:Connect(function(player: Player)
         task.wait()
         task.wait()
         task.wait()
         task.wait()
         runButtonsForDead()
+        RewardsModule.flushReward(player)
     end)
+
+    Players.PlayerRemoving:Connect(function(player, reason)
+        RewardsModule.flushReward(player)
+    end)
+
     MarketplaceService.ProcessReceipt = processReceipt
 
     task.spawn(function()
@@ -308,7 +318,7 @@ function GameLoopModule.start()
 
             local nextEvent: Event? = nil
             local test = {SimonEvent, FiveButtonsEvent, GodBtnEvent}
-            forcedNextEvent = runEvent(test[math.random(1, 4)])
+            forcedNextEvent = runEvent(test[math.random(1, 3)])
             if forcedNextEvent then
                 if forcedNextEvent.event == ReviveEvent and not PlayersModule.forceReviveIsAllowed() then
                     TextModule.setContext("misc")

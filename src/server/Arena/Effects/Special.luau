@@ -8,6 +8,7 @@ local Effect = {
     name = "Special",
     description = "Always ran when special round is active",
     universal = true,
+    rewardsMultiplier = 1.3,
     priority = 999,
     startHook = function()
         local terminalScreen: Part = workspace:WaitForChild("TerminalScreen")

@@ -13,6 +13,7 @@ type Indices = IndicesModule.Indices
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 local applyButtonsEffect = require(Arena.SideEffects).applyButtonsEffect
 local applyTimeBonus = require(Arena.SideEffects).applyTimeBonus
+local onButtonClick = require(Arena.SideEffects).onButtonClick
 
 local ButtonClickedEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 ButtonClickedEvent.Name = "ButtonClickedEvent"
@@ -47,6 +48,7 @@ local function waitForButton(player: Player, timeout: number, filter: ((Player, 
             end
 
             if playerWhoClicked == player and (not filter or filter(playerWhoClicked, idx)) then
+                onButtonClick(player, idx)
                 logAction(player, "press")
                 logAction(player, "press_streak")
                 if idx == 1 then
@@ -106,6 +108,20 @@ function ButtonsModule.initiateButtonChoice(
     return Promise.new(function(resolve, reject, onCancel)
         local choices: {[Player]: number?} = if currentChoices == nil then {} else currentChoices
 
+        local playersPressed: {[Player]: number} = {}
+        local function log()
+            for player, idx in pairs(playersPressed) do
+                onButtonClick(player, idx)
+                logAction(player, "press")
+                logAction(player, "press_streak")
+                if idx == 1 then
+                    logAction(player, "press_red")
+                elseif idx == 2 then
+                    logAction(player, "press_blue")
+                end
+            end
+        end
+
         local conn
         conn = ButtonClickedEvent.OnServerEvent:Connect(function(playerWhoClicked, idx: number)
             if not ButtonsModule.doesPlayerHaveButton(playerWhoClicked, idx) then
@@ -142,6 +158,7 @@ function ButtonsModule.initiateButtonChoice(
                 end
                 if finished then
                     conn:Disconnect()
+                    log()
                     resolve(choices)
                 end
             end
@@ -152,6 +169,7 @@ function ButtonsModule.initiateButtonChoice(
 
         task.wait(applyTimeBonus(forTime))
 
+        log()
         conn:Disconnect()
 
 		resolve(choices)

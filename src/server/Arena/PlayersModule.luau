@@ -5,7 +5,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local IconModule = require(script.Parent.IconModule)
 local LinksModule = require(script.Parent.LinksModule)
-local RewardsModule = require(script.Parent.RewardsModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 
@@ -20,6 +19,7 @@ local LifeEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 LifeEvent.Name = "LifeEvent"
 
 local OnPlayerDied: BindableEvent = Instance.new("BindableEvent")
+local OnPlayerLostLife: BindableEvent = Instance.new("BindableEvent")
 
 local alivePlayers: {Player} = {}
 local deadPlayers: {Player} = {}
@@ -31,6 +31,7 @@ local HEART_ICON = "rbxassetid://135523015698113"
 local NO_HEART_ICON = "rbxassetid://79783468789350"
 
 GameState.OnPlayerDied = OnPlayerDied
+GameState.OnPlayerLostLife = OnPlayerLostLife
 GameState.alivePlayers = alivePlayers
 GameState.deadPlayers = deadPlayers
 GameState.playerRevivedTimes = playerRevivedTimes
@@ -63,10 +64,14 @@ end
 
 function GameState.setLivesPerPlayer(amount: number)
     LIFE_COUNT_FOR_PLAYER = amount
-    for player, _ in lives do
+    for player, _ in pairs(lives) do
         lives[player] = amount
-        updateIcons(player)
     end
+    task.defer(function()
+        for _, player in Players:GetPlayers() do
+            updateIcons(player)
+        end
+    end)
 end
 
 local function ensureRunningPromises(player: Player)
@@ -178,6 +183,7 @@ function GameState.kill(player: Player, reason: string?)
     end
     table.insert(deadPlayers, player)
 
+    OnPlayerLostLife:Fire(player)
     updateIcons(player)
     if playerLives > 0 then
         LifeEvent:FireClient(player, true)
@@ -195,7 +201,7 @@ function GameState.kill(player: Player, reason: string?)
     cancelPlayerPromises(player)
 
     Promise.defer(function(resolve)
-        RewardsModule.flushReward(player)
+
         task.wait(0.25)
 
         -- Kill other linked player
@@ -281,7 +287,6 @@ function GameState.connect()
         LinksModule.clearLinks(player)
 
         cancelPlayerPromises(player)
-        RewardsModule.flushReward(player)
     end)
 end
 

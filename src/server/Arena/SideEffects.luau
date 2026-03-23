@@ -21,6 +21,8 @@ export type SideEffect = {
     buttonsEffect: ((indices: Indices) -> Indices)?,
     faceEffect: ((original: Format.Face?) -> Format.Face?)?,
     onButtonClick: ((player: Player, idx: number) -> boolean?)?,
+    beforeRound: (() -> ())?,
+    afterRound: (() -> ())?,
     startHook: (() -> ())?,
     endHook: (() -> ())?,
 }
@@ -187,6 +189,22 @@ function SideEffectsModule.onButtonClick(player: Player, idx: number)
             if interrupt == true then
                 break
             end
+        end
+    end
+end
+
+function SideEffectsModule.onBeforeRound()
+    for _, effect in ipairs(activeEffects) do
+        if effect.beforeRound then
+            effect.beforeRound()
+        end
+    end
+end
+
+function SideEffectsModule.onAfterRound()
+    for _, effect in ipairs(activeEffects) do
+        if effect.afterRound then
+            effect.afterRound()
         end
     end
 end

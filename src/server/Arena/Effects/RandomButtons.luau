@@ -1,9 +1,9 @@
 --!strict
 --!optimize 2
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local IndicesType = require(ReplicatedStorage.Shared.IndicesType)
 local buttonSpawns: {string}
-local random = math.random
 
 local Effect = {
     id = "random_buttons",
@@ -24,10 +24,13 @@ local Effect = {
             end
         end
     end,
+    beforeRound = function()
+        Helpers.shuffleTable(buttonSpawns)
+    end,
     buttonsEffect = function(buttons: IndicesType.Indices)
-        for _, button in ipairs(buttons) do
+        for i, button in ipairs(buttons) do
             if not button.spawnAt then
-                button.spawnAt = buttonSpawns[random(1, #buttonSpawns)]
+                button.spawnAt = buttonSpawns[i]
             end
         end
         return buttons

@@ -31,11 +31,11 @@ local function createBillboard(player: Player): BillboardGui
     if gui == nil then
         local newGui = Instance.new("BillboardGui", character)
         newGui.Name = "IconGui"
-        newGui.Adornee = character
+        newGui.Adornee = character:WaitForChild("HumanoidRootPart")
         -- Each icon is 2x2, so I support 5x5 matrix, should be enough for everything
         newGui.Size = UDim2.new(10, 0, 10, 0)
         newGui.SizeOffset = Vector2.new(0, 0)
-        newGui.ExtentsOffsetWorldSpace = Vector3.new(0, 1.5, 0)
+        newGui.ExtentsOffsetWorldSpace = Vector3.new(0, 3, 0)
 
         local listLayout = Instance.new("UIListLayout", newGui)
         listLayout.VerticalAlignment = Enum.VerticalAlignment.Center
@@ -79,7 +79,7 @@ local function createSpaceFrame(player: Player, order: number, id: string)
 
         -- 0.3 gives the best result with any amount
         -- Tested manually...
-        gui.ExtentsOffsetWorldSpace = Vector3.new(0, 1.5 + (spaceAmount * 0.3 - 0.3), 0)
+        gui.ExtentsOffsetWorldSpace = Vector3.new(0, 3 + (spaceAmount), 0)
     end
 end
 
@@ -118,6 +118,7 @@ function IconModule.reserveSpace(order: number, spaceId: string): Space
             local newImage = Instance.new("ImageLabel", spaceFrame)
             newImage.Name = iconId
             newImage.BackgroundTransparency = 1
+            newImage.ImageTransparency = 0.5
             newImage.Size = UDim2.new(1, 0, 1, 0)
             newImage.SizeConstraint = Enum.SizeConstraint.RelativeYY
             newImage.Image = image
@@ -196,7 +197,7 @@ function IconModule.init()
                     print(spaceAmount)
                     spaceAmount += 1
                 end
-                billboard.ExtentsOffsetWorldSpace = Vector3.new(0, 1.5 + (spaceAmount * 0.3 - 0.3), 0)
+                billboard.ExtentsOffsetWorldSpace = Vector3.new(0, 3 + (spaceAmount), 0)
             end
         end)
     end)

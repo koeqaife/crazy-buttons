@@ -65,6 +65,9 @@ function Event.onEvent()
 
         MiscModule.removeHighlightFromAll()
         MiscModule.addHighlightToOne(randomPlayer)
+
+        task.wait(3)
+        TextModule.setText(randomPlayer, "press_button")
         ButtonsModule.updateButtons(randomPlayer, {
             { idx = 1, inputDisabled = false },
             { idx = 2, inputDisabled = false },

@@ -386,7 +386,8 @@ local English: DictTemplate = {
         next_player = { text = "The next player is {player}", requiredKeys = {"player"}, face = "shy" },
         you_eliminated = { text = "You are eliminated", face = "dead" },
         player_eliminated = { text = "{player} was eliminated", requiredKeys = {"player"}, face = "dead" },
-        button_safe = { text = "Button was safe", face = "happy" }
+        button_safe = { text = "Button was safe", face = "happy" },
+        press_button = { text = "Press the button", face = "normal" },
     },
 }
 

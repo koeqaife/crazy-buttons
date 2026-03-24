@@ -37,7 +37,7 @@ local Effect = {
     end,
     timeBonus = function(original: number): number
         -- So people always have time to go to the button from one place of the map to another
-        return original + 10
+        return original + 5
     end
 }
 

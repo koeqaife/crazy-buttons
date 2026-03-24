@@ -198,6 +198,7 @@ local function runEvent(event: Event?)
     end
 
     SideEffects.setSupportedEffects(event.supportedEffects or {})
+    SideEffects.onBeforeRound()
     TextModule.setContext(event.name)
     TimerModule.setTime(-1)
     PlayersModule.cancelAll()
@@ -228,6 +229,7 @@ local function runEvent(event: Event?)
         task.wait(5)
     end
     PlayersModule.updateLists()
+    SideEffects.onAfterRound()
 end
 
 local function processReceipt(receiptInfo: {PlayerId: number, ProductId: number})
@@ -306,6 +308,7 @@ function GameLoopModule.start()
 
     MarketplaceService.ProcessReceipt = processReceipt
 
+    SideEffects.activateSideEffect("no_chat")
     local interrupt = false
     task.spawn(function()
         runEvent(StartEvent)
@@ -318,6 +321,7 @@ function GameLoopModule.start()
             end
 
             local nextEvent: Event? = nil
+            forcedNextEvent = { by = PlayersModule.alivePlayers[1], event = ComboEvent }
             if forcedNextEvent then
                 if forcedNextEvent.event == ReviveEvent and not PlayersModule.forceReviveIsAllowed() then
                     TextModule.setContext("misc")

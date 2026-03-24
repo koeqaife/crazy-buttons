@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local TextChatService = game:GetService("TextChatService")
 local IconModule = require(script.Parent.IconModule)
 local LinksModule = require(script.Parent.LinksModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
@@ -11,6 +12,9 @@ local Promise = require(ReplicatedStorage.Shared.Promise)
 local GameState = {}
 
 local GuiSpace = IconModule.reserveSpace(0, "lives")
+
+local DisableChatEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+DisableChatEvent.Name = "DisableChatEvent"
 
 local SyncDeadEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 SyncDeadEvent.Name = "SyncDeadEvent"
@@ -60,6 +64,26 @@ local function updateIcons(player: Player)
         end)
         return
     end
+end
+
+function GameState.disableChat(value: boolean)
+    print("Disable chat was called, value", value)
+	value = value ~= false
+
+	TextChatService.TextChannels.RBXGeneral.ShouldDeliverCallback = function()
+        print("Should deliver was called, returned", not value)
+        return not value
+    end
+	TextChatService.BubbleChatConfiguration.Enabled = not value
+
+	for _, player in Players:GetPlayers() do
+		local audioDeviceInput = player:FindFirstChildOfClass("AudioDeviceInput")
+		if audioDeviceInput then
+			audioDeviceInput.Muted = value
+		end
+
+		DisableChatEvent:FireClient(player, value)
+	end
 end
 
 function GameState.setLivesPerPlayer(amount: number)

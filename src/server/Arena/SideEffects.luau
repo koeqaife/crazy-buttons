@@ -38,6 +38,7 @@ local allEffects: {SideEffect} = {
     require(SideEffects.RandomLives),
     require(SideEffects.AccidentKill),
     require(SideEffects.MixedColors),
+    require(SideEffects.NoChat),
 }
 local effectsById: EffectsMap = {}
 local activatedSet: { [string]: boolean } = {}
@@ -69,6 +70,10 @@ local function updateActiveEffects()
 end
 
 function SideEffectsModule.activateSideEffect(id: string)
+    if effectsById[id] == nil then
+        return warn("Effect with id '" .. id .. "' wasn't found")
+    end
+    print("Activated effect:", id)
     activatedSet[id] = true
     local startHook = effectsById[id].startHook
     if startHook ~= nil then
@@ -196,6 +201,7 @@ end
 function SideEffectsModule.onBeforeRound()
     for _, effect in ipairs(activeEffects) do
         if effect.beforeRound then
+            print("Running beforeRound for", effect.id)
             effect.beforeRound()
         end
     end
@@ -204,6 +210,7 @@ end
 function SideEffectsModule.onAfterRound()
     for _, effect in ipairs(activeEffects) do
         if effect.afterRound then
+            print("Running afterRound for", effect.id)
             effect.afterRound()
         end
     end

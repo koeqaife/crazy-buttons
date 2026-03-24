@@ -7,6 +7,7 @@ local AuraModule = require(StarterPlayer.StarterPlayerScripts.Client.Shared.Aura
 local KillToolModule = require(script.Parent.KillToolModule)
 local Spring = require(ReplicatedStorage.Shared.spr)
 local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent")
+local DisableChatEvent: RemoteEvent = ReplicatedStorage:WaitForChild("DisableChatEvent")
 
 local GameState = {}
 
@@ -119,6 +120,9 @@ end
 
 function GameState.connect()
     SyncDeadEvent.OnClientEvent:Connect(onSyncEvent)
+    DisableChatEvent.OnClientEvent:Connect(function(value: boolean)
+        TextChatService.ChatInputBarConfiguration.Enabled = not value
+    end)
 end
 
 function GameState.setEffects()

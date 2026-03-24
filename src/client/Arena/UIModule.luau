@@ -19,7 +19,6 @@ local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
 local Dialog = require(localPlayer.PlayerScripts.Client.Shared.UI.Dialog)
 local Quests = require(localPlayer.PlayerScripts.Client.Shared.UI.Quests)
 
-local cash = 0
 local reward = 0
 local rewardCounter = 0
 
@@ -77,16 +76,20 @@ function UIModule.connect()
             Toasts.hide("life")
         end
     end)
+
+    moneyLabel.Text = tostring(State.cash) .. " (+" .. tostring(reward) .. ")"
+
+    State.CashUpdated.Event:Connect(function(_, newValue)
+        moneyLabel.Text = tostring(newValue) .. " (+" .. tostring(reward) .. ")"
+    end)
+
     State.SyncEvent.OnClientEvent:Connect(function(key: string, value: any)
-        if key == "cash" then
-            cash = round(value)
-            moneyLabel.Text = tostring(value) .. " (+" .. tostring(reward) .. ")"
-        elseif key == "reward" then
+        if key == "reward" then
             if value > 0 then
                 rewardCounter += value - reward
             end
             reward = round(value)
-            moneyLabel.Text = tostring(cash) .. " (+" .. tostring(value) .. ")"
+            moneyLabel.Text = tostring(State.cash) .. " (+" .. tostring(value) .. ")"
         elseif key == "multiplier" then
             multiplierLabel.Text = tostring(round(value * 100 - 100)) .. "% friend multiplier"
         end

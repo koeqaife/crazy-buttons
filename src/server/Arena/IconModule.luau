@@ -73,7 +73,6 @@ local function createSpaceFrame(player: Player, order: number, id: string)
     if gui ~= nil then
         local spaceAmount = 0
         for k, v in pairs(framesPerPlayer[player]) do
-            print(spaceAmount)
             spaceAmount += 1
         end
 

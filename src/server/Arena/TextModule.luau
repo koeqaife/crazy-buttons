@@ -26,7 +26,7 @@ local function loadReplicas(player: Player)
 end
 
 local function fire(player: Player, text: string, face: Format.Face?)
-     UpdateTextEvent:FireClient(player, applyTextTransform(text), applyFaceEffect(face))
+    UpdateTextEvent:FireClient(player, applyTextTransform(text), applyFaceEffect(face))
 end
 
 function TextModule.translateFor(player: Player, text: string): string

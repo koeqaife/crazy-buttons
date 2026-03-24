@@ -2,6 +2,7 @@ local Arena = game:GetService("ServerScriptService").Server.Arena
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local TeleportService = game:GetService("TeleportService")
 local Promise = require(ReplicatedStorage.Shared.Promise)
@@ -192,22 +193,34 @@ local function runButtonsForDead()
     end)
 end
 
+local function waitTicks(n: number)
+    local count = 0
+    while count < n do
+        RunService.Heartbeat:Wait()
+        count += 1
+    end
+end
+
 local function runEvent(event: Event?)
     if event == nil then
         return
     end
 
+    PlayersModule.cancelAll()
+    waitTicks(5)
+
+    -- I will update lists before round too just in case
+    PlayersModule.updateLists()
+
     SideEffects.setSupportedEffects(event.supportedEffects or {})
     SideEffects.onBeforeRound()
+
     TextModule.setContext(event.name)
     TimerModule.setTime(-1)
-    PlayersModule.cancelAll()
-    task.wait()
-    task.wait()
-    task.wait()
-    task.wait()
+
     MiscModule.destroyInstances()
     runButtonsForDead()
+
     AmbienceModule.stopAll()
     PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
@@ -228,6 +241,11 @@ local function runEvent(event: Event?)
 
         task.wait(5)
     end
+
+    MiscModule.removeHighlightFromAll()
+    PlayersModule.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {})
+    end)
     PlayersModule.updateLists()
     SideEffects.onAfterRound()
 end
@@ -294,10 +312,7 @@ function GameLoopModule.start()
     end)
 
     PlayersModule.OnPlayerDied.Event:Connect(function(player: Player)
-        task.wait()
-        task.wait()
-        task.wait()
-        task.wait()
+        waitTicks(5)
         runButtonsForDead()
         RewardsModule.flushReward(player)
     end)
@@ -311,6 +326,7 @@ function GameLoopModule.start()
     SideEffects.activateSideEffect("no_chat")
     local interrupt = false
     task.spawn(function()
+        waitTicks(2)
         runEvent(StartEvent)
 
         while #PlayersModule.alivePlayers > 0 and not interrupt do

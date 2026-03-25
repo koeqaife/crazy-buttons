@@ -12,9 +12,13 @@ local function boopify(text: string): string
         lower = lower:gsub("what", "vorp")
         lower = lower:gsub("oto", "ogo")
         lower = lower:gsub("pr", "b")
-
         lower = lower:gsub("[dwlf]", "b")
         lower = lower:gsub("[tmnxkq]", "p")
+
+        lower = lower:gsub("что", "ворп")
+        lower = lower:gsub("про", "б")
+        lower = lower:gsub("[длфв]", "б")
+        lower = lower:gsub("[тмнкс]", "п")
 
         lower = lower:gsub("^%l", string.upper)
 

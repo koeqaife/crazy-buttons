@@ -3,8 +3,10 @@
 
 local TextModule = {}
 local ContentProvider = game:GetService("ContentProvider")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextChatService = game:GetService("TextChatService")
+local LocalizationService = game:GetService("LocalizationService")
 local spr = require(ReplicatedStorage.Shared.spr)
 
 local blipSound: Sound = ReplicatedStorage
@@ -234,8 +236,33 @@ local function preload()
     ContentProvider:PreloadAsync(images)
 end
 
+local function sendLocaleToServer(locale)
+    UpdateTextEvent:FireServer("set_language", locale)
+end
+
 function TextModule.connect(): ()
     preload()
+
+    local success, translator = pcall(function()
+        return LocalizationService:GetTranslatorForPlayerAsync(Players.LocalPlayer)
+    end)
+
+    if not success or not translator then
+        warn("Failed to get translator", translator)
+        return
+    end
+
+    -- initial locale
+    local currentLocale = translator.LocaleId
+    sendLocaleToServer(currentLocale)
+
+    -- listen for changes
+    translator:GetPropertyChangedSignal("LocaleId"):Connect(function()
+        if translator.LocaleId ~= currentLocale then
+            currentLocale = translator.LocaleId
+            sendLocaleToServer(currentLocale)
+        end
+    end)
 
     UpdateTextEvent.OnClientEvent:Connect(
         function(text: string, face: Face?)

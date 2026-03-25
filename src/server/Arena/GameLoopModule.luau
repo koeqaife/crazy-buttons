@@ -323,10 +323,10 @@ function GameLoopModule.start()
 
     MarketplaceService.ProcessReceipt = processReceipt
 
-    SideEffects.activateSideEffect("no_chat")
     local interrupt = false
     task.spawn(function()
         waitTicks(2)
+        runEvent(SimonEvent)
         runEvent(StartEvent)
 
         while #PlayersModule.alivePlayers > 0 and not interrupt do
@@ -337,7 +337,6 @@ function GameLoopModule.start()
             end
 
             local nextEvent: Event? = nil
-            forcedNextEvent = { by = PlayersModule.alivePlayers[1], event = ComboEvent }
             if forcedNextEvent then
                 if forcedNextEvent.event == ReviveEvent and not PlayersModule.forceReviveIsAllowed() then
                     TextModule.setContext("misc")

@@ -19,6 +19,17 @@ local replicasPerPlayer: {[Player]: {[string]: {[string]: Format.Template}}} = {
 local typesPerPlayer: {[Player]: string} = {}
 local languagesPerPlayer: {[Player]: string} = {}
 
+local englishReplicas: {[string]: {[string]: Format.Template}} = {}
+
+local language = {
+    ["en-us"] = "english",
+    ["en-gb"] = "english",
+    ["ru-ru"] = "russian",
+    ["es-es"] = "spanish",
+    ["es-mx"] = "spanish",
+    ["uk-ua"] = "ukrainian",
+}
+
 local function loadReplicas(player: Player)
     local typeFolder = Replicas[typesPerPlayer[player] or "default"]()
     local languageLoad = typeFolder[languagesPerPlayer[player] or "english"] or typeFolder["english"]
@@ -30,9 +41,41 @@ local function fire(player: Player, text: string, face: Format.Face?)
 end
 
 function TextModule.translateFor(player: Player, text: string): string
-    -- For in-place translations
-    -- TODO: Make it work...
-    return text
+    if languagesPerPlayer[player] == "english" then
+        return text
+    end
+    if replicasPerPlayer[player]["in_place"] == nil then
+        return text
+    end
+
+    local replacement = replicasPerPlayer[player]["in_place"][text]
+
+    return if replacement then replacement.text else text
+end
+
+local function translateDataFor(player: Player, data: {[string]: any}?): {[string]: any}?
+    if data == nil then
+        return data
+    end
+    if languagesPerPlayer[player] == "english" then
+        return data
+    end
+    if replicasPerPlayer[player]["in_place"] == nil then
+        return data
+    end
+
+    local new_data = {}
+
+    for key, value in data do
+        if type(value) == "string" then
+            local replacement = replicasPerPlayer[player]["in_place"][value]
+            new_data[key] = if replacement then replacement.text else value
+        else
+            new_data[key] = value
+        end
+    end
+
+    return new_data
 end
 
 function TextModule.showTextSequence(player: Player, sequence: {{key: string, data: {[string]: any}?, delay: number?}})
@@ -62,8 +105,12 @@ function TextModule.setText(player: Player, key: string, data: {[string]: any}?)
     if replicasPerPlayer[player] == nil then
         loadReplicas(player)
     end
-    local replica = replicasPerPlayer[player][globalContext][key]
-    local formatted = Format(replica, data)
+    local context = replicasPerPlayer[player][globalContext]
+    if context == nil then
+        context = englishReplicas[globalContext]
+    end
+    local replica = context[key] or englishReplicas[globalContext][key]
+    local formatted = Format(replica, translateDataFor(player, data))
     fire(player, formatted.text, formatted.face)
 end
 
@@ -73,12 +120,17 @@ end
 
 function TextModule.init()
     UpdateTextEvent.OnServerEvent:Connect(function(player: Player, action: string, value: string)
+        languagesPerPlayer[player] = language[value] or "english"
         if action == "set_language" then
             loadReplicas(player)
         end
     end)
 
     -- Load english by default
+    local typeFolder = Replicas["default"]()
+    local languageLoad = typeFolder["english"]
+    englishReplicas = languageLoad()
+
     for i, player in Players:GetPlayers() do
         if replicasPerPlayer[player] == nil then  -- I don't trust roblox
             loadReplicas(player)

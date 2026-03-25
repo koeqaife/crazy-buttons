@@ -34,7 +34,7 @@ function SpecialRounds.isActive(): boolean
         cyclePosition += INTERVAL
     end
 
-    return cyclePosition < (DURATION + GRACE)
+    return cyclePosition < (DURATION + GRACE) or true
 end
 
 function SpecialRounds.getSecondsUntilEnd(): number

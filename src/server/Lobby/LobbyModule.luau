@@ -140,7 +140,7 @@ local function promoteFromQueue(limit)
     end
 end
 
-local function startGame()
+local function startGame(force: boolean?)
     local playersToTeleport = {}
 
     for player, _ in pairs(active) do
@@ -149,7 +149,7 @@ local function startGame()
         end
     end
 
-    if #playersToTeleport < MIN_PLAYERS then
+    if #playersToTeleport < MIN_PLAYERS and not force then
         return
     end
 
@@ -420,7 +420,7 @@ function LobbyModule.init()
     _G.forceStart = function()
         timerActive = false
         updatePadCountdown("finished")
-        startGame()
+        startGame(true)
         if countActive() >= MIN_PLAYERS then
             startCountdown()
         end

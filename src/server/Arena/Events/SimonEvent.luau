@@ -132,6 +132,7 @@ function Event.onEvent()
         local randomTextRaw = texts[newStringIdx]
         local randomText: Text = {  -- Copy
             text = randomTextRaw.text,
+            additional = "",
             custom = randomTextRaw.custom,
             idx = randomTextRaw.idx,
             opposite = randomTextRaw.opposite,
@@ -139,7 +140,6 @@ function Event.onEvent()
         }
         if randomText.custom == nil and randomText.idx == nil then
             local randomColor = math.random(1, 4)
-            randomText.text = randomText.text .. COLOR_NAMES[randomColor]
             randomText.idx = randomColor
         end
 
@@ -150,7 +150,14 @@ function Event.onEvent()
 
         -- use localization key with dynamic text passed in data
         PlayersModule.runFuncPerAlive(function(player)
-            TextModule.setText(player, "round_text", { text = randomText.text })
+            assert(randomText.idx, "Idx cannot be nil")
+            TextModule.setText(
+                player, "round_text",
+                {
+                    text = TextModule.translateFor(player, randomText.text)
+                         .. TextModule.translateFor(player, COLOR_NAMES[randomText.idx])
+                }
+            )
         end)
 
         local _, chosen = ButtonsModule.initiateButtonChoice(8, nil, nil, lastChosenCopy, true):catch(error):await()

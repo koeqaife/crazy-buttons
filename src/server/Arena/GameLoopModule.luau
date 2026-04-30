@@ -329,6 +329,7 @@ function GameLoopModule.start()
         runEvent(StartEvent)
 
         while #PlayersModule.alivePlayers > 0 and not interrupt do
+            task.wait()
             MiscModule.round += 1
 
             if #PlayersModule.alivePlayers <= 4 then

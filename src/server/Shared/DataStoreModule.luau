@@ -105,6 +105,9 @@ local scheduledKeys: {[Player]: {string}} = {}
 
 local function flushSignals()
     for player, keys in pairs(scheduledKeys) do
+        if not player then
+            continue
+        end
         local data = dataPerPlayer[player]
         for _, key in ipairs(keys) do
             local signal2: BindableEvent? = updatedSignals[key]
@@ -126,7 +129,11 @@ local function ensureSignal(key: string)
     return signal
 end
 
-local function onChangedSignal(player: Player, key: string, immediate: boolean?)
+local function onChangedSignal(player: Player?, key: string, immediate: boolean?)
+    if player == nil then
+        return
+    end
+
     local signal = ensureSignal(key)
 
     if immediate then

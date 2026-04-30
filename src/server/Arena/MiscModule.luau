@@ -8,7 +8,10 @@ GameState.round = 0
 
 local registeredInstances: {Instance} = {}
 
-local function addHighlightToOne(player: Player, color: Color3?, outlineColor: Color3?)
+local function addHighlightToOne(player: Player?, color: Color3?, outlineColor: Color3?)
+    if player == nil then
+        return
+    end
     local colorToPut = color or Color3.fromRGB(255, 140, 91)
     if player.Character and not player.Character:FindFirstChild("EventHighlight") then
         local highlight = Instance.new("Highlight")

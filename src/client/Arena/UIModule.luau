@@ -63,7 +63,9 @@ function UIModule.connect()
         Toasts.hide("life")
         task.wait(3)
         if died and player == localPlayer then
-            Dialog.showDialog("Oh looks like you died.\nYou earned " .. rewardCounter .. "$ this game.", {{ text = "OK" }})
+            Toasts.show("earned", "You earned " .. rewardCounter .. "$ this game.")
+            task.wait(5)
+            Toasts.hide("earned")
         end
     end)
     LifeEvent.OnClientEvent:Connect(function(show: boolean, noToast: boolean?)

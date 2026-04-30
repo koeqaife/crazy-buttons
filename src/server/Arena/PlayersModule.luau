@@ -284,6 +284,8 @@ end
 function GameState.pickOnePlayer(from: {Player}?): Player
     local fromArray = from or alivePlayers
 
+    assert(#fromArray > 0, "No players to pick from")
+
     Helpers.shuffleTable(fromArray)
 
     return fromArray[1]

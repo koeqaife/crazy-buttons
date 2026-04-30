@@ -55,7 +55,11 @@ function Event.onEvent()
     end)
 
     while not somebodyDied or counter < 5 or #PlayersModule.alivePlayers <= 0 do
-        local randomPlayer = PlayersModule.pickOnePlayer()
+        local randomPlayer = PlayersModule.pickOnePlayer() :: Player?
+        if randomPlayer == nil then
+            return
+        end
+
         PlayersModule.runFuncPerAlive(function(player)
             if counter == 0 then
                 return TextModule.setText(player, "first_player", { player = randomPlayer })

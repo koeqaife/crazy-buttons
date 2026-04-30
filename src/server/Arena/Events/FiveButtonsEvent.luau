@@ -54,7 +54,7 @@ function Event.onEvent()
         }, false)
     end)
 
-    while not somebodyDied or counter < 5 or #PlayersModule.alivePlayers > 0 do
+    while not somebodyDied and counter < 5 and #PlayersModule.alivePlayers > 0 do
         local randomPlayer = PlayersModule.pickOnePlayer() :: Player?
         if randomPlayer == nil then
             return

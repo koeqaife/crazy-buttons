@@ -64,7 +64,7 @@ function Event.onEvent()
         TextModule.setText(player, "wait_for_green")
     end)
 
-    local counter = #PlayersModule.alivePlayers - 1
+    local counter = 0
 
     local toWait = math.random(25, 60)
     local lastClickPerPlayer: {[Player]: number} = {}
@@ -134,8 +134,8 @@ function Event.onEvent()
         end
         ButtonsModule.setButtons(player, {})
 
-        counter -= 1
-        if counter < 0 then
+        counter += 1
+        if counter >= #PlayersModule.alivePlayers then
             await(TextModule.showTextSequence(player, {
                 { key = "you_clicked_too_slow", delay = 4},
                 { key = "you_are_eliminated", delay = 4 },

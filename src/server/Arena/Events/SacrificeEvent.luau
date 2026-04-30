@@ -70,7 +70,7 @@ function Event.onEvent()
 
         ButtonsModule.setButtons(player, {})
 
-        if clicked and toKill ~= nil then
+        if clicked and toKill == nil then
             RewardsModule.addRewardTo(player, 8)
             TextModule.setText(player, "choice_cannot_be_undone")
             toKill = player
@@ -80,11 +80,9 @@ function Event.onEvent()
     TimerModule.setTime(-1)
     task.wait(3)
 
-    local playerMustBeKilled = toKill ~= nil
-
     PlayersModule.runFuncPerAll(function(player)
         RewardsModule.addRewardTo(player, 1)
-        if playerMustBeKilled then
+        if toKill ~= nil then
             if table.find(randomPlayers, player) then
                 TextModule.setText(player, "you_are_eliminated")
                 PlayersModule.kill(player)

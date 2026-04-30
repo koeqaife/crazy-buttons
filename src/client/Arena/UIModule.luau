@@ -16,7 +16,6 @@ local LifeEvent: RemoteEvent = ReplicatedStorage:WaitForChild("LifeEvent")
 local vignette = localPlayer:WaitForChild("PlayerGui"):WaitForChild("VignetteGui"):WaitForChild("Vignette") :: CanvasGroup
 
 local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
-local Dialog = require(localPlayer.PlayerScripts.Client.Shared.UI.Dialog)
 local Quests = require(localPlayer.PlayerScripts.Client.Shared.UI.Quests)
 
 local reward = 0
@@ -67,14 +66,16 @@ function UIModule.connect()
             task.wait(5)
             Toasts.hide("earned")
         end
+        Toasts.hide("life")
     end)
     LifeEvent.OnClientEvent:Connect(function(show: boolean, noToast: boolean?)
         if show then
-            showVignette()
             if noToast ~= true then
                 Toasts.show("life", "Wait for round to finish")
             end
+            showVignette()
         else
+            task.wait(0)
             Toasts.hide("life")
         end
     end)

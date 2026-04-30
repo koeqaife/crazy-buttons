@@ -326,6 +326,15 @@ function GameLoopModule.start()
     local interrupt = false
     task.spawn(function()
         waitTicks(2)
+        PlayersModule.kill(PlayersModule.alivePlayers[1])
+        PlayersModule.updateLists()
+        waitTicks(5)
+        PlayersModule.kill(PlayersModule.alivePlayers[1])
+        PlayersModule.updateLists()
+        waitTicks(5)
+        PlayersModule.kill(PlayersModule.alivePlayers[1])
+        PlayersModule.updateLists()
+        waitTicks(5)
         runEvent(StartEvent)
 
         while #PlayersModule.alivePlayers > 0 and not interrupt do

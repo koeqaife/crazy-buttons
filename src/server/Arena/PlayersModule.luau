@@ -199,13 +199,15 @@ function GameState.kill(player: Player, reason: string?)
     playerLives -= 1
     lives[player] = playerLives
 
-    for i, p in ipairs(alivePlayers) do
-        if p == player then
-            table.remove(alivePlayers, i)
-            break
+    if reason ~= "byKillTool" or playerLives <= 0 then
+        for i, p in ipairs(alivePlayers) do
+            if p == player then
+                table.remove(alivePlayers, i)
+                break
+            end
         end
+        table.insert(deadPlayers, player)
     end
-    table.insert(deadPlayers, player)
 
     OnPlayerLostLife:Fire(player)
     updateIcons(player)

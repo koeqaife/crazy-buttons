@@ -66,7 +66,7 @@ function Event.onEvent()
 
     local awardedResolved = false
     local killResolved = false
-    local counter = #PlayersModule.alivePlayers - 1
+    local counter = 0
 
     local clicked: {Player} = {}
 
@@ -81,13 +81,13 @@ function Event.onEvent()
             logAction(player, "complete_obby")
             table.insert(clicked, player)
             RewardsModule.addRewardTo(player, 10)
-            counter -= 1
+            counter += 1
 
             if not awardedResolved then
                 awardedResolved = true
                 RewardsModule.addRewardTo(player, 20)
                 KillToolModule.giveTool(player)
-            elseif counter <= 0 and not killResolved then
+            elseif counter >= #PlayersModule.alivePlayers - 1 and not killResolved then
                 killResolved = true
                 PlayersModule.kill(player)
             end
@@ -96,7 +96,7 @@ function Event.onEvent()
                 PlayersModule.cancelAll()
             end
 
-            if counter <= 0 then
+            if counter >= #PlayersModule.alivePlayers - 1 then
                 PlayersModule.cancelAll()
                 return resolve()
             end

@@ -90,6 +90,10 @@ function Event.onEvent()
                 { idx = 1 }
             })
             TextModule.setText(player, "wait_for_green")
+        else
+            ButtonsModule.setButtons(player, {
+                { idx = 1, inputDisabled = true }
+            })
         end
     end)
 
@@ -148,7 +152,7 @@ function Event.onEvent()
     PlayersModule.runNewPromisePerAlive(function(player, protect, await)
         if player ~= p1 and player ~= p2 then
             ButtonsModule.updateButtons(player, {
-                { idx = 5, inputDisabled = true }
+                { idx = 1, inputDisabled = true, showAs = 5 }
             })
             return
         end
@@ -156,16 +160,16 @@ function Event.onEvent()
         -- Apply cooldown
         local now = os.clock()
         if lastClickPerPlayer[player] and now - lastClickPerPlayer[player] < COOLDOWN then
-            ButtonsModule.setButtons(player, {
-                { idx = 5, text = "CLICK ME", disabled = true }
+            ButtonsModule.updateButtons(player, {
+                { idx = 1, text = "CLICK ME", disabled = true, showAs = 5 }
             })
             task.wait(COOLDOWN - (now - lastClickPerPlayer[player]))
         end
 
-        ButtonsModule.setButtons(player, {
-            { idx = 5, text = "CLICK ME" }
+        ButtonsModule.updateButtons(player, {
+            { idx = 1, text = "CLICK ME", showAs = 5 }
         })
-        local clicked = await(ButtonsModule.waitForIdxClick(player, 10, 5))
+        local clicked = await(ButtonsModule.waitForIdxClick(player, 10, 1))
 
         if not clicked then
             await(TextModule.showTextSequence(player, {

@@ -43,6 +43,12 @@ function Event.onEvent()
         TextModule.setText(player, "reaction_test_for_dead")
     end)
 
+    PlayersModule.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {
+            { idx = 1, disabled = true }
+        })
+    end)
+
     PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "reaction_test", delay = 6 },
@@ -63,8 +69,8 @@ function Event.onEvent()
             buttonText = "DO NOT"
         end
 
-        ButtonsModule.setButtons(player, {
-            { idx = 1, text = buttonText }
+        ButtonsModule.updateButtons(player, {
+            { idx = 1, text = buttonText, disabled = false }
         })
 
         local screenText

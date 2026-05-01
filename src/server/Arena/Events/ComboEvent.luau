@@ -96,6 +96,15 @@ function Event.onEvent()
         TextModule.setText(player, "for_dead")
     end)
 
+    PlayersModule.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {
+            { idx = 1, text = COLOR_NAMES[1], inputDisabled = true, onViewportFrame = true },
+            { idx = 2, text = COLOR_NAMES[2], inputDisabled = true, onViewportFrame = true },
+            { idx = 3, text = COLOR_NAMES[3], inputDisabled = true, onViewportFrame = true },
+            { idx = 4, text = COLOR_NAMES[4], inputDisabled = true, onViewportFrame = true },
+        })
+    end)
+
     PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "repeat_after_me", delay = 6 },
@@ -103,15 +112,6 @@ function Event.onEvent()
             { key = "lets_start", delay = 3 },
         }))
     end):catch(error):await()
-
-    PlayersModule.runFuncPerAlive(function(player)
-        ButtonsModule.setButtons(player, {
-            { idx = 1, text = COLOR_NAMES[1] },
-            { idx = 2, text = COLOR_NAMES[2] },
-            { idx = 3, text = COLOR_NAMES[3] },
-            { idx = 4, text = COLOR_NAMES[4] },
-        })
-    end)
 
     local mistakes: { [Player]: number } = {}
 

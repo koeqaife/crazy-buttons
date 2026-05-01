@@ -6,6 +6,7 @@ type DictTemplate = {[string]: {[string]: Format.Template}}
 
 local Russian: DictTemplate = {
     in_place = {
+        ["You"] = { text = "Ты" },
         ["Attack"] = { text = "Атака" },
         ["Defense"] = { text = "Защита" },
         ["Trust"] = { text = "Доверие" },
@@ -31,7 +32,7 @@ local Russian: DictTemplate = {
         ["green"] = { text = "зеленый" },
         ["pink"] = { text = "розовый" },
 
-        ["Skip"] = { text = "Пропустить" },
+        ["Vote to Skip"] = { text = "Пропустить (голосовать)" },
 
         ["Accident Die"] = { text = "Случайная смерть" },
         ["Any button can kill you with chance 4%"] = { text = "Любая кнопка тебя убьет с шансом 4%" },
@@ -127,7 +128,7 @@ local Russian: DictTemplate = {
         },
         rules_are_simple = { text = "Правила просты", face = "happy" },
         rules = { text = "Атака бьет Доверие, Защита бьет Атаку, Доверие бьет Защиту", face = "nerd" },
-        loser_eliminate = { text = "Проигравший выбывает", face = "dead" },
+        loser_eliminate = { text = "Проигравший теряет жизнь", face = "dead" },
         choose_your_move = { text = "Выберите свой ход", face = "normal" },
         waiting_for_move = {
             text = "Ждем, пока {p1} и {p2} сделают ход...",
@@ -173,7 +174,7 @@ local Russian: DictTemplate = {
     --| CLICK FIRST EVENT |--
     click_first = {
         they_have_to_click = { text = "Им придется нажать на кнопку первыми", face = "click_button_icon" },
-        last_num_eliminate = { text = "Последний нажавший выбывает", face = "dead" },
+        last_num_eliminate = { text = "Последний нажавший теряет жизнь", face = "dead" },
         click_faster = { text = "Жми быстрее остальных", face = "scared" },
         you_have_to_click = { text = "Готовься нажать кнопку как можно быстрее", face = "click_button_icon" },
 
@@ -181,7 +182,7 @@ local Russian: DictTemplate = {
         you_clicked_too_slow = { text = "Это было медленно", face = "scared" },
 
         you_survived = { text = "Вы выжили", face = "happy" },
-        you_are_eliminated = { text = "Вы выбыли", face = "dead" },
+        you_are_eliminated = { text = "Вы потеряли жизнь", face = "dead" },
         wait_for_others = { text = "Жди, пока нажмут остальные", face = "dead" },
         wait_for_green = { text = "Жди, пока кнопка станет зеленой", face = { text = "..." } }
     },
@@ -217,7 +218,7 @@ local Russian: DictTemplate = {
     combo = {
         for_dead = { text = "Они сейчас повторят комбинацию", face = "combo_event_icon" },
         repeat_after_me = { text = "Теперь тебе нужно повторить за мной", face = "combo_event_icon" },
-        players_to_eliminate = { text = "Испытуемые с большим числом ошибок выбывают", face = "dead" },
+        players_to_eliminate = { text = "Испытуемые с большим числом ошибок теряют жизнь", face = "dead" },
         lets_start = { text = "Начнем", face = "shy" },
         my_turn = { text = "Моя очередь, смотри внимательно", face = "normal" },
         your_turn = { text = "Твоя очередь", face = "nerd" },
@@ -226,7 +227,7 @@ local Russian: DictTemplate = {
         mistakes_count = { text = "У тебя {num} ошибок...", requiredKeys = {"num"}, face = "laughing" },
         lets_see = { text = "Посмотрим, что тут у нас", face = "scared" },
 
-        you_eliminated = { text = "Ты один из тех, кто выбывает", face = "dead" },
+        you_eliminated = { text = "Ты один из тех, кто теряет жизнь", face = "dead" },
         you_survived = { text = "Ты выжил", face = "happy" },
     },
 
@@ -235,7 +236,7 @@ local Russian: DictTemplate = {
         to_play = { text = "{p1} и {p2} сыграют в смертельную дуэль", face = "click_button_icon", requiredKeys = {"p1", "p2"} },
         first_one_survives = { text = "Самый быстрый испытуемый выживает", face = "normal" },
         you_did_not_click = { text = "Ты не нажал", face = "angry" },
-        you_are_eliminated = { text = "Ты выбыл", face = "dead" },
+        you_are_eliminated = { text = "Ты потерял жизнь", face = "dead" },
         good_job = { text = "Отличная работа", face = "shy" },
         you_were_fast_enough = { text = "Похоже, теперь ты умрешь", face = "happy" },  -- Changed both to make fun of them
         you_are_slow = { text = "О, это было быстро!", face = "laughing" },
@@ -260,7 +261,7 @@ local Russian: DictTemplate = {
         count_odd = { text = "Нечетное", face = "normal" },
 
         you_survived = { text = "Ты выжил", face = "happy" },
-        you_are_eliminated = { text = "Ты выбыл", face = "dead" }
+        you_are_eliminated = { text = "Ты потерял жизнь", face = "dead" }
     },
 
     --| GOD BUTTON EVENT |--
@@ -374,7 +375,7 @@ local Russian: DictTemplate = {
         press_to_save = { text = "Нажми, чтобы спасти их", face = "shy" },
         choice_cannot_be_undone = { text = "Твой выбор нельзя отменить", face = "dead" },
 
-        you_are_eliminated = { text = "Прощай", face = "dead" },
+        you_are_eliminated = { text = "Ты потерял жизнь", face = "dead" },
         they_are_eliminated = { text = "Попрощайся с ними", face = "scared" },
 
         you_are_saved = { text = "Как жаль, ты жив...", face = "angry" },
@@ -394,7 +395,7 @@ local Russian: DictTemplate = {
 
     --| SPLIT OR STEAL EVENT |--
     split_steal = {
-        intro_you_pair = { text = "Будь другом для {p2}", requiredKeys = {"p2"}, face = "scared" },
+        intro_you_pair = { text = "Будь другом для {p2}, вам нужно будет разделить или украсть", requiredKeys = {"p2"}, face = "scared" },
         intro_others_pair = { text = "{p1} и {p2} должны разделить или украсть", requiredKeys = {"p1","p2"}, face = "happy" },
 
         rule_both_split = { text = "Оба делят — ничего не происходит", face = "happy" },
@@ -406,7 +407,7 @@ local Russian: DictTemplate = {
         waiting_for_players = { text = "Ждем решения испытуемых", face = "normal" },
 
         both_steal = { text = "Оба испытуемых выбрали украсть, они оба умирают", face = "laughing" },
-        stealer_chosen = { text = "{stealer} украл, {victim} выбывает", requiredKeys = {"stealer","victim"}, face = "unamused" },
+        stealer_chosen = { text = "{stealer} украл, {victim} теряет жизнь", requiredKeys = {"stealer","victim"}, face = "unamused" },
         both_split = { text = "Оба испытуемых выбрали разделить, они выживают", face = "happy" },
     },
 
@@ -447,13 +448,13 @@ local Russian: DictTemplate = {
         candidate_line_6 = { text = "А проиграть эксперимент — это так плохо", face = "shy" },
         candidate_line_7 = { text = "Так что надеюсь, это ты", face = "scared" },
 
-        you_eliminated = { text = "Вы выбыли... мне жаль", face = "dead" },
-        player_eliminated = { text = "{player} выбыл", requiredKeys = {"player"}, face = "dead" },
+        you_eliminated = { text = "Вы потеряли жизнь... мне жаль", face = "dead" },
+        player_eliminated = { text = "{player} потерял жизнь", requiredKeys = {"player"}, face = "dead" },
     },
 
     --| START EVENT |--
     start = {
-        intro_hey = { text = "Привет, {player}", requiredKeys = {"player"}, face = "unamused" },
+        intro_hey = { text = "Привет, {player}", requiredKeys = {"player"}, face = "happy" },
         intro_button_experiment = { text = "Добро пожаловать в Эксперимент с Кнопкой", face = "normal" },
         intro_tested = { text = "Мы вас проверим.", face = "scared" },
         intro_easy_hard = { text = "Не думайте, что будет легко", face = "dead" },
@@ -478,8 +479,8 @@ local Russian: DictTemplate = {
         intro_part3 = { text = "Мы начнем с кого-то случайного", face = "shy" },
         first_player = { text = "Первый игрок — {player}", requiredKeys = {"player"}, face = "shy" },
         next_player = { text = "Следующий игрок — {player}", requiredKeys = {"player"}, face = "shy" },
-        you_eliminated = { text = "Вы выбыли", face = "dead" },
-        player_eliminated = { text = "{player} выбыл", requiredKeys = {"player"}, face = "dead" },
+        you_eliminated = { text = "Вы потеряли жизнь", face = "dead" },
+        player_eliminated = { text = "{player} потерял жизнь", requiredKeys = {"player"}, face = "dead" },
         button_safe = { text = "Кнопка была безопасной", face = "happy" },
         press_button = { text = "Нажми кнопку", face = "normal" },
     },

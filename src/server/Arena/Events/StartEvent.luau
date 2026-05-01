@@ -37,14 +37,14 @@ function Event.onEvent()
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_hey", data = { player = player }, delay = 4 },
             { key = "intro_button_experiment", delay = 5 },
-            { key = "intro_tested", delay = 6 },
-            { key = "intro_easy_hard", delay = 7 },
+            { key = "intro_tested", delay = 5 },
+            { key = "intro_easy_hard", delay = 5 },
         }))
     end):catch(error)
 
     PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
-            { idx = 5, text = "Skip" }
+            { idx = 5, text = "Vote to Skip" }
         })
     end)
 

@@ -43,6 +43,16 @@ function Event.onEvent()
     local playerKills = if kills == 1 then p1 else p2
     local playerSaves = if kills == 1 then p2 else p1
 
+    MiscModule.addHighlightToOne(p1, firstIdxColor, firstIdxColor)
+    MiscModule.addHighlightToOne(p2, secondIdxColor, secondIdxColor)
+
+    PlayersModule.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {
+            { idx = 1, text = p1.DisplayName, inputDisabled = true },
+            { idx = 2, text = p2.DisplayName, inputDisabled = true },
+        }, false)
+    end)
+
     PlayersModule.runPromisePerAll(function(player, protect, await)
         if player == playerKills then
             return protect(TextModule.showTextSequence(player, {
@@ -70,10 +80,10 @@ function Event.onEvent()
 
     PlayersModule.runFuncPerAlive(function(player)
         local disableInput = player == p1 or player == p2
-        ButtonsModule.setButtons(player, {
-            { idx = 1, text = p1.DisplayName, inputDisabled = disableInput },
-            { idx = 2, text = p2.DisplayName, inputDisabled = disableInput },
-        }, false)
+        ButtonsModule.updateButtons(player, {
+            { idx = 1, inputDisabled = disableInput },
+            { idx = 2, inputDisabled = disableInput },
+        })
     end)
 
     TimerModule.setTime(30)

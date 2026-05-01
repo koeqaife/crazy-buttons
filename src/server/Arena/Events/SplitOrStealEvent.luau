@@ -88,6 +88,10 @@ function Event.onEvent()
             }, false)
             TextModule.setText(player, "choose_wisely")
         else
+            ButtonsModule.setButtons(player, {
+                { idx = SPLIT_BTN, text = "Split", inputDisabled = true },
+                { idx = STEAL_BTN, text = "Steal", inputDisabled = true }
+            }, false)
             TextModule.setText(player, "waiting_for_players")
         end
     end)

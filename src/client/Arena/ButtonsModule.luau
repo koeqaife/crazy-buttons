@@ -219,28 +219,27 @@ function ButtonsModule.updateButtons(indices: Indices)
                 end
             end
 
-            if obj.disabled ~= nil then
-                local color
-
-                if obj.disabled then
-                    color = Color3.new(0.17, 0.17, 0.17)
-                else
-                    color = buttonData.color
-                end
-
-                highlight.FillColor = color
-                surfaceLight.Color = color
-                buttonPart.Color = color
-                text.TextColor3 = color
-                standHighlight.OutlineColor = color
-            end
-
             local disabled = obj.disabled
             if disabled == nil then
                 disabled = original.disabled
             else
                 original.disabled = disabled
             end
+
+            local color
+
+            if disabled then
+                color = Color3.new(0.17, 0.17, 0.17)
+            else
+                color = buttonData.color
+            end
+
+            highlight.FillColor = color
+            surfaceLight.Color = color
+            buttonPart.Color = color
+            text.TextColor3 = color
+            standHighlight.OutlineColor = color
+            proximityPrompt:SetAttribute("color", buttonData.color)
 
             if obj.onViewportFrame == true and not table.find(copyToViewport, button) then
                 table.insert(copyToViewport, button)

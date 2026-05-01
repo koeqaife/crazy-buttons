@@ -41,6 +41,10 @@ function Event.onEvent()
     end):andThen(function() end)
 
     PlayersModule.runPromisePerAlive(function(player, protect, await)
+        ButtonsModule.setButtons(player, {
+            { idx = 2, disabled = true }
+        })
+
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_alive", delay = 5 },
             { key = "intro_counting", delay = 5 },
@@ -50,8 +54,8 @@ function Event.onEvent()
     end):await()
 
     PlayersModule.runFuncPerAlive(function(player)
-        ButtonsModule.setButtons(player, {
-            { idx = 2 }
+        ButtonsModule.updateButtons(player, {
+            { idx = 2, disabled = false }
         })
         TextModule.setText(player, "remember_to_talk")
     end)

@@ -62,7 +62,7 @@ function UIModule.connect()
         Toasts.hide("life")
         task.wait(3)
         if died and player == localPlayer then
-            Toasts.show("earned", "You earned " .. rewardCounter .. "$ this game.")
+            Toasts.show("earned", "You earned " .. math.round(rewardCounter) .. "$ this game.")
             task.wait(5)
             Toasts.hide("earned")
         end

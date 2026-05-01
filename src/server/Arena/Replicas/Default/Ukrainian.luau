@@ -6,6 +6,7 @@ type DictTemplate = {[string]: {[string]: Format.Template}}
 
 local Ukrainian: DictTemplate = {
     in_place = {
+        ["You"] = { text = "Ви" },
         ["Attack"] = { text = "Атака" },
         ["Defense"] = { text = "Захист" },
         ["Trust"] = { text = "Довіра" },
@@ -31,7 +32,7 @@ local Ukrainian: DictTemplate = {
         ["green"] = { text = "зелений" },
         ["pink"] = { text = "рожевий" },
 
-        ["Skip"] = { text = "Пропустити" },
+        ["Vote to Skip"] = { text = "Проголосувати за пропуск" },
 
         ["Accident Die"] = { text = "Випадкова смерть" },
         ["Any button can kill you with chance 4%"] = { text = "Будь-яка кнопка може вбити тебе з шансом 4%" },
@@ -127,7 +128,7 @@ local Ukrainian: DictTemplate = {
         },
         rules_are_simple = { text = "Правила прості", face = "happy" },
         rules = { text = "Атака б'є Довіру, Захист б'є Атаку, Довіра б'є Захист", face = "nerd" },
-        loser_eliminate = { text = "Той, хто програє, вибуває", face = "dead" },
+        loser_eliminate = { text = "Той, хто програє, втрачає життя", face = "dead" },
         choose_your_move = { text = "Обирайте свій хід", face = "normal" },
         waiting_for_move = {
             text = "Чекаємо, поки {p1} та {p2} зроблять хід...",
@@ -173,7 +174,7 @@ local Ukrainian: DictTemplate = {
     --| CLICK FIRST EVENT |--
     click_first = {
         they_have_to_click = { text = "Їм доведеться натиснути кнопку першими", face = "click_button_icon" },
-        last_num_eliminate = { text = "Останній, хто натисне, вибуває", face = "dead" },
+        last_num_eliminate = { text = "Останній, хто натисне, втрачає життя", face = "dead" },
         click_faster = { text = "Тисни швидше за інших", face = "scared" },
         you_have_to_click = { text = "Готуйся натиснути кнопку якнайшвидше", face = "click_button_icon" },
 
@@ -181,7 +182,7 @@ local Ukrainian: DictTemplate = {
         you_clicked_too_slow = { text = "Це було повільно", face = "scared" },
 
         you_survived = { text = "Ви вижили", face = "happy" },
-        you_are_eliminated = { text = "Ви вибули", face = "dead" },
+        you_are_eliminated = { text = "Ви втратили життя", face = "dead" },
         wait_for_others = { text = "Чекай, поки натиснуть інші", face = "dead" },
         wait_for_green = { text = "Чекай, поки кнопка стане зеленою", face = { text = "..." } }
     },
@@ -217,7 +218,7 @@ local Ukrainian: DictTemplate = {
     combo = {
         for_dead = { text = "Зараз вони повторять комбінацію", face = "combo_event_icon" },
         repeat_after_me = { text = "Тепер тобі треба повторити за мною", face = "combo_event_icon" },
-        players_to_eliminate = { text = "Піддослідні з найбільшою кількістю помилок вибувають", face = "dead" },
+        players_to_eliminate = { text = "Піддослідні з найбільшою кількістю помилок втрачають життя", face = "dead" },
         lets_start = { text = "Почнемо", face = "shy" },
         my_turn = { text = "Моя черга, дивись уважно", face = "normal" },
         your_turn = { text = "Твоя черга", face = "nerd" },
@@ -226,7 +227,7 @@ local Ukrainian: DictTemplate = {
         mistakes_count = { text = "У тебе {num} помилок...", requiredKeys = {"num"}, face = "laughing" },
         lets_see = { text = "Подивимось, що тут у нас", face = "scared" },
 
-        you_eliminated = { text = "Ти один із тих, хто вибуває", face = "dead" },
+        you_eliminated = { text = "Ти один із тих, хто втрачає життя", face = "dead" },
         you_survived = { text = "Ти вижив", face = "happy" },
     },
 
@@ -235,7 +236,7 @@ local Ukrainian: DictTemplate = {
         to_play = { text = "{p1} та {p2} зіграють у смертельну дуель", face = "click_button_icon", requiredKeys = {"p1", "p2"} },
         first_one_survives = { text = "Найшвидший піддослідний виживає", face = "normal" },
         you_did_not_click = { text = "Ти не натиснув", face = "angry" },
-        you_are_eliminated = { text = "Ти вибув", face = "dead" },
+        you_are_eliminated = { text = "Ти втратив життяив життя", face = "dead" },
         good_job = { text = "Відмінна робота", face = "shy" },
         you_were_fast_enough = { text = "Схоже, тепер ти помреш", face = "happy" },  -- Changed both to make fun of them
         you_are_slow = { text = "О, це було швидко!", face = "laughing" },
@@ -374,7 +375,7 @@ local Ukrainian: DictTemplate = {
         press_to_save = { text = "Натисни, щоб врятувати їх", face = "shy" },
         choice_cannot_be_undone = { text = "Твій вибір не можна скасувати", face = "dead" },
 
-        you_are_eliminated = { text = "Бувай", face = "dead" },
+        you_are_eliminated = { text = "Ти втратив життя", face = "dead" },
         they_are_eliminated = { text = "Попрощайся з ними", face = "scared" },
 
         you_are_saved = { text = "Як шкода, ти живий...", face = "angry" },
@@ -394,7 +395,7 @@ local Ukrainian: DictTemplate = {
 
     --| SPLIT OR STEAL EVENT |--
     split_steal = {
-        intro_you_pair = { text = "Будь другом для {p2}", requiredKeys = {"p2"}, face = "scared" },
+        intro_you_pair = { text = "Будь другом для {p2}, вам доведеться поділити або вкрасти", requiredKeys = {"p2"}, face = "scared" },
         intro_others_pair = { text = "{p1} та {p2} мають поділити або вкрасти", requiredKeys = {"p1","p2"}, face = "happy" },
 
         rule_both_split = { text = "Обидва ділять — нічого не відбувається", face = "happy" },
@@ -406,7 +407,7 @@ local Ukrainian: DictTemplate = {
         waiting_for_players = { text = "Чекаємо на рішення піддослідних", face = "normal" },
 
         both_steal = { text = "Обидва піддослідних обрали вкрасти, вони помирають", face = "laughing" },
-        stealer_chosen = { text = "{stealer} вкрав, {victim} вибуває", requiredKeys = {"stealer","victim"}, face = "unamused" },
+        stealer_chosen = { text = "{stealer} вкрав, {victim} втрачає життя", requiredKeys = {"stealer","victim"}, face = "unamused" },
         both_split = { text = "Обидва піддослідних обрали поділити, вони виживають", face = "happy" },
     },
 
@@ -447,13 +448,13 @@ local Ukrainian: DictTemplate = {
         candidate_line_6 = { text = "А програти експеримент — це так погано", face = "shy" },
         candidate_line_7 = { text = "Тож сподіваюсь, це ти", face = "scared" },
 
-        you_eliminated = { text = "Ви вибули... мені шкода", face = "dead" },
-        player_eliminated = { text = "{player} вибув", requiredKeys = {"player"}, face = "dead" },
+        you_eliminated = { text = "Ви втратили життя... мені шкода", face = "dead" },
+        player_eliminated = { text = "{player} втратив життя", requiredKeys = {"player"}, face = "dead" },
     },
 
     --| START EVENT |--
     start = {
-        intro_hey = { text = "Привіт, {player}", requiredKeys = {"player"}, face = "unamused" },
+        intro_hey = { text = "Привіт, {player}", requiredKeys = {"player"}, face = "happy" },
         intro_button_experiment = { text = "Ласкаво просимо до Експерименту з Кнопкою", face = "normal" },
         intro_tested = { text = "Ми вас перевіримо.", face = "scared" },
         intro_easy_hard = { text = "Не думайте, що буде легко", face = "dead" },
@@ -478,8 +479,8 @@ local Ukrainian: DictTemplate = {
         intro_part3 = { text = "Ми почнемо з когось випадкового", face = "shy" },
         first_player = { text = "Перший гравець — {player}", requiredKeys = {"player"}, face = "shy" },
         next_player = { text = "Наступний гравець — {player}", requiredKeys = {"player"}, face = "shy" },
-        you_eliminated = { text = "Ви вибули", face = "dead" },
-        player_eliminated = { text = "{player} вибув", requiredKeys = {"player"}, face = "dead" },
+        you_eliminated = { text = "Ви втратили життя", face = "dead" },
+        player_eliminated = { text = "{player} втратив життя", requiredKeys = {"player"}, face = "dead" },
         button_safe = { text = "Кнопка була безпечною", face = "happy" },
         press_button = { text = "Натисни кнопку", face = "normal" },
     },

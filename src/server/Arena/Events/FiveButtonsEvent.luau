@@ -32,6 +32,17 @@ function Event.onEvent()
     -- My code quality got worsen lately...
     -- No idea why, but I got really really bad in this
     -- But I will try to at least make it work
+
+    PlayersModule.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {
+            { idx = 1, inputDisabled = true },
+            { idx = 2, inputDisabled = true },
+            { idx = 3, inputDisabled = true },
+            { idx = 4, inputDisabled = true },
+            { idx = 5, inputDisabled = true },
+        }, false)
+    end)
+
     PlayersModule.runPromisePerAll(function(player, protect, await)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_part1", delay = 5 },
@@ -43,16 +54,6 @@ function Event.onEvent()
     local somebodyDied = false
     local counter = 0
     local kills = math.random(1, 5)
-
-    PlayersModule.runFuncPerAlive(function(player)
-        ButtonsModule.setButtons(player, {
-            { idx = 1, inputDisabled = true },
-            { idx = 2, inputDisabled = true },
-            { idx = 3, inputDisabled = true },
-            { idx = 4, inputDisabled = true },
-            { idx = 5, inputDisabled = true },
-        }, false)
-    end)
 
     while not somebodyDied and counter < 5 and #PlayersModule.alivePlayers > 0 do
         local randomPlayer = PlayersModule.pickOnePlayer() :: Player?

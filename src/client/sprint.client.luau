@@ -27,7 +27,7 @@ local function setSprint(state: boolean)
     lastTween = TweenService:Create(
         camera,
         tweenInfo,
-        { FieldOfView = state and 90 or 70 }
+        { FieldOfView = state and 80 or 70 }
     )
     lastTween:Play()
 end

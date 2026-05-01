@@ -4,7 +4,7 @@
 local LobbyModule = {}
 
 local MAX_PLAYERS = 20
-local MIN_PLAYERS = 3
+local MIN_PLAYERS = 5
 local COUNTDOWN_SECONDS = 45
 local TELEPORT_PLACE_ID = 137127365503309
 

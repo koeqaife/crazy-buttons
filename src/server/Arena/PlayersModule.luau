@@ -207,9 +207,9 @@ function GameState.kill(player: Player, reason: string?)
             end
         end
         table.insert(deadPlayers, player)
+        OnPlayerLostLife:Fire(player)
     end
 
-    OnPlayerLostLife:Fire(player)
     updateIcons(player)
     if playerLives > 0 then
         LifeEvent:FireClient(player, true)

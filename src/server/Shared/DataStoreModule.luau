@@ -286,6 +286,7 @@ end
 
 local function flushPlayer(player: Player)
     if Helpers.getServerType() == "VIPServer" then
+        warn("Skipped flushing player on server with type " .. Helpers.getServerType())
         return
     end
     local changes = pendingChanges[player]

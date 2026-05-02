@@ -96,7 +96,7 @@ function Event.onEvent()
                 TextModule.setText(player, "you_are_eliminated")
                 PlayersModule.kill(player)
             else
-                TextModule.setText(player, "they_were_eliminated", { p1 = p1, p2 = p2 })
+                TextModule.setText(player, "they_are_eliminated", { p1 = p1, p2 = p2 })
             end
         end
     end)

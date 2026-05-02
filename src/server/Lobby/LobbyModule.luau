@@ -329,6 +329,7 @@ local function onPlayerEnter(player: Player)
         addHighlight(player)
         InQueueLabel:FireClient(player, true)
     else
+        task.spawn(startGame)
         table.insert(queue, player)
         InQueueLabel:FireClient(player, false)
     end

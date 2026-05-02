@@ -5,6 +5,7 @@ local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserService = game:GetService("UserService")
+local Helpers = require(ReplicatedStorage.Shared.Helpers)
 local Promise = require(ReplicatedStorage.Shared.Promise)
 local PlayerDataStore = DataStoreService:GetDataStore("PlayerData")
 
@@ -284,6 +285,9 @@ local function mergeChanges(old: {[string]: any}?, new: {[string]: any}?): {[str
 end
 
 local function flushPlayer(player: Player)
+    if Helpers.getServerType() == "VIPServer" then
+        return
+    end
     local changes = pendingChanges[player]
     if not changes then
         return

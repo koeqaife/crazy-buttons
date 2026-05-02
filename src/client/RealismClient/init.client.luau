@@ -10,6 +10,7 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local VRService = game:GetService("VRService")
 
 local player = assert(Players.LocalPlayer)
 local FirstPerson = require(script.FirstPerson)
@@ -148,8 +149,12 @@ end
 -- value from the server. This is also called continuously
 -- on the client to update the player's view with no latency.
 
-local function onLookReceive(player: Player, pitch: number, yaw: number)
-	local character = player.Character
+local function onLookReceive(playerReceived: Player?, pitch: number, yaw: number)
+	if playerReceived == nil then
+		return
+	end
+
+	local character = playerReceived.Character
 	local rotator = character and module.Rotators[character]
 
 	if rotator then
@@ -523,9 +528,11 @@ function module.Start()
 	setLookAngles.OnClientEvent:Connect(onLookReceive)
 end
 
-if not script:IsA("ModuleScript") then
-	assert(Players.LocalPlayer, "RealismClient expects a Player on the client to automatically start!")
-	task.spawn(module.Start)
+if not VRService.VREnabled then
+	if not script:IsA("ModuleScript") then
+		assert(Players.LocalPlayer, "RealismClient expects a Player on the client to automatically start!")
+		task.spawn(module.Start)
+	end
 end
 
 return module

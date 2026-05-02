@@ -10,13 +10,16 @@ local ScreenGui = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui"
 local moneyFrame = ScreenGui:WaitForChild("Money") :: Frame
 local moneyLabel = moneyFrame:WaitForChild("TextLabel") :: TextLabel
 local multiplierLabel = moneyFrame:WaitForChild("MultiplierLabel") :: TextLabel
-local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent")
-local LifeEvent: RemoteEvent = ReplicatedStorage:WaitForChild("LifeEvent")
+local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent", 10)
+local LifeEvent: RemoteEvent = ReplicatedStorage:WaitForChild("LifeEvent", 10)
+local ToastEvent: RemoteEvent = ReplicatedStorage:WaitForChild("ToastEvent", 10)
 
 local vignette = localPlayer:WaitForChild("PlayerGui"):WaitForChild("VignetteGui"):WaitForChild("Vignette") :: CanvasGroup
 
 local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
 local Quests = require(localPlayer.PlayerScripts.Client.Shared.UI.Quests)
+
+local toastCounter = 0
 
 local reward = 0
 local rewardCounter = 0
@@ -77,6 +80,23 @@ function UIModule.connect()
         else
             task.wait(0)
             Toasts.hide("life")
+        end
+    end)
+    ToastEvent.OnClientEvent:Connect(function(id: string, text: string?, duration: number?)
+        toastCounter += 1
+        local counter = toastCounter
+
+        if text == nil then
+            Toasts.hide(id)
+        else
+            Toasts.show(id, text)
+
+            if duration then
+                task.wait(duration)
+                if counter == toastCounter then
+                    Toasts.hide(id)
+                end
+            end
         end
     end)
 

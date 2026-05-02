@@ -99,10 +99,24 @@ local Russian: DictTemplate = {
         ["There was no 'Simon says' so you had to not click anything"] = { text = "Без 'Саймон говорит' не нужно было ничего нажимать" },
         ["You had to press any button"] = { text = "Нужно было нажать любую кнопку" },
         ["You had to not press any button"] = { text = "Не нужно было нажимать кнопки" },
+
+        ["Press button to move"] = { text = "Нажмите кнопку, чтобы сделать ход" },
+        ["Wait for them to move"] = { text = "Подождите, пока они сделают ход" },
+        ["Remember combination"] = { text = "Запомните комбинацию" },
+        ["Repeat combination (do your best)"] = { text = "Повторите комбинацию (как сможете)" },
+        ["Click as fast as possible on green"] = { text = "Нажмите на зелёное как можно быстрее" },
+        ["One button kills"] = { text = "Одна кнопка убивает" },
+        ["One button rewards"] = { text = "Одна кнопка даёт награду" },
+        ["Equip and press on other player to kill"] = { text = "Возьмите предмет и нажмите на другого игрока, чтобы убить" },
+        ["When 4 subjects are left, you get unlinked"] = { text = "Когда остаётся 4 игрока, вы больше не связаны" },
+        ["You lose life if you answer is wrong"] = { text = "Вы теряете жизнь, если ответ неправильный" },
+        ["Simon will try to trick you"] = { text = "Саймон попытается вас обмануть" },
+        ["People vote for who to eliminate"] = { text = "Игроки голосуют, кого исключить" },
+        ["One button kills, one button rewards"] = { text = "Одна кнопка убивает, другая даёт награду" },
     },
     --| MISC |--
     misc = {
-        error_occurred = { text = "Мы не можем продолжить этот раунд, простите", face = "dead" },
+        error_occurred = { text = "Произошла ошибка, мы не можем продолжить", face = "dead" },
         purchase_not_processed = { text = "Покупка обработана, но сейчас ее нельзя использовать. В следующий раз бесплатно", face = "nerd" },
         purchase_processed = { text = "Ваша покупка обработана!", face = "nerd" },
         players_left = { text = "Осталось {count} испытуемых", requiredKeys = {"count"}, face = "normal" }
@@ -454,11 +468,12 @@ local Russian: DictTemplate = {
 
     --| START EVENT |--
     start = {
-        intro_hey = { text = "Привет, {player}", requiredKeys = {"player"}, face = "happy" },
-        intro_button_experiment = { text = "Добро пожаловать в Эксперимент с Кнопкой", face = "normal" },
-        intro_tested = { text = "Мы вас проверим.", face = "scared" },
-        intro_easy_hard = { text = "Не думайте, что будет легко", face = "dead" },
-        intro_begin = { text = "Давайте начнем", face = "happy" },
+        intro_hey = { text = "Добро пожаловать, {player}.", requiredKeys = {"player"}, face = "happy" },
+        intro_button_experiment = { text = "Вы попали в Buttons Experiment", face = "normal" },
+        intro_tested = { text = "Вас ждёт серия испытаний", face = "scared" },
+        intro_easy_hard = { text = "Некоторые будут простымы, некоторые нет", face = "dead" },
+        intro_begin = { text = "Будьте начеку. Начнём", face = "happy" },
+
         intro_special = { text = "У нас теперь особые раунды", face = "alien" },
         intro_special2 = { text = "Сейчас появятся три разных эффекта", face = "alien" },
         special_text = { text = "{text}", face = "scared", requiredKeys = {"text"} },

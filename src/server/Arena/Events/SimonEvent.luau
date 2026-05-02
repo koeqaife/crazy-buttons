@@ -98,6 +98,15 @@ function Event.onEvent()
         TextModule.setText(player, "intro_dead")
     end)
 
+    PlayersModule.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {
+            { idx = 1, text = "Red", inputDisabled = true },
+            { idx = 2, text = "Blue", inputDisabled = true },
+            { idx = 3, text = "Pink", inputDisabled = true },
+            { idx = 4, text = "Yellow", inputDisabled = true },
+        })
+    end)
+
     PlayersModule.runPromisePerAlive(function(player, protect)
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_alive_1", delay = 5 },
@@ -109,11 +118,12 @@ function Event.onEvent()
 
     PlayersModule.runFuncPerAlive(function(player)
         logAction(player, "simon_says")
-        ButtonsModule.setButtons(player, {
-            { idx = 1, text = "Red" },
-            { idx = 2, text = "Blue" },
-            { idx = 3, text = "Pink" },
-            { idx = 4, text = "Yellow" },
+        TextModule.setToast(player, "Simon will try to trick you", 5)
+        ButtonsModule.updateButtons(player, {
+            { idx = 1, inputDisabled = false },
+            { idx = 2, inputDisabled = false },
+            { idx = 3, inputDisabled = false },
+            { idx = 4, inputDisabled = false },
         })
     end)
 

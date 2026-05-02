@@ -61,7 +61,7 @@ function Event.onEvent()
             if player == p1 or player == p2 then
                 local otherPlayer = if player == p1 then p2 else p1
                 return protect(TextModule.showTextSequence(player, {
-                    { key = "to_play", delay = 6, data = {p1 = "You", p2 = otherPlayer} },
+                    { key = "to_play", delay = 6, data = {p1 = TextModule.translateFor(player, "You"), p2 = otherPlayer} },
                     { key = "first_one_survives", delay = 6 },
                 }))
             else
@@ -76,7 +76,7 @@ function Event.onEvent()
             if player == p1 or player == p2 then
                 local otherPlayer = if player == p1 then p2 else p1
 
-                TextModule.setText(player, "to_play", {p1 = "You", p2 = otherPlayer} )
+                TextModule.setText(player, "to_play", {p1 = TextModule.translateFor(player, "You"), p2 = otherPlayer} )
             else
                 TextModule.setText(player, "to_play", {p1 = p1, p2 = p2} )
             end
@@ -89,6 +89,7 @@ function Event.onEvent()
             ButtonsModule.setButtons(player, {
                 { idx = 1 }
             })
+            TextModule.setToast(player, "Click as fast as possible on green", 5)
             TextModule.setText(player, "wait_for_green")
         else
             ButtonsModule.setButtons(player, {

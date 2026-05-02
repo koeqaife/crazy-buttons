@@ -72,6 +72,7 @@ function Event.onEvent()
         MiscModule.addHighlightToOne(randomPlayer)
 
         task.wait(3)
+        TextModule.setToast(randomPlayer, "One button kills", 3)
         TextModule.setText(randomPlayer, "press_button")
         ButtonsModule.updateButtons(randomPlayer, {
             { idx = 1, inputDisabled = false },
@@ -91,6 +92,7 @@ function Event.onEvent()
             end)
         end
         TimerModule.setTime(-1)
+        TextModule.hideToast(randomPlayer)
 
         if clicked == nil or clicked == kills then
             PlayersModule.runFuncPerAlive(function(player)

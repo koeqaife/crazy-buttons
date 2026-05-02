@@ -27,6 +27,7 @@ export type PlayerData = {
     currentDeathEffect: string?,
     currentAura: string?,
     owns: { string },
+    shownToasts: { string },
     cash: number,
     cookies: number,
     volume: Volume,
@@ -49,6 +50,7 @@ local defaultData: PlayerData = {
     notJoinedBefore = true,
     currentDeathEffect = "default",
     currentAura = "default",
+    shownToasts = {},
     owns = {},
     cash = 0,
     cookies = 0,
@@ -181,7 +183,7 @@ type IncreaseKey = "survives" | "cash" | "pendingRevives" | "timesPlayed" | "coo
 type SetMaxKey = "topStreak"
 type RewriteKey = "volume" | "currentDeathEffect" | "currentAura" | "notJoinedBefore"
                   | "streak" | "streakLastUpdated" | "questsDay" | "quests"
-type MergeKey = "owns"
+type MergeKey = "owns" | "shownToasts"
 type Key = IncreaseKey | SetMaxKey | RewriteKey | MergeKey
 
 local INCREASE_KEYS = {
@@ -209,7 +211,8 @@ local REWRITE_KEYS = {
 }
 
 local MERGE_TABLE_KEYS = {
-    "owns"
+    "owns",
+    "shownToasts"
 }
 
 local function mergeChanges(old: {[string]: any}?, new: {[string]: any}?): {[string]: any}
@@ -472,6 +475,9 @@ end
 
 local function expectType(player: Player, key: string, expectedType: string): any
     local value = dataPerPlayer[player][key]
+    if value == nil then
+        value = defaultData[player][key]
+    end
     if type(value) ~= expectedType then
         error("Couldn't get value with key " .. key .. " as " .. expectedType .. ". Original type: " .. type(value))
     end

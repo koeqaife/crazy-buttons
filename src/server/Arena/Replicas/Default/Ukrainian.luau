@@ -99,10 +99,24 @@ local Ukrainian: DictTemplate = {
         ["There was no 'Simon says' so you had to not click anything"] = { text = "Без 'Саймон каже' не треба було нічого натискати" },
         ["You had to press any button"] = { text = "Треба було натиснути будь-яку кнопку" },
         ["You had to not press any button"] = { text = "Не треба було натискати кнопки" },
+
+        ["Press button to move"] = { text = "Натисніть кнопку, щоб зробити хід" },
+        ["Wait for them to move"] = { text = "Зачекайте, поки вони зроблять хід" },
+        ["Remember combination"] = { text = "Запам’ятайте комбінацію" },
+        ["Repeat combination (do your best)"] = { text = "Повторіть комбінацію (як зможете)" },
+        ["Click as fast as possible on green"] = { text = "Натискайте на зелене якомога швидше" },
+        ["One button kills"] = { text = "Одна кнопка вбиває" },
+        ["One button rewards"] = { text = "Одна кнопка дає нагороду" },
+        ["Equip and press on other player to kill"] = { text = "Візьміть предмет і натисніть на іншого гравця, щоб убити" },
+        ["When 4 subjects are left, you get unlinked"] = { text = "Коли залишається 4 гравці, ви більше не пов’язані" },
+        ["You lose life if you answer is wrong"] = { text = "Ви втрачаєте життя, якщо відповідь неправильна" },
+        ["Simon will try to trick you"] = { text = "Саймон спробує вас обманути" },
+        ["People vote for who to eliminate"] = { text = "Гравці голосують, кого виключити" },
+        ["One button kills, one button rewards"] = { text = "Одна кнопка вбиває, інша дає нагороду" },
     },
     --| MISC |--
     misc = {
-        error_occurred = { text = "Ми не можемо продовжити цей раунд, вибачте", face = "dead" },
+        error_occurred = { text = "Сталася помилка, ми не можемо продовжити", face = "dead" },
         purchase_not_processed = { text = "Покупка оброблена, але зараз її не можна використати. Наступного разу безкоштовно", face = "nerd" },
         purchase_processed = { text = "Вашу покупку оброблено!", face = "nerd" },
         players_left = { text = "Залишилось {count} піддослідних", requiredKeys = {"count"}, face = "normal" }
@@ -454,11 +468,12 @@ local Ukrainian: DictTemplate = {
 
     --| START EVENT |--
     start = {
-        intro_hey = { text = "Привіт, {player}", requiredKeys = {"player"}, face = "happy" },
-        intro_button_experiment = { text = "Ласкаво просимо до Експерименту з Кнопкою", face = "normal" },
-        intro_tested = { text = "Ми вас перевіримо.", face = "scared" },
-        intro_easy_hard = { text = "Не думайте, що буде легко", face = "dead" },
-        intro_begin = { text = "Давайте почнемо", face = "happy" },
+        intro_hey = { text = "Ласкаво просимо, {player}", requiredKeys = {"player"}, face = "happy" },
+        intro_button_experiment = { text = "Ви потрапили до Buttons Experiment", face = "normal" },
+        intro_tested = { text = "На вас чекає серія випробувань", face = "scared" },
+        intro_easy_hard = { text = "Деякі будуть простими. Деякі — ні", face = "dead" },
+        intro_begin = { text = "Будьте напоготові. Почнімо", face = "happy" },
+
         intro_special = { text = "У нас тепер особливі раунди", face = "alien" },
         intro_special2 = { text = "Зараз з'являться три різні ефекти", face = "alien" },
         special_text = { text = "{text}", face = "scared", requiredKeys = {"text"} },

@@ -69,11 +69,12 @@ function Event.onEvent()
     local counter = 0
 
     local clicked: {Player} = {}
+    local timeout = applyTimeBonus(150)
 
-    TimerModule.setTime(80)
+    TimerModule.setTime(timeout)
     PlayersModule.runPromisePerAlive(function(player, protect, await)
         return protect(Promise.new(function(resolve, reject, onCancel)
-            local idx = await(ButtonsModule.waitForClick(player, 80))
+            local idx = await(ButtonsModule.waitForClick(player, applyTimeBonus(timeout)))
             if idx == nil then
                 return resolve()
             end
@@ -87,6 +88,7 @@ function Event.onEvent()
                 awardedResolved = true
                 RewardsModule.addRewardTo(player, 20)
                 KillToolModule.giveTool(player)
+                TextModule.setToast(player, "Equip and press on other player to kill", 5)
             elseif counter >= #PlayersModule.alivePlayers - 1 and not killResolved then
                 killResolved = true
                 PlayersModule.kill(player)
@@ -101,7 +103,7 @@ function Event.onEvent()
                 return resolve()
             end
         end))
-    end):timeout(applyTimeBonus(80)):catch(function(e)
+    end):timeout(applyTimeBonus(timeout)):catch(function(e)
         if Promise.Error.isKind(e, Promise.Error.Kind.TimedOut) then
             return
         else
@@ -109,6 +111,7 @@ function Event.onEvent()
         end
     end):await()
     TimerModule.setTime(-1)
+    task.wait(5)
 
     if counter < 2 then
         PlayersModule.runFuncPerAlive(function(player)

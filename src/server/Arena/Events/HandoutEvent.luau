@@ -58,6 +58,7 @@ function Event.onEvent()
                     { key = "you_got_tool_part3", delay = 5 },
                     { key = "you_got_tool_part4", delay = 5 },
                 }))
+                TextModule.setToast(player, "Equip and press on other player to kill", 5)
             else
                 RewardsModule.addRewardTo(player, 1)
                 await(TextModule.showTextSequence(player, {

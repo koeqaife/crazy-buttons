@@ -10,6 +10,12 @@ local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModul
 
 local SyncEvent = Instance.new("RemoteEvent", ReplicatedStorage)
 SyncEvent.Name = "SyncEvent"
+local ToastEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+ToastEvent.Name = "ToastEvent"
+
+function UIModule.setToast(player: Player, id: string, text: string?, duration: number?)
+    ToastEvent:FireClient(player, id, text, duration)
+end
 
 function UIModule.sendMultipliers()
     for player, multiplier in RewardsModule.rewardMultipliers do

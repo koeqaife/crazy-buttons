@@ -7,7 +7,7 @@ type DictTemplate = {[string]: {[string]: Format.Template}}
 local English: DictTemplate = {
     --| MISC |--
     misc = {
-        error_occurred = { text = "We cannot continue this round, sorry for that", face = "dead" },
+        error_occurred = { text = "An error occurred, we cannot continue", face = "dead" },
         purchase_not_processed = { text = "Your purchase has been processed, but it can't be used right now. Next time it's free", face = "nerd" },
         purchase_processed = { text = "Your purchase has been processed!", face = "nerd" },
         players_left = { text = "{count} subjects are left", requiredKeys = {"count"}, face = "normal" }
@@ -359,11 +359,12 @@ local English: DictTemplate = {
 
     --| START EVENT |--
     start = {
-        intro_hey = { text = "Hello {player}", requiredKeys = {"player"}, face = "happy" },
-        intro_button_experiment = { text = "Welcome to the Button Experiment", face = "normal" },
-        intro_tested = { text = "We will test you.", face = "scared" },
-        intro_easy_hard = { text = "Don't think it will be easy", face = "dead" },
-        intro_begin = { text = "Let's begin", face = "happy" },
+        intro_hey = { text = "Welcome, {player}", requiredKeys = {"player"}, face = "happy" },
+        intro_button_experiment = { text = "You have entered the Button Experiment", face = "normal" },
+        intro_tested = { text = "You will face a series of trials", face = "scared" },
+        intro_easy_hard = { text = "Some will be simple. Some will not", face = "dead" },
+        intro_begin = { text = "Stay sharp. Let's begin", face = "happy" },
+
         intro_special = { text = "We have special rounds now", face = "alien" },
         intro_special2 = { text = "Three different effects will present now", face = "alien" },
         special_text = { text = "{text}", face = "scared", requiredKeys = {"text"} },

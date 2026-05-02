@@ -37,7 +37,7 @@ function Event.onEvent()
         return protect(TextModule.showTextSequence(player, {
             { key = "intro_hey", data = { player = player }, delay = 4 },
             { key = "intro_button_experiment", delay = 5 },
-            { key = "intro_tested", delay = 5 },
+            { key = "intro_tested", delay = 4 },
             { key = "intro_easy_hard", delay = 4 },
         }))
     end):catch(error)
@@ -48,7 +48,7 @@ function Event.onEvent()
         })
     end)
 
-    ButtonsModule.initiateButtonChoice(25, nil, nil, nil, true, PlayersModule.alivePlayers):catch(error):await()
+    ButtonsModule.initiateButtonChoice(17, nil, nil, nil, true, PlayersModule.alivePlayers):catch(error):await()
     PlayersModule.cancelAll()
     promise:cancel()
     task.wait()

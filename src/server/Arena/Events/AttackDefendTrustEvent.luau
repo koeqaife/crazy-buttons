@@ -71,6 +71,14 @@ function Event.onEvent()
         TextModule.setText(player, "chosen_players", {p1 = p1, p2 = p2})
     end)
 
+    PlayersModule.runFuncPerAlive(function(player)
+        ButtonsModule.setButtons(player, {
+            { idx = 1, text = "Attack", inputDisabled = true },
+            { idx = 2, text = "Defend", inputDisabled = true },
+            { idx = 3, text = "Trust", inputDisabled = true }
+        }, false)
+    end)
+
     MiscModule.addHighlightTo({p1, p2})
     if not explained then
         explained = true
@@ -79,7 +87,7 @@ function Event.onEvent()
                 local otherPlayer = if player == p1 then p2 else p1
 
                 return protect(TextModule.showTextSequence(player, {
-                    { key = "chosen_players", delay = 5, data = {p1 = "You", p2 = otherPlayer} },
+                    { key = "chosen_players", delay = 5, data = {p1 = TextModule.translateFor(player, "You"), p2 = otherPlayer} },
                     { key = "rules_are_simple", delay = 4, face = "happy" },
                     { key = "rules", delay = 7 },
                     { key = "loser_eliminate", delay = 5 },
@@ -98,7 +106,7 @@ function Event.onEvent()
             if player == p1 or player == p2 then
                 local otherPlayer = if player == p1 then p2 else p1
 
-                TextModule.setText(player, "chosen_players", {p1 = "You", p2 = otherPlayer} )
+                TextModule.setText(player, "chosen_players", {p1 = TextModule.translateFor(player, "You"), p2 = otherPlayer} )
             else
                 TextModule.setText(player, "chosen_players", {p1 = p1, p2 = p2} )
             end
@@ -121,17 +129,23 @@ function Event.onEvent()
 
             if player == p1 or player == p2 then
                 TextModule.setText(player, "choose_your_move")
+                TextModule.setToast(player, "Press button to move", 5)
             end
         end)
         PlayersModule.runFuncPerAll(function(player)
             if not (player == p1 or player == p2) then
                 TextModule.setText(player, "waiting_for_move", {p1 = p1, p2 = p2})
+                TextModule.setToast(player, "Wait for them to move", 5)
             end
         end)
 
         TimerModule.setTime(15)
         local _, chosen = ButtonsModule.initiateButtonChoice(15, nil, nil, nil, nil, {p1, p2}):catch(error):await()
         TimerModule.setTime(-1)
+
+        PlayersModule.runFuncPerAll(function(player)
+            TextModule.hideToast(player)
+        end)
 
         if chosen[p1] == nil and chosen[p2] == nil then
             PlayersModule.runFuncPerAll(function(player)

@@ -13,7 +13,7 @@ ActivateKillTool.Name = "ActivateKillTool"
 local KillToolAction = Instance.new("RemoteEvent", ReplicatedStorage)
 KillToolAction.Name = "KillToolAction"
 
-local GuiSpace = IconModule.reserveSpace(-1, "KillTool")
+local GuiSpace = IconModule.reserveSpace(-2, "KillTool")
 
 local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAction
 

@@ -78,6 +78,7 @@ function Event.onEvent()
 
         ButtonsModule.setButtons(player, buttons, nil, seed)
         TextModule.setText(player, "good_luck")
+        TextModule.setToast(player, "One button rewards", 3)
     end)
 
     local awardedPlayer: Player? = nil
@@ -124,6 +125,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {})
         if awardedPlayer ~= nil then
             if awardedPlayer == player then
+                TextModule.setToast(player, "Equip and press on other player to kill", 5)
                 TextModule.setText(player, "you_found_god_btn")
                 KillToolModule.giveTool(player)
                 RewardsModule.rewardBadge(player, BADGE_ID)

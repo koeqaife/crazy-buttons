@@ -224,6 +224,7 @@ local function runEvent(event: Event?)
     AmbienceModule.stopAll()
     PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {})
+        TextModule.hideToast(player)
     end)
     MiscModule.removeHighlightFromAll()
 
@@ -326,6 +327,7 @@ function GameLoopModule.start()
     local interrupt = false
     task.spawn(function()
         waitTicks(2)
+        runEvent(ObbyEvent)
         runEvent(StartEvent)
 
         while #PlayersModule.alivePlayers > 0 and not interrupt do

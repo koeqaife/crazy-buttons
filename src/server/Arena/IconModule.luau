@@ -39,6 +39,7 @@ local function createBillboard(player: Player): BillboardGui
 
         local listLayout = Instance.new("UIListLayout", newGui)
         listLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
         billboardPerPlayer[player] = newGui
         return newGui
@@ -172,6 +173,14 @@ function IconModule.reserveSpace(order: number, spaceId: string): Space
                 end
             end
         end
+        for player, billboard in pairs(billboardPerPlayer) do
+            local spaceAmount = 0
+            for k, v in pairs(framesPerPlayer[player]) do
+                spaceAmount += 1
+            end
+
+            billboard.ExtentsOffsetWorldSpace = Vector3.new(0, 3 + (spaceAmount), 0)
+        end
         conn:Disconnect()
     end
 
@@ -193,7 +202,6 @@ function IconModule.init()
 
                 local spaceAmount = 0
                 for k, v in pairs(framesPerPlayer[player]) do
-                    print(spaceAmount)
                     spaceAmount += 1
                 end
                 billboard.ExtentsOffsetWorldSpace = Vector3.new(0, 3 + (spaceAmount), 0)

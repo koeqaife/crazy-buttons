@@ -132,14 +132,18 @@ function Event.onEvent()
             enableAllBtn(player)
             disableInput(player)
             task.wait(2)
+
+            TextModule.setToast(player, "Remember combination")
             for i, idx in ipairs(combo) do
                 disableAllBtnExcept(player, idx)
                 task.wait(1)
             end
+            TextModule.hideToast(player)
 
             TextModule.setText(player, "your_turn")
             enableAllBtn(player)
             task.wait(2)
+            TextModule.setToast(player, "Repeat combination (do your best)")
 
             for i, idx in ipairs(combo) do
                 enableInput(player)
@@ -168,16 +172,21 @@ function Event.onEvent()
                 task.wait(0.25)
             end
         end
+        TextModule.hideToast(player)
         TextModule.setText(player, "wait")
         task.wait(2)
     end):catch(error):await()
 
     local toCount = {}
-    for player, mistakeCount in pairs(mistakes) do
+    PlayersModule.runFuncPerAlive(function(player)
+        local mistakeCount = mistakes[player]
+        if mistakeCount == nil then
+            mistakeCount = 22
+        end
         if mistakeCount > 0 then
             table.insert(toCount, { player = player, mistakes = mistakeCount })
         end
-    end
+    end)
 
     table.sort(toCount, function(a, b)
         return a.mistakes > b.mistakes

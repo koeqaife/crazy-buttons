@@ -8,6 +8,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local IconModule = require(ServerScriptService.Server.Arena.IconModule)
 local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
 local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
 local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
@@ -27,6 +28,20 @@ Event.chance = 0.1
 Event.minRound = 2
 Event.maxPerGame = 7
 Event.minPlayers = 3
+
+local iconsArrow = {
+    "rbxassetid://73836240759936",  -- red
+    "rbxassetid://94482221000405",  -- blue
+    "rbxassetid://87641409463283",  -- pink
+    "rbxassetid://72327863886531",  -- yellow
+}
+
+local iconsKill = {
+    "rbxassetid://116467828523943", -- red
+    "rbxassetid://132494941969982", -- blue
+    "rbxassetid://81605219273054",  -- pink
+    "rbxassetid://114734242707416", -- yellow
+}
 
 local highlightColors = {
     Color3.new(0.95, 0.21, 0.21),   -- Red
@@ -55,15 +70,14 @@ end
 
 function Event.onEvent()
     local amount
-    if #PlayersModule.alivePlayers > 15 then
-        amount = 4
-    elseif #PlayersModule.alivePlayers > 5 then
+    if #PlayersModule.alivePlayers > 10 then
         amount = 3
     else
         amount = 2
     end
 
     local playersForVote = PlayersModule.pickPlayers(amount)
+    local guiSpace = IconModule.reserveSpace(1, "event")
 
     PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "dead_intro")
@@ -93,7 +107,10 @@ function Event.onEvent()
         function(player, idx)
             MiscModule.removeHighlightFromOne(player)
             if idx ~= nil then
+                guiSpace.addIcon(player, "kill", iconsKill[idx])
                 MiscModule.addHighlightToOne(player, highlightColors[idx])
+            else
+                guiSpace.removeIcon(player, "kill")
             end
         end, nil, true
     )
@@ -106,12 +123,14 @@ function Event.onEvent()
             table.insert(buttons, { idx = i, text = playerForVote.DisplayName, inputDisabled = playerOnVote })
 
             local color = highlightColors[i]
+            guiSpace.addIcon(playerForVote, "arrow", iconsArrow[i])
             MiscModule.addHighlightToOne(playerForVote, color, color)
         end
 
         ButtonsModule.setButtons(player, buttons, false)
 
         if playerOnVote then
+            TextModule.setToast(player, "People vote for who to eliminate", 5)
             await(TextModule.showTextSequence(player, {
                 { key = "candidate_line_1", delay = 4 },
                 { key = "candidate_line_2", delay = 4 },
@@ -125,6 +144,7 @@ function Event.onEvent()
     end)
 
     local _, result = votingPromise:catch(error):await()
+    guiSpace.destroy()
 
     local votes: { [Player]: number } = {}
     for _, idx in pairs(result) do

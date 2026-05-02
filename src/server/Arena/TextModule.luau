@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local UIModule = require(script.Parent.UIModule)
 local Replicas = require(ServerScriptService.Server.Arena.Replicas.Module)
 local Format = require(ServerScriptService.Server.Arena.Replicas.Format)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
@@ -99,6 +100,21 @@ function TextModule.showTextSequence(player: Player, sequence: {{key: string, da
         end
         resolve()
     end)
+end
+
+function TextModule.setToast(player: Player, text: string, duration: number?, alwaysShow: boolean?)
+    if alwaysShow == nil or alwaysShow == false then
+        local shown = DataStoreModule.getTable(player, "shownToasts")
+        if table.find(shown, text) ~= nil then
+            return
+        end
+    end
+    UIModule.setToast(player, "event", TextModule.translateFor(player, text), duration)
+    DataStoreModule.mergeKey(player, "shownToasts", {text})
+end
+
+function TextModule.hideToast(player: Player)
+    UIModule.setToast(player, "event", nil)
 end
 
 function TextModule.setText(player: Player, key: string, data: {[string]: any}?)

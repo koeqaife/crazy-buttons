@@ -199,6 +199,7 @@ function GameState.kill(player: Player, reason: string?)
     playerLives -= 1
     lives[player] = playerLives
 
+    local noToast = true
     if reason ~= "byKillTool" or playerLives <= 0 then
         for i, p in ipairs(alivePlayers) do
             if p == player then
@@ -209,13 +210,14 @@ function GameState.kill(player: Player, reason: string?)
         table.insert(deadPlayers, player)
         OnPlayerLostLife:Fire(player)
     end
+    if playerLives > 0 and reason ~= "byKillTool" then
+        noToast = false
+    end
 
     updateIcons(player)
+    LifeEvent:FireClient(player, true, noToast)
     if playerLives > 0 then
-        LifeEvent:FireClient(player, true)
         return
-    else
-        LifeEvent:FireClient(player, true, true)
     end
 
     SyncDeadEvent:FireAllClients(true, player, deadPlayers, alivePlayers, reason)
@@ -233,6 +235,7 @@ function GameState.kill(player: Player, reason: string?)
         -- Kill other linked player
         local linked = LinksModule.clearLinks(player)
         if linked then
+            lives[linked] = 1
             GameState.kill(linked)
         end
         resolve()

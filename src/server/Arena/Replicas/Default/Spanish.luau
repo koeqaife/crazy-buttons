@@ -99,10 +99,24 @@ local Spanish: DictTemplate = {
         ["There was no 'Simon says' so you had to not click anything"] = { text = "No hubo 'Simón dice', así que no debías tocar nada" },
         ["You had to press any button"] = { text = "Tenías que presionar cualquier botón" },
         ["You had to not press any button"] = { text = "No tenías que presionar ningún botón" },
+
+        ["Press button to move"] = { text = "Pulsa el botón para hacer tu movimiento" },
+        ["Wait for them to move"] = { text = "Espera a que hagan su movimiento" },
+        ["Remember combination"] = { text = "Recuerda la combinación" },
+        ["Repeat combination (do your best)"] = { text = "Repite la combinación (lo mejor que puedas)" },
+        ["Click as fast as possible on green"] = { text = "Haz clic en el verde lo más rápido posible" },
+        ["One button kills"] = { text = "Un botón mata" },
+        ["One button rewards"] = { text = "Un botón da recompensa" },
+        ["Equip and press on other player to kill"] = { text = "Equipa y pulsa sobre otro jugador para matar" },
+        ["When 4 subjects are left, you get unlinked"] = { text = "Cuando quedan 4 jugadores, dejáis de estar vinculados" },
+        ["You lose life if you answer is wrong"] = { text = "Pierdes una vida si la respuesta es incorrecta" },
+        ["Simon will try to trick you"] = { text = "Simon intentará engañarte" },
+        ["People vote for who to eliminate"] = { text = "Los jugadores votan a quién eliminar" },
+        ["One button kills, one button rewards"] = { text = "Un botón mata, otro da recompensa" },
     },
     --| MISC |--
     misc = {
-        error_occurred = { text = "No podemos continuar esta ronda, lo sentimos", face = "dead" },
+        error_occurred = { text = "Se ha producido un error; no podemos continuar", face = "dead" },
         purchase_not_processed = { text = "Tu compra fue procesada, pero no puede usarse ahora. La próxima es gratis", face = "nerd" },
         purchase_processed = { text = "¡Tu compra ha sido procesada!", face = "nerd" },
         players_left = { text = "Quedan {count} sujetos", requiredKeys = {"count"}, face = "normal" }
@@ -454,11 +468,12 @@ local Spanish: DictTemplate = {
 
     --| START EVENT |--
     start = {
-        intro_hey = { text = "Hola {player}", requiredKeys = {"player"}, face = "happy" },
-        intro_button_experiment = { text = "Bienvenidos al Experimento del Botón", face = "normal" },
-        intro_tested = { text = "Los pondremos a prueba.", face = "scared" },
-        intro_easy_hard = { text = "No crean que será fácil", face = "dead" },
-        intro_begin = { text = "Comencemos", face = "happy" },
+        intro_hey = { text = "Bienvenido, {player}", requiredKeys = {"player"}, face = "happy" },
+        intro_button_experiment = { text = "Has entrado en el Buttons Experiment", face = "normal" },
+        intro_tested = { text = "Te enfrentarás a una serie de pruebas", face = "scared" },
+        intro_easy_hard = { text = "Algunas serán sencillas. Otras no", face = "dead" },
+        intro_begin = { text = "Mantente alerta. Comencemos", face = "happy" },
+
         intro_special = { text = "Ahora tenemos rondas especiales", face = "alien" },
         intro_special2 = { text = "Se presentarán tres efectos diferentes", face = "alien" },
         special_text = { text = "{text}", face = "scared", requiredKeys = {"text"} },

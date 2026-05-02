@@ -32,6 +32,7 @@ Event.name = "math"
 Event.category = "mind"
 Event.chance = 0.10
 Event.minPlayers = 4
+Event.minRound = 3
 Event.maxPerGame = 5
 
 local quizzes = {
@@ -167,6 +168,7 @@ function Event.onEvent()
 
             ButtonsModule.setButtons(player, buttons)
         else
+            TextModule.setToast(player, "You lose life if you answer is wrong", 5)
             TextModule.setText(player, "is_player_smart", { player = randomPlayer, exp = randomQuiz.exp })
             ButtonsModule.setButtons(player, {
                 { idx = 1, text = "No" },

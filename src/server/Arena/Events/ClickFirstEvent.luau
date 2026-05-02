@@ -61,6 +61,7 @@ function Event.onEvent()
         ButtonsModule.setButtons(player, {
             { idx = 1 }
         })
+        TextModule.setToast(player, "Click as fast as possible on green", 5)
         TextModule.setText(player, "wait_for_green")
     end)
 

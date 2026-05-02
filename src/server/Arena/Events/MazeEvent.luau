@@ -93,6 +93,7 @@ function Event.onEvent()
 
     TimerModule.setTime(150)
     PlayersModule.runPromisePerAlive(function(player, protect, await)
+        TextModule.setToast(player, "One button kills, one button rewards", 5)
         return protect(Promise.new(function(resolve, reject, onCancel)
             while task.wait(3) and not resolved do -- for debouncing
                 local clickPromise = ButtonsModule.waitForClick(player, 150)
@@ -111,6 +112,7 @@ function Event.onEvent()
                     awardedResolved = true
                     RewardsModule.addRewardTo(player, 2)
                     KillToolModule.giveTool(player)
+                    TextModule.setToast(player, "Equip and press on other player to kill", 5)
                 elseif clicked == kills and not killResolved then
                     killResolved = true
                     PlayersModule.kill(player)

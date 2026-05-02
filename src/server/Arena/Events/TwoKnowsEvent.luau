@@ -7,6 +7,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 -- They have to convince others to press their button
 
 local Arena = game:GetService("ServerScriptService").Server.Arena
+local IconModule = require(ServerScriptService.Server.Arena.IconModule)
 local MiscModule = require(ServerScriptService.Server.Arena.MiscModule)
 local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
 local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
@@ -22,7 +23,10 @@ type EventType = EventTypeModule.Event
 local Event = {} :: EventType
 
 local firstIdxColor = Color3.new(0.95, 0.21, 0.21)
+local firstIdxArrow = "rbxassetid://73836240759936"
+
 local secondIdxColor = Color3.new(0, 0.35, 1)
+local secondIdxArrow = "rbxassetid://94482221000405"
 
 Event.name = "two_knows"
 Event.category = "social"
@@ -43,8 +47,11 @@ function Event.onEvent()
     local playerKills = if kills == 1 then p1 else p2
     local playerSaves = if kills == 1 then p2 else p1
 
+    local guiSpace = IconModule.reserveSpace(1, "event")
     MiscModule.addHighlightToOne(p1, firstIdxColor, firstIdxColor)
     MiscModule.addHighlightToOne(p2, secondIdxColor, secondIdxColor)
+    guiSpace.addIcon(p1, "arrow", firstIdxArrow)
+    guiSpace.addIcon(p2, "arrow", secondIdxArrow)
 
     PlayersModule.runFuncPerAlive(function(player)
         ButtonsModule.setButtons(player, {
@@ -96,9 +103,9 @@ function Event.onEvent()
     end, function(player, idx)
         MiscModule.removeHighlightFromOne(player)
         if idx == 1 then
-            MiscModule.addHighlightToOne(player, firstIdxColor, firstIdxColor)
+            MiscModule.addHighlightToOne(player, firstIdxColor)
         elseif idx == 2 then
-            MiscModule.addHighlightToOne(player, secondIdxColor, secondIdxColor)
+            MiscModule.addHighlightToOne(player, secondIdxColor)
         end
     end):catch(error):await()
 
@@ -128,6 +135,7 @@ function Event.onEvent()
             end
         end
     end):catch(error):await()
+    guiSpace.destroy()
     task.wait(6)
 
     return

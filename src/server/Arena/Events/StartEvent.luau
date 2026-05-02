@@ -38,7 +38,7 @@ function Event.onEvent()
             { key = "intro_hey", data = { player = player }, delay = 4 },
             { key = "intro_button_experiment", delay = 5 },
             { key = "intro_tested", delay = 5 },
-            { key = "intro_easy_hard", delay = 5 },
+            { key = "intro_easy_hard", delay = 4 },
         }))
     end):catch(error)
 

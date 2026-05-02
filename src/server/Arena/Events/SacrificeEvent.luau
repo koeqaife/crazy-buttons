@@ -83,20 +83,20 @@ function Event.onEvent()
     PlayersModule.runFuncPerAll(function(player)
         RewardsModule.addRewardTo(player, 1)
         if toKill ~= nil then
+            if player == toKill then
+                TextModule.setText(player, "you_saved_them")
+                PlayersModule.kill(player)
+            elseif table.find(randomPlayers, player) then
+                TextModule.setText(player, "you_are_saved")
+            else
+                TextModule.setText(player, "they_were_saved", { p1 = p1, p2 = p2 })
+            end
+        else
             if table.find(randomPlayers, player) then
                 TextModule.setText(player, "you_are_eliminated")
                 PlayersModule.kill(player)
             else
-                TextModule.setText(player, "they_are_eliminated", { p1 = p1, p2 = p2 })
-            end
-        else
-            if table.find(randomPlayers, player) then
-                TextModule.setText(player, "you_are_saved")
-            elseif player == toKill then
-                TextModule.setText(player, "you_saved_them")
-                PlayersModule.kill(player)
-            else
-                TextModule.setText(player, "they_were_saved", { p1 = p1, p2 = p2 })
+                TextModule.setText(player, "they_were_eliminated", { p1 = p1, p2 = p2 })
             end
         end
     end)

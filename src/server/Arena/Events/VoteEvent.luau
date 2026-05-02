@@ -24,6 +24,7 @@ local Event = {} :: EventType
 Event.name = "vote"
 Event.category = "social"
 Event.chance = 0.1
+Event.minRound = 2
 Event.maxPerGame = 7
 Event.minPlayers = 3
 

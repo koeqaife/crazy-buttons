@@ -24,7 +24,7 @@ local logAction = require(ServerScriptService.Server.Shared.QuestsModule).logAct
 local applyTimeBonus = require(Arena.SideEffects).applyTimeBonus
 
 Event.chance = 0.1
-Event.minRound = 3
+Event.minRound = 2
 Event.minPlayers = 3
 Event.maxPerGame = 1
 Event.name = "obby"

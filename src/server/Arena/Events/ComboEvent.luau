@@ -38,7 +38,6 @@ Event.category = "reaction"
 Event.chance = 0.1
 Event.minPlayers = 5
 Event.maxPerGame = 2
-Event.minRound = 2
 local COLOR_NAMES = { "Red", "Blue", "Pink", "Yellow" }
 
 function Event.check()

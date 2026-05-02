@@ -153,7 +153,7 @@ function ButtonsModule.setButtons(indices: Indices)
             if obj.spawnAt ~= nil then
                 local buttonClone = createButton(obj, buttonData, -1)
                 local part = workspace:WaitForChild(obj.spawnAt) :: Part
-                buttonClone:MoveTo(part.Position)
+                buttonClone:PivotTo(part.CFrame)
 
                 local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
                 local button = buttonClone:WaitForChild("Button") :: Part
@@ -162,7 +162,7 @@ function ButtonsModule.setButtons(indices: Indices)
             else
                 local buttonClone = createButton(obj, buttonData, i)
                 local spawnPos = buttonSpawn.Position + Vector3.new(xOffset, 0, 0)
-                buttonClone:MoveTo(spawnPos)
+                buttonClone:PivotTo(CFrame.new(spawnPos))
 
                 local buttonStand = buttonClone:WaitForChild("ButtonStand") :: Part
                 local button = buttonClone:WaitForChild("Button") :: Part

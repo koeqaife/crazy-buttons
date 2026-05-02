@@ -57,6 +57,10 @@ Event.minPlayers = 2
 
 local explained = false
 
+local function isValid(p1: Player, p2: Player)
+    return (p1 and p1.Parent ~= nil) and (p2 and p2.Parent ~= nil)
+end
+
 function Event.check()
     return true
 end
@@ -115,6 +119,10 @@ function Event.onEvent()
     end
 
     for attempt = 1, 6 do
+        if not isValid(p1, p2) then
+            return
+        end
+
         MiscModule.removeHighlightFromAll()
         MiscModule.addHighlightTo({p1, p2})
 
@@ -142,6 +150,9 @@ function Event.onEvent()
         TimerModule.setTime(15)
         local _, chosen = ButtonsModule.initiateButtonChoice(15, nil, nil, nil, nil, {p1, p2}):catch(error):await()
         TimerModule.setTime(-1)
+        if not isValid(p1, p2) then
+            return
+        end
 
         PlayersModule.runFuncPerAll(function(player)
             TextModule.hideToast(player)
@@ -164,6 +175,9 @@ function Event.onEvent()
         MiscModule.addHighlightToOne(p1, colors[chosen[p1]])
         MiscModule.addHighlightToOne(p2, colors[chosen[p2]])
         task.wait(2)
+        if not isValid(p1, p2) then
+            return
+        end
 
         if chosen[p1] == chosen[p2] then
             PlayersModule.runPromisePerAll(function(player, protect)

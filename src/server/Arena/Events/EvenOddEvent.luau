@@ -25,6 +25,7 @@ Event.category = "social"
 Event.chance = 0.06
 Event.minPlayers = 3
 Event.maxPerGame = 1
+Event.minRound = 3 
 
 function Event.check()
     return true
@@ -42,7 +43,7 @@ function Event.onEvent()
 
     PlayersModule.runPromisePerAlive(function(player, protect, await)
         ButtonsModule.setButtons(player, {
-            { idx = 2, disabled = true }
+            { idx = 1, disabled = true }
         })
 
         return protect(TextModule.showTextSequence(player, {
@@ -54,8 +55,8 @@ function Event.onEvent()
     end):await()
 
     PlayersModule.runFuncPerAlive(function(player)
-        ButtonsModule.updateButtons(player, {
-            { idx = 2, disabled = false }
+        ButtonsModule.setButtons(player, {
+            { idx = 1, disabled = false }
         })
         TextModule.setText(player, "remember_to_talk")
     end)
@@ -63,7 +64,7 @@ function Event.onEvent()
     TimerModule.setTime(30)
     local _, chosen = ButtonsModule.initiateButtonChoice(30, nil, function(player, idx)
         ButtonsModule.updateButtons(player, {
-            { idx = 2, text = if idx ~= nil then "Pressed" else "" }
+            { idx = 1, text = if idx ~= nil then "Pressed" else "", highlighted = idx ~= nil }
         })
     end, nil, true):catch(error):await()
 

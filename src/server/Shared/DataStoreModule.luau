@@ -111,6 +111,9 @@ local function flushSignals()
             continue
         end
         local data = dataPerPlayer[player]
+        if data == nil then
+            continue
+        end
         for _, key in ipairs(keys) do
             local signal2: BindableEvent? = updatedSignals[key]
             if signal2 then

@@ -327,7 +327,6 @@ function GameLoopModule.start()
     local interrupt = false
     task.spawn(function()
         waitTicks(2)
-        runEvent(ObbyEvent)
         runEvent(StartEvent)
 
         while #PlayersModule.alivePlayers > 0 and not interrupt do

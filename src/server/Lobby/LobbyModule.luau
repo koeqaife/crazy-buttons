@@ -238,10 +238,6 @@ local function startCountdown()
 
     local now = os.time()
     local oldest, _ = oldestWait()
-    if oldest >= MAX_WAIT then
-        task.spawn(startGame)
-        return
-    end
 
     timerActive = true
     local activeCount = countActive()
@@ -249,7 +245,7 @@ local function startCountdown()
 
     local timeUntilMaxWait = MAX_WAIT - oldest
     if timeUntilMaxWait < timerTimeLeft then
-        timerTimeLeft = math.max(0, timeUntilMaxWait)
+        timerTimeLeft = math.max(10, timeUntilMaxWait)
     end
 
     globalTimerTimeLeft = 150

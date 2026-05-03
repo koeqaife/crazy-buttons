@@ -72,3 +72,5 @@ end
 game.Players.LocalPlayer.PlayerGui.ScreenOrientation = Enum.ScreenOrientation.LandscapeSensor
 spawnCoolPlatforms()
 disableReset()
+
+require(Scripts.Shared.Sounds).init()

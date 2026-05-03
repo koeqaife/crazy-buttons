@@ -7,6 +7,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
+local Sounds = require(ServerScriptService.Server.Shared.Sounds)
 local PurchaseProcessor = require(ServerScriptService.Server.Shared.PurchaseProcessor)
 
 local SyncEvent = Instance.new("RemoteEvent", ReplicatedStorage)
@@ -118,6 +119,9 @@ function UIModule.init()
             SyncEvent:FireClient(player, syncKey, value)
         end)
     end
+    for _, player in Players:GetPlayers() do
+        SyncEvent:FireClient(player, "prices", priceList)
+    end
     Players.PlayerAdded:Connect(function(player)
         SyncEvent:FireClient(player, "prices", priceList)
     end)
@@ -147,7 +151,6 @@ function UIModule.init()
             }
             DataStoreModule.rewriteKey(player, "volume", copy)
         elseif action == "buy" then
-
             local price = priceList[value]
             if price == nil then
                 return
@@ -159,12 +162,16 @@ function UIModule.init()
                 if playerBalance ~= nil and playerBalance >= price.amount then
                     DataStoreModule.mergeKey(player, "owns", {value})
                     DataStoreModule.increaseKey(player, "cash", -price.amount)
+                else
+                    Sounds.serverEvent:FireClient(player, "rbxassetid://131268007007000")
                 end
             elseif price.currency == "cookies" then
                 local playerCookies = DataStoreModule.getNumber(player, "cookies")
                 if playerCookies ~= nil and playerCookies >= price.amount then
                     DataStoreModule.mergeKey(player, "owns", {value})
                     DataStoreModule.increaseKey(player, "cookies", -price.amount)
+                else
+                    Sounds.serverEvent:FireClient(player, "rbxassetid://131268007007000")
                 end
             elseif price.currency == "robux" then
                 MarketplaceService:PromptProductPurchase(player, price.productId)

@@ -444,7 +444,7 @@ function LobbyModule.init()
 
     task.spawn(specialRoundCountdown)
 
-    game.Players.PlayerAdded:Connect(function(player: Player)
+    local function createStats(player: Player)
         timerTimeLeft += 2
         local leaderstats = Instance.new("Folder")
         leaderstats.Name = "leaderstats"
@@ -457,6 +457,13 @@ function LobbyModule.init()
         local streak = Instance.new("IntValue")
         streak.Name = "Streak"
         streak.Parent = leaderstats
+    end
+
+    for _, player in Players:GetPlayers() do
+        createStats(player)
+    end
+    game.Players.PlayerAdded:Connect(function(player: Player)
+        createStats(player)
     end)
 
     DataStoreModule.getSignal("survives").Event:Connect(function(player: Player, value: number)

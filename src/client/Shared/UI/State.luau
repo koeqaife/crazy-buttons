@@ -116,6 +116,7 @@ local function updateWindow(id: string, widget: WindowWidget)
         canvas.GroupTransparency = 1
 
         canvas.Visible = true
+
         Spring.target(canvas, 0.6, 4, {
             Position = widget.originalPos,
             GroupTransparency = widget.originalTransparency

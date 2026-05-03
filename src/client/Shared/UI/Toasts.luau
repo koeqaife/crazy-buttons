@@ -10,6 +10,10 @@ local Spring = require(ReplicatedStorage.Shared.spr)
 local screenGui = localPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
 local toast = screenGui:WaitForChild("Toast") :: TextLabel
 
+local toastSound: Sound = ReplicatedStorage
+    :WaitForChild("Sounds")
+    :WaitForChild("ToastSound")
+
 local shownToasts: {[string]: TextLabel} = {}
 
 local originalPos = toast.Position
@@ -35,6 +39,11 @@ function Dialog.show(id: string, text: string)
     newToast.Parent = screenGui
     toastStroke.Transparency = 1
     newToast.Position = hiddenPos
+
+    local sound = toastSound:Clone()
+    sound.PlayOnRemove = true
+    sound.Parent = workspace
+    sound:Destroy()
 
     print("Running toast animations:", id)
     Spring.target(newToast, 0.6, 4, {

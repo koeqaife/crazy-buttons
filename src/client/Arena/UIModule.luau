@@ -14,6 +14,10 @@ local SyncDeadEvent: RemoteEvent = ReplicatedStorage:WaitForChild("SyncDeadEvent
 local LifeEvent: RemoteEvent = ReplicatedStorage:WaitForChild("LifeEvent", 10)
 local ToastEvent: RemoteEvent = ReplicatedStorage:WaitForChild("ToastEvent", 10)
 
+local cashSound: Sound = ReplicatedStorage
+    :WaitForChild("Sounds")
+    :WaitForChild("ClickSound")
+
 local vignette = localPlayer:WaitForChild("PlayerGui"):WaitForChild("VignetteGui"):WaitForChild("Vignette") :: CanvasGroup
 
 local State = require(localPlayer.PlayerScripts.Client.Shared.UI.State)
@@ -68,6 +72,11 @@ function UIModule.connect()
             Toasts.show("earned", "You earned " .. math.round(rewardCounter) .. "$ this game.")
             task.wait(5)
             Toasts.hide("earned")
+
+            local sound = cashSound:Clone()
+            sound.PlayOnRemove = true
+            sound.Parent = workspace
+            sound:Destroy()
         end
         Toasts.hide("life")
     end)

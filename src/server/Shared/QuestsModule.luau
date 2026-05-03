@@ -4,6 +4,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreModule = require(script.Parent.DataStoreModule)
+local Sounds = require(script.Parent.Sounds)
 
 local SEED = 9273451237395
 
@@ -171,6 +172,7 @@ function QuestsModule.logAction(player: Player, action: Action)
             local progress = playerQuests[quest]
             if progress == -1 then
                 -- Ignore
+                continue
             elseif progress == nil then
                 playerQuests[quest] = 1
             else
@@ -180,6 +182,9 @@ function QuestsModule.logAction(player: Player, action: Action)
             if playerQuests[quest] >= questDescription.amount then
                 playerQuests[quest] = -1
                 DataStoreModule.increaseKey(player, "cookies", questDescription.reward)
+                Sounds.serverEvent:FireClient(player, "rbxassetid://1388573684")
+            else
+                Sounds.serverEvent:FireClient(player, "rbxassetid://76930511030201")
             end
         end
     end

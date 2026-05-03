@@ -487,7 +487,7 @@ local function expectType(player: Player, key: string, expectedType: string): an
         value = dataPerPlayer[player][key]
     end
     if value == nil then
-        value = defaultData[player][key]
+        value = defaultData[key]
     end
     if type(value) ~= expectedType then
         error("Couldn't get value with key " .. key .. " as " .. expectedType .. ". Original type: " .. type(value))
@@ -590,35 +590,40 @@ function DataStoreModule.getTopSurvives()
     return getTop(survivesStore)
 end
 
+local function loadDataForPlayer(player: Player)
+    local success, data: PlayerData? = Promise.retryWithDelay(function()
+        return Promise.promisify(function()
+            return PlayerDataStore:GetAsync(tostring(player.UserId))
+        end)()
+    end, 5, 3):await()
+
+    if success then
+        local finalData = setData(player, data)
+
+        DataStoreModule.setMaxKey(player, "topStreak", DataStoreModule.getNumber(player, "streak"))
+        local ok, err = pcall(function()
+            survivesStore:SetAsync(tostring(player.UserId), finalData.survives)
+            streakStore:SetAsync(tostring(player.UserId), finalData.topStreak)
+        end)
+        if not ok then
+            warn(err)
+        end
+
+        for key, value in pairs(finalData) do
+            onChangedSignal(player, key)
+        end
+    else
+        warn("Failed to load data for", player.Name, data)
+    end
+end
+
 function DataStoreModule.init()
     _G.DataStore = DataStoreModule  -- For debugging
 
-    Players.PlayerAdded:Connect(function(player: Player)
-        local success, data: PlayerData? = Promise.retryWithDelay(function()
-            return Promise.promisify(function()
-                return PlayerDataStore:GetAsync(tostring(player.UserId))
-            end)()
-        end, 5, 3):await()
-
-        if success then
-            local finalData = setData(player, data)
-
-            DataStoreModule.setMaxKey(player, "topStreak", DataStoreModule.getNumber(player, "streak"))
-            local ok, err = pcall(function()
-                survivesStore:SetAsync(tostring(player.UserId), finalData.survives)
-                streakStore:SetAsync(tostring(player.UserId), finalData.topStreak)
-            end)
-            if not ok then
-                warn(err)
-            end
-
-            for key, value in pairs(finalData) do
-                onChangedSignal(player, key)
-            end
-        else
-            warn("Failed to load data for", player.Name, data)
-        end
-    end)
+    for _, player in Players:GetPlayers() do
+        loadDataForPlayer(player)
+    end
+    Players.PlayerAdded:Connect(loadDataForPlayer)
 
     Players.PlayerRemoving:Connect(function(player: Player)
         if pendingChanges[player] then

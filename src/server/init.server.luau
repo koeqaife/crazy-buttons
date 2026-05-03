@@ -35,3 +35,5 @@ elseif game.PlaceId == ARENA_PLACE_ID or game.PlaceId == SPECIAL_ARENA_PLACE_ID 
 else
     print("Who am I....")
 end
+
+require(ServerScriptService.Server.Shared.Sounds)

@@ -12,6 +12,7 @@ local LinksModule = require(ServerScriptService.Server.Arena.LinksModule)
 local PlayersModule = require(ServerScriptService.Server.Arena.PlayersModule)
 local RewardsModule = require(ServerScriptService.Server.Arena.RewardsModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
+local MetricsModule = require(ServerScriptService.Server.Shared.MetricsModule)
 local EventTypeModule = require(Arena.Events.EventType)
 local TextModule = require(Arena.TextModule)
 
@@ -42,6 +43,8 @@ end
 function Event.onEvent()
     local survivor = PlayersModule.alivePlayers[1]
     table.clear(PlayersModule.alivePlayers)
+
+    MetricsModule.onRoundEnd(survivor.Name)
 
     PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "survivor_made_it", { survivor = survivor })

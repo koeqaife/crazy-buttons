@@ -21,6 +21,11 @@ local specialRoundCounter: TextLabel = workspace
     :WaitForChild("SurfaceGui")
     :WaitForChild("mainText")
 
+local gameStats: TextLabel = workspace
+    :WaitForChild("GameStats")
+    :WaitForChild("SurfaceGui")
+    :WaitForChild("mainText")
+
 local boardText = {
     players = "",
     countdown = ""
@@ -33,6 +38,7 @@ local TeleportService = game:GetService("TeleportService")
 local UIModule = require(script.Parent.UIModule)
 local LeaderboardModule = require(script.Parent.LeaderboardModule)
 local DataStoreModule = require(ServerScriptService.Server.Shared.DataStoreModule)
+local MetricsModule = require(ServerScriptService.Server.Shared.MetricsModule)
 local MusicModule = require(ServerScriptService.Server.Shared.MusicModule)
 local QuestsModule = require(ServerScriptService.Server.Shared.QuestsModule)
 local SpecialRounds = require(ServerScriptService.Server.Shared.SpecialRounds)
@@ -412,7 +418,20 @@ local function specialRoundCountdown()
     end
 end
 
+local function updateGameStats(stats: MetricsModule.Stats)
+    if not stats.loaded then
+        gameStats.Text = "Loading..."
+    end
+    gameStats.Text = (
+        "Current online: " .. tostring(stats.onlineNow) .. " players\n" ..
+        "Rounds played today: " .. tostring(stats.roundsToday) .. "\n" ..
+        "Game visits: " .. tostring(stats.visits) .. "\n" ..
+        "Last survivor: " .. tostring(stats.lastWinner) .. "\n"
+    )
+end
+
 function LobbyModule.init()
+    MetricsModule.startTask()
     DataStoreModule.init()
     MusicModule.init()
     UIModule.init()
@@ -492,6 +511,9 @@ function LobbyModule.init()
 
     LeaderboardModule.initFor("streak", workspace:WaitForChild("StreakLeaderboard"))
     LeaderboardModule.initFor("survives", workspace:WaitForChild("SurvivesLeaderboard"))
+
+    MetricsModule.updateEvent.Event:Connect(updateGameStats)
+    updateGameStats(MetricsModule.stats)
 end
 
 return LobbyModule

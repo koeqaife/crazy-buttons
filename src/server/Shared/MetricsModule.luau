@@ -88,6 +88,27 @@ function Module.startTask()
     end)
 
     task.spawn(function()
+        -- Fallback of MessagingService
+        while true do
+            task.wait(30)
+            local success, count = pcall(function()
+                return StatsStore:GetAsync(TODAY_KEY .. "_Rounds")
+            end)
+            if success and count then
+                globalStats.roundsToday = count
+            end
+
+            local success2, name = pcall(function()
+                return StatsStore:GetAsync(TODAY_KEY .. "_lastWinner")
+            end)
+            if success2 and name then
+                globalStats.lastWinner = name
+            end
+            Module.updateEvent:Fire(globalStats)
+        end
+    end)
+
+    task.spawn(function()
         local success, count = pcall(function()
             return StatsStore:GetAsync(TODAY_KEY .. "_Rounds")
         end)
@@ -101,9 +122,7 @@ function Module.startTask()
         if success2 and name then
             globalStats.lastWinner = name
         end
-    end)
 
-    task.spawn(function()
         while true do
             local playing, visits = getGlobalPlayerCount()
             globalStats.onlineNow = playing or 0

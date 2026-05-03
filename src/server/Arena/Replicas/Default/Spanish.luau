@@ -113,6 +113,7 @@ local Spanish: DictTemplate = {
         ["Simon will try to trick you"] = { text = "Simon intentará engañarte" },
         ["People vote for who to eliminate"] = { text = "Los jugadores votan a quién eliminar" },
         ["One button kills, one button rewards"] = { text = "Un botón mata, otro da recompensa" },
+        ["Like the game if you enjoy playing!"] = { text = "¡Dale a \"Me gusta\" al juego si te gusta!" }
     },
     --| MISC |--
     misc = {

@@ -113,6 +113,7 @@ local Russian: DictTemplate = {
         ["Simon will try to trick you"] = { text = "Саймон попытается вас обмануть" },
         ["People vote for who to eliminate"] = { text = "Игроки голосуют, кого исключить" },
         ["One button kills, one button rewards"] = { text = "Одна кнопка убивает, другая даёт награду" },
+        ["Like the game if you enjoy playing!"] = { text = "Лайкни игру если нравится играть!" }
     },
     --| MISC |--
     misc = {

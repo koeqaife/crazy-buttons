@@ -369,6 +369,12 @@ function GameLoopModule.start()
                         TextModule.setText(player, "players_left", {count = #PlayersModule.alivePlayers})
                     end)
 
+                    if MiscModule.round == 3 then
+                        PlayersModule.runFuncPerAlive(function(player)
+                            TextModule.setToast(player, "Like the game if you enjoy playing!", 6)
+                        end)
+                    end
+
                     task.wait(5)
                 end
             else

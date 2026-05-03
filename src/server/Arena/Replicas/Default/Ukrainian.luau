@@ -209,12 +209,12 @@ local Ukrainian: DictTemplate = {
         you_remember_color = { text = "Пам'ятаєш колір, який обрав раніше?", face = "color_event_icon" },
         lets_check = { text = "Давай перевіримо твою пам'ять", face = "shy" },
 
-        did_not_choose = { text = "Схоже, ти не встиг обрати колір...", face = "laughing" },
-        so_lucky = { text = "Яка вдача!", face = "angry" },
+        did_not_choose = { text = "Ти не обрав колір", face = "normal" },
+        so_lucky = { text = "Пощастило тобі", face = "happy" },
 
         which_one_you_chose = { text = "Пам'ятаєш, який ти обрав?", face = "nerd" },
-        wrong_color = { text = "Ти помилився.", face = "dead" },
-        correct_color = { text = "Розумник, ти пам'ятаєш!", face = "happy" },
+        wrong_color = { text = "Невірний колір", face = "dead" },
+        correct_color = { text = "Правильно, ти згадав!", face = "happy" },
         good_job = { text = "Гарна робота", face = "shy" },
 
         about_to_show_colors = { text = "Я покажу тобі 3 кольори", face = "color_event_icon" },
@@ -239,7 +239,7 @@ local Ukrainian: DictTemplate = {
         your_turn = { text = "Твоя черга", face = "nerd" },
         clicks_left = { text = "Залишилось {num} натискань", face = "nerd", requiredKeys = {"num"} },
         wait = { text = "Почекаємо, поки інші закінчать", face = "normal" },
-        mistakes_count = { text = "У тебе {num} помилок...", requiredKeys = {"num"}, face = "laughing" },
+        mistakes_count = { text = "У тебе {num} помилок", requiredKeys = {"num"}, face = "normal" },
         lets_see = { text = "Подивимось, що тут у нас", face = "scared" },
 
         you_eliminated = { text = "Ти один із тих, хто втрачає життя", face = "dead" },
@@ -253,8 +253,8 @@ local Ukrainian: DictTemplate = {
         you_did_not_click = { text = "Ти не натиснув", face = "angry" },
         you_are_eliminated = { text = "Ти втратив життяив життя", face = "dead" },
         good_job = { text = "Відмінна робота", face = "shy" },
-        you_were_fast_enough = { text = "Схоже, тепер ти помреш", face = "happy" },  -- Changed both to make fun of them
-        you_are_slow = { text = "О, це було швидко!", face = "laughing" },
+        you_were_fast_enough = { text = "Ти був достатньо швидким", face = "happy" },
+        you_are_slow = { text = "Ти був занадто повільним", face = "dead" },
         won = { text = "{player} виграв цю дуель", face = "happy", requiredKeys = {"player"} },
         wait_for_green = { text = "Чекай, поки кнопка стане зеленою", face = { text = "..." } }
     },
@@ -288,7 +288,7 @@ local Ukrainian: DictTemplate = {
         good_luck = { text = "Щасти в пошуках", face = "laughing" },
         you_found_god_btn = { text = "Ти знайшов кнопку!", face = "happy" },
         someone_found_god_btn = { text = "{player} знайшов кнопку", requiredKeys = {"player"}, face = "scared" },
-        no_one_found_god_btn = { text = "Ніхто не знайшов кнопку, ха-ха-ха", face = "laughing" }
+        no_one_found_god_btn = { text = "Ніхто не знайшов кнопку", face = "no_mouth" }
     },
 
     --| HANDOUT EVENT |--
@@ -304,14 +304,14 @@ local Ukrainian: DictTemplate = {
         someone_got_tool_part1 = { text = "{player}", requiredKeys = {"player"}, face = "normal" },
         someone_got_tool_part2 = { text = "Тепер він радий своєму подарунку", face = "happy" },
         someone_got_tool_part3 = { text = "Це дуже круто", face = "shy" },
-        someone_got_tool_part4 = { text = "Розлюти їх", face = "scared" }
+        someone_got_tool_part4 = { text = "Це круто, правда ж?", face = "normal" }
     },
 
     --| LINKED EVENT |--
     linked = {
         intro_part1 = { text = "Зараз я зв'яжу двох людей разом", face = "scared" },
         intro_part2 = { text = "Якщо один помре, інший також", face = "dead" },
-        intro_part3 = { text = "Сподіваюсь, це будеш ти, ха-ха", face = "normal" },
+        intro_part3 = { text = "Подивимося, хто це буде", face = "normal" },
         first_player_is = { text = "Перший піддослідний...", face = "normal" },
         second_player_is = { text = "Другий піддослідний...", face = "normal" },
         player = { text = "{player}", requiredKeys = {"player"} },
@@ -356,7 +356,7 @@ local Ukrainian: DictTemplate = {
         intro_part1 = { text = "Я створив дуже легке випробування", face = "normal" },
         intro_part2 = { text = "В кінці є одна кнопка", face = "normal" },
         intro_part3 = { text = "Натисни першим, щоб отримати річ", face = "scared" },
-        intro_part4 = { text = "Той, хто натисне останнім, отримає жах", face = "happy" },
+        intro_part4 = { text = "Той, хто натисне останнім, втратиме життя", face = "dead" },
         intro_part5 = { text = "Не витрачай тут свій час даремно", face = "dead" },
     },
 
@@ -367,7 +367,7 @@ local Ukrainian: DictTemplate = {
 
         intro_vote_common = { text = "Хочете, щоб хтось повернувся?", face = "shy" },
         intro_vote_candidate = { text = "Піддослідні вирішать, чи будеш це ти", face = "shy" },
-        intro_dead_not_you = { text = "Хтось, але точно не ти, повернеться", face = "no_mouth" },
+        intro_dead_not_you = { text = "Хтось повернеться", face = "shy" },
         intro_choose_wise = { text = "Навіть якщо ні, тобі треба обрати", face = "nerd" },
 
         you_are_revived = { text = "Привітайся з усіма!", face = "happy" },
@@ -393,7 +393,7 @@ local Ukrainian: DictTemplate = {
         you_are_eliminated = { text = "Ти втратив життя", face = "dead" },
         they_are_eliminated = { text = "Попрощайся з ними", face = "scared" },
 
-        you_are_saved = { text = "Як шкода, ти живий...", face = "angry" },
+        you_are_saved = { text = "Ти в безпеці зараз", face = "happy" },
         you_saved_them = { text = "Ти така хороша людина", face = "dead" },
         they_were_saved = { text = "{p1} та {p2} тепер в порядку", requiredKeys = {"p1","p2"}, face = "happy" },
     },
@@ -459,9 +459,9 @@ local Ukrainian: DictTemplate = {
         candidate_line_2 = { text = "Той, хто набере найбільше голосів, вибуває", face = "shy" },
         candidate_line_3 = { text = "Як думаєш, ти їм подобаєшся?", face = "normal" },
         candidate_line_4 = { text = "Уяви, якщо ні", face = "scared" },
-        candidate_line_5 = { text = "Ти програєш цю гру, ха-ха", face = "normal" },
-        candidate_line_6 = { text = "А програти експеримент — це так погано", face = "shy" },
-        candidate_line_7 = { text = "Тож сподіваюсь, це ти", face = "scared" },
+        candidate_line_5 = { text = "Тримайся", face = "normal" },
+        candidate_line_6 = { text = "Продовжуй в експерименті", face = "shy" },
+        candidate_line_7 = { text = "Удачі", face = "scared" },
 
         you_eliminated = { text = "Ви втратили життя... мені шкода", face = "dead" },
         player_eliminated = { text = "{player} втратив життя", requiredKeys = {"player"}, face = "dead" },

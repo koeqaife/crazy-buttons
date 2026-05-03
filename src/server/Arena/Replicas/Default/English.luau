@@ -103,8 +103,8 @@ local English: DictTemplate = {
         so_lucky = { text = "So lucky!", face = "angry" },
 
         which_one_you_chose = { text = "Remember which one you chose before?", face = "nerd" },
-        wrong_color = { text = "You are wrong.", face = "dead" },
-        correct_color = { text = "Smart head, you remember!", face = "happy" },
+        wrong_color = { text = "Wrong color", face = "dead" },
+        correct_color = { text = "Correct, you remembered!", face = "happy" },
         good_job = { text = "Good job", face = "shy" },
 
         about_to_show_colors = { text = "I will show you 3 colors", face = "color_event_icon" },
@@ -129,7 +129,7 @@ local English: DictTemplate = {
         your_turn = { text = "Your turn", face = "nerd" },
         clicks_left = { text = "{num} clicks left", face = "nerd", requiredKeys = {"num"} },
         wait = { text = "Let's wait for others to finish", face = "normal" },
-        mistakes_count = { text = "You have {num} mistakes...", requiredKeys = {"num"}, face = "laughing" },
+        mistakes_count = { text = "You have {num} mistakes", requiredKeys = {"num"}, face = "normal" },
         lets_see = { text = "Let's see what we got here", face = "scared" },
 
         you_eliminated = { text = "You are one of the people who lost a life", face = "dead" },
@@ -143,8 +143,8 @@ local English: DictTemplate = {
         you_did_not_click = { text = "You didn't press", face = "angry" },
         you_are_eliminated = { text = "You lost a life", face = "dead" },
         good_job = { text = "Good job", face = "shy" },
-        you_were_fast_enough = { text = "Looks like you die now", face = "happy" },  -- Changed both to make fun of them
-        you_are_slow = { text = "Oh, that was fast!", face = "laughing" },
+        you_were_fast_enough = { text = "You were fast enough", face = "happy" },
+        you_are_slow = { text = "You were too slow", face = "dead" },
         won = { text = "{player} won this duel", face = "happy", requiredKeys = {"player"} },
         wait_for_green = { text = "Wait until the button turns green", face = { text = "..." } }
     },
@@ -178,7 +178,7 @@ local English: DictTemplate = {
         good_luck = { text = "Good luck finding it", face = "laughing" },
         you_found_god_btn = { text = "You found the button!", face = "happy" },
         someone_found_god_btn = { text = "{player} found the button", requiredKeys = {"player"}, face = "scared" },
-        no_one_found_god_btn = { text = "No one found the button, hahaha", face = "laughing" }
+        no_one_found_god_btn = { text = "No one found the button", face = "no_mouth" }
     },
 
     --| HANDOUT EVENT |--
@@ -194,14 +194,14 @@ local English: DictTemplate = {
         someone_got_tool_part1 = { text = "{player}", requiredKeys = {"player"}, face = "normal" },
         someone_got_tool_part2 = { text = "They're happy with their gift now", face = "happy" },
         someone_got_tool_part3 = { text = "It's very cool", face = "shy" },
-        someone_got_tool_part4 = { text = "Make them mad", face = "scared" }
+        someone_got_tool_part4 = { text = "This is cool, right?", face = "normal" }
     },
 
     --| LINKED EVENT |--
     linked = {
         intro_part1 = { text = "I will link two people together now", face = "scared" },
         intro_part2 = { text = "If one dies the other dies too", face = "dead" },
-        intro_part3 = { text = "I hope it's gonna be you hahah", face = "normal" },
+        intro_part3 = { text = "Let's see who it is", face = "normal" },
         first_player_is = { text = "The first subject is...", face = "normal" },
         second_player_is = { text = "The second subject is...", face = "normal" },
         player = { text = "{player}", requiredKeys = {"player"} },
@@ -211,8 +211,8 @@ local English: DictTemplate = {
     math = {
         dead_who_quiz = { text = "{player} will do math quiz now", requiredKeys = {"player"}, face = "nerd" },
 
-        intro_self_q1 = { text = "You think you're smart?", face = "nerd" },
-        intro_self_q2 = { text = "Somebody will die if they think otherwise", face = "scared" },
+        intro_self_q1 = { text = "Let's test your math skills", face = "nerd" },
+        intro_self_q2 = { text = "Let's see how you do", face = "scared" },
 
         intro_others_q1 = { text = "Do you think {player} is good in math?", requiredKeys = {"player"}, face = "nerd" },
         intro_others_q2 = { text = "You will have to find out", face = "shy" },
@@ -246,7 +246,7 @@ local English: DictTemplate = {
         intro_part1 = { text = "I just spawned some really easy challenge", face = "normal" },
         intro_part2 = { text = "There is one button in the end", face = "normal" },
         intro_part3 = { text = "Be the first one to press it to get something cool", face = "scared" },
-        intro_part4 = { text = "The last one to press it will get really bad dream", face = "happy" },
+        intro_part4 = { text = "The last one to press it will lose a life", face = "dead" },
         intro_part5 = { text = "Don't waste your time here", face = "dead" },
     },
 
@@ -257,7 +257,7 @@ local English: DictTemplate = {
 
         intro_vote_common = { text = "Do you want somebody to come back?", face = "shy" },
         intro_vote_candidate = { text = "Subjects will decide if it's you", face = "shy" },
-        intro_dead_not_you = { text = "Someone but not you will definitely will", face = "no_mouth" },
+        intro_dead_not_you = { text = "Someone will come back", face = "shy" },
         intro_choose_wise = { text = "Even if not, you have to choose", face = "nerd" },
 
         you_are_revived = { text = "Say hi to everyone!", face = "happy" },
@@ -283,7 +283,7 @@ local English: DictTemplate = {
         you_are_eliminated = { text = "You lost a life", face = "dead" },
         they_are_eliminated = { text = "Say goodbye to them", face = "scared" },
 
-        you_are_saved = { text = "That's sad, you're alive...", face = "angry" },
+        you_are_saved = { text = "You're safe now", face = "happy" },
         you_saved_them = { text = "You're such a nice person", face = "dead" },
         they_were_saved = { text = "{p1} and {p2} are good now", requiredKeys = {"p1","p2"}, face = "happy" },
     },
@@ -349,9 +349,9 @@ local English: DictTemplate = {
         candidate_line_2 = { text = "The most voted will be eliminated", face = "shy" },
         candidate_line_3 = { text = "What do you think, do they like you?", face = "normal" },
         candidate_line_4 = { text = "Imagine if they don't", face = "scared" },
-        candidate_line_5 = { text = "You will lose this game haha", face = "normal" },
-        candidate_line_6 = { text = "And losing the experiment is so bad", face = "shy" },
-        candidate_line_7 = { text = "So I hope that's you", face = "scared" },
+        candidate_line_5 = { text = "Stay strong", face = "normal" },
+        candidate_line_6 = { text = "Keep going in the experiment", face = "shy" },
+        candidate_line_7 = { text = "Good luck", face = "scared" },
 
         you_eliminated = { text = "You lost a life... I'm sorry", face = "dead" },
         player_eliminated = { text = "{player} lost a life", requiredKeys = {"player"}, face = "dead" },

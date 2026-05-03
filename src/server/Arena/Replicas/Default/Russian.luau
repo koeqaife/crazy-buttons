@@ -209,12 +209,12 @@ local Russian: DictTemplate = {
         you_remember_color = { text = "Помнишь цвет, что выбрал ранее?", face = "color_event_icon" },
         lets_check = { text = "Давай проверим твою память", face = "shy" },
 
-        did_not_choose = { text = "Похоже, ты не успел выбрать цвет...", face = "laughing" },
-        so_lucky = { text = "Какая удача!", face = "angry" },
+        did_not_choose = { text = "Ты не выбрал цвет", face = "normal" },
+        so_lucky = { text = "Повезло тебе", face = "happy" },
 
         which_one_you_chose = { text = "Помнишь, какой ты выбрал?", face = "nerd" },
-        wrong_color = { text = "Ты ошибся.", face = "dead" },
-        correct_color = { text = "Умник, ты помнишь!", face = "happy" },
+        wrong_color = { text = "Неверный цвет", face = "dead" },
+        correct_color = { text = "Правильно, ты вспомнил!", face = "happy" },
         good_job = { text = "Хорошая работа", face = "shy" },
 
         about_to_show_colors = { text = "Я покажу тебе 3 цвета", face = "color_event_icon" },
@@ -239,7 +239,7 @@ local Russian: DictTemplate = {
         your_turn = { text = "Твоя очередь", face = "nerd" },
         clicks_left = { text = "Осталось {num} нажатий", face = "nerd", requiredKeys = {"num"} },
         wait = { text = "Подождем, пока остальные закончат", face = "normal" },
-        mistakes_count = { text = "У тебя {num} ошибок...", requiredKeys = {"num"}, face = "laughing" },
+        mistakes_count = { text = "У тебя {num} ошибок", requiredKeys = {"num"}, face = "normal" },
         lets_see = { text = "Посмотрим, что тут у нас", face = "scared" },
 
         you_eliminated = { text = "Ты один из тех, кто теряет жизнь", face = "dead" },
@@ -253,8 +253,8 @@ local Russian: DictTemplate = {
         you_did_not_click = { text = "Ты не нажал", face = "angry" },
         you_are_eliminated = { text = "Ты потерял жизнь", face = "dead" },
         good_job = { text = "Отличная работа", face = "shy" },
-        you_were_fast_enough = { text = "Похоже, теперь ты умрешь", face = "happy" },  -- Changed both to make fun of them
-        you_are_slow = { text = "О, это было быстро!", face = "laughing" },
+        you_were_fast_enough = { text = "Ты был достаточно быстрым", face = "happy" },
+        you_are_slow = { text = "Ты был слишком медленным", face = "dead" },
         won = { text = "{player} выиграл эту дуэль", face = "happy", requiredKeys = {"player"} },
         wait_for_green = { text = "Жди, пока кнопка станет зеленой", face = { text = "..." } }
     },
@@ -288,7 +288,7 @@ local Russian: DictTemplate = {
         good_luck = { text = "Удачи в поисках", face = "laughing" },
         you_found_god_btn = { text = "Ты нашел кнопку!", face = "happy" },
         someone_found_god_btn = { text = "{player} нашел кнопку", requiredKeys = {"player"}, face = "scared" },
-        no_one_found_god_btn = { text = "Никто не нашел кнопку, ха-ха-ха", face = "laughing" }
+        no_one_found_god_btn = { text = "Никто не нашел кнопку", face = "no_mouth" }
     },
 
     --| HANDOUT EVENT |--
@@ -304,14 +304,14 @@ local Russian: DictTemplate = {
         someone_got_tool_part1 = { text = "{player}", requiredKeys = {"player"}, face = "normal" },
         someone_got_tool_part2 = { text = "Он теперь рад своему подарку", face = "happy" },
         someone_got_tool_part3 = { text = "Это очень круто", face = "shy" },
-        someone_got_tool_part4 = { text = "Разозли их", face = "scared" }
+        someone_got_tool_part4 = { text = "Это круто, правда?", face = "normal" }
     },
 
     --| LINKED EVENT |--
     linked = {
         intro_part1 = { text = "Сейчас я свяжу двух людей вместе", face = "scared" },
         intro_part2 = { text = "Если один умрет, второй тоже", face = "dead" },
-        intro_part3 = { text = "Надеюсь, это будешь ты, ха-ха", face = "normal" },
+        intro_part3 = { text = "Посмотрим, кто это будет", face = "normal" },
         first_player_is = { text = "Первый испытуемый...", face = "normal" },
         second_player_is = { text = "Второй испытуемый...", face = "normal" },
         player = { text = "{player}", requiredKeys = {"player"} },
@@ -356,7 +356,7 @@ local Russian: DictTemplate = {
         intro_part1 = { text = "Я создал очень легкое испытание", face = "normal" },
         intro_part2 = { text = "В конце есть одна кнопка", face = "normal" },
         intro_part3 = { text = "Нажми первым, чтобы получить вещь", face = "scared" },
-        intro_part4 = { text = "Последний нажавший получит кошмар", face = "happy" },
+        intro_part4 = { text = "Последний нажавший потеряет жизнь", face = "dead" },
         intro_part5 = { text = "Не трать тут свое время зря", face = "dead" },
     },
 
@@ -367,7 +367,7 @@ local Russian: DictTemplate = {
 
         intro_vote_common = { text = "Хотите, чтобы кто-то вернулся?", face = "shy" },
         intro_vote_candidate = { text = "Испытуемые решат, будешь ли это ты", face = "shy" },
-        intro_dead_not_you = { text = "Кто-то, но точно не ты, вернется", face = "no_mouth" },
+        intro_dead_not_you = { text = "Кто-то вернется", face = "shy" },
         intro_choose_wise = { text = "Даже если нет, тебе нужно выбрать", face = "nerd" },
 
         you_are_revived = { text = "Поздоровайся со всеми!", face = "happy" },
@@ -393,7 +393,7 @@ local Russian: DictTemplate = {
         you_are_eliminated = { text = "Ты потерял жизнь", face = "dead" },
         they_are_eliminated = { text = "Попрощайся с ними", face = "scared" },
 
-        you_are_saved = { text = "Как жаль, ты жив...", face = "angry" },
+        you_are_saved = { text = "Ты в безопасности сейчас", face = "happy" },
         you_saved_them = { text = "Ты такой хороший человек", face = "dead" },
         they_were_saved = { text = "{p1} и {p2} теперь в порядке", requiredKeys = {"p1","p2"}, face = "happy" },
     },
@@ -459,9 +459,9 @@ local Russian: DictTemplate = {
         candidate_line_2 = { text = "Набравший больше всех голосов выбывает", face = "shy" },
         candidate_line_3 = { text = "Как думаешь, ты им нравишься?", face = "normal" },
         candidate_line_4 = { text = "Представь, если нет", face = "scared" },
-        candidate_line_5 = { text = "Ты проиграешь эту игру, ха-ха", face = "normal" },
-        candidate_line_6 = { text = "А проиграть эксперимент — это так плохо", face = "shy" },
-        candidate_line_7 = { text = "Так что надеюсь, это ты", face = "scared" },
+        candidate_line_5 = { text = "Держись", face = "normal" },
+        candidate_line_6 = { text = "Продолжай в эксперименте", face = "shy" },
+        candidate_line_7 = { text = "Удачи", face = "scared" },
 
         you_eliminated = { text = "Вы потеряли жизнь... мне жаль", face = "dead" },
         player_eliminated = { text = "{player} потерял жизнь", requiredKeys = {"player"}, face = "dead" },

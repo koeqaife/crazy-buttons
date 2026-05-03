@@ -482,7 +482,10 @@ function DataStoreModule.mergeKey(player: Player, key: MergeKey, value: {any})
 end
 
 local function expectType(player: Player, key: string, expectedType: string): any
-    local value = dataPerPlayer[player][key]
+    local value = nil
+    if dataPerPlayer[player] then
+        value = dataPerPlayer[player][key]
+    end
     if value == nil then
         value = defaultData[player][key]
     end

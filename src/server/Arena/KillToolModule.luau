@@ -2,6 +2,7 @@
 --!optimize 2
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Sounds = require(ServerScriptService.Server.Shared.Sounds)
 local IconModule = require(script.Parent.IconModule)
 local PlayersModule = require(script.Parent.PlayersModule)
 
@@ -176,6 +177,7 @@ local function onAction(player: Player, action: ActionType)
         end
 
         PlayersModule.kill(action.killPlayer, "byKillTool")
+        Sounds.serverEvent:FireClient(player, "rbxassetid://140721035016341")
         KillToolModule.removeTool(player)
 
         selectPlayer(action.killPlayer, false)

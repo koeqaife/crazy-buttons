@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local TextChatService = game:GetService("TextChatService")
+local Sounds = require(ServerScriptService.Server.Shared.Sounds)
 local IconModule = require(script.Parent.IconModule)
 local LinksModule = require(script.Parent.LinksModule)
 local Helpers = require(ReplicatedStorage.Shared.Helpers)
@@ -198,6 +199,7 @@ function GameState.kill(player: Player, reason: string?)
     end
     playerLives -= 1
     lives[player] = playerLives
+    Sounds.serverEvent:FireClient(player, "rbxassetid://140721035016341")
 
     local noToast = true
     if reason ~= "byKillTool" or playerLives <= 0 then

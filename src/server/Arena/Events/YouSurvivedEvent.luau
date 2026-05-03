@@ -44,7 +44,12 @@ function Event.onEvent()
     local survivor = PlayersModule.alivePlayers[1]
     table.clear(PlayersModule.alivePlayers)
 
-    MetricsModule.onRoundEnd(survivor.Name)
+    local ok, message = pcall(function()
+        MetricsModule.onRoundEnd(survivor.Name)
+    end)
+    if not ok then
+        warn("Couldn't update round: " .. message)
+    end
 
     PlayersModule.runFuncPerDead(function(player)
         TextModule.setText(player, "survivor_made_it", { survivor = survivor })

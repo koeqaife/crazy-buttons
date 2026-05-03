@@ -104,10 +104,10 @@ function ArenaModule.init()
         local waited = 0
 
         while task.wait(1) do
-            TimerModule.setTime(30 - waited)
+            TimerModule.setTime(20 - waited)
             if #Players:GetPlayers() > 0 then
                 waited += 1
-                if waited >= 30 then
+                if waited >= 20 then
                     break
                 elseif allPlayersLoaded() then
                     break

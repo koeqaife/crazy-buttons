@@ -130,7 +130,7 @@ function Module.startTask()
             globalStats.loaded = true
 
             Module.updateEvent:Fire(globalStats)
-            task.wait(10)
+            task.wait(30)
         end
     end)
 end

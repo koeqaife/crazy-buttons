@@ -449,6 +449,7 @@ function LobbyModule.init()
     task.spawn(specialRoundCountdown)
 
     game.Players.PlayerAdded:Connect(function(player: Player)
+        timerTimeLeft += 5
         local leaderstats = Instance.new("Folder")
         leaderstats.Name = "leaderstats"
         leaderstats.Parent = player

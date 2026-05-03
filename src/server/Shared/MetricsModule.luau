@@ -67,6 +67,7 @@ end
 function Module.onRoundEnd(winnerName: string)
     pcall(function()
         StatsStore:IncrementAsync(TODAY_KEY .. "_Rounds", 1)
+        StatsStore:SetAsync(TODAY_KEY .. "_lastWinner", winnerName)
     end)
 
     local data = {
@@ -90,7 +91,16 @@ function Module.startTask()
         local success, count = pcall(function()
             return StatsStore:GetAsync(TODAY_KEY .. "_Rounds")
         end)
-        if success and count then globalStats.roundsToday = count end
+        if success and count then
+            globalStats.roundsToday = count
+        end
+
+        local success2, name = pcall(function()
+            return StatsStore:GetAsync(TODAY_KEY .. "_lastWinner")
+        end)
+        if success2 and name then
+            globalStats.lastWinner = name
+        end
     end)
 
     task.spawn(function()

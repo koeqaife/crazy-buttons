@@ -83,6 +83,10 @@ function Event.onEvent()
         TeleportService:Teleport(LOBBY_PLACE_ID, survivor)
     end)
 
+    PlayersModule.runFuncPerAlive(function(player)
+        TextModule.setToast(player, "Like the game if you enjoy playing!", 6)
+    end)
+
     TextModule.showTextSequence(survivor, {
         { key = "survivor_one_left", delay = 4 },
         { key = "survivor_congratulations", delay = 4 },
